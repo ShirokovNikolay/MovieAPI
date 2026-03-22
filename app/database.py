@@ -16,12 +16,6 @@ session_factory = sessionmaker(
 base = declarative_base()
 
 
-def init_db():
-    base.metadata.create_all(
-        bind=engine,
-    )
-
-
 def get_db():
     try:
         db = session_factory()
