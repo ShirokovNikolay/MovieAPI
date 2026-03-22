@@ -1,0 +1,19 @@
+from datetime import datetime
+
+from sqlalchemy import String, func
+from sqlalchemy.orm import Mapped, relationship, mapped_column
+
+from database import Base
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .movie import Movie
+
+
+class Genre(Base):
+    __tablename__ = "genres"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(20))
+    movies: Mapped[list["Movie"]] = relationship(back_populates="genres")
+    create_date: Mapped[datetime] = mapped_column(server_default=func.now())
