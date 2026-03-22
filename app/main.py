@@ -1,28 +1,11 @@
-import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from config import settings
+from api import router as api_router
+from lifespan import lifespan
 
 app = FastAPI(
     title="Movie API",
     debug=settings.debug,
+    lifespan=lifespan,
 )
-
-
-@app.get("/")
-def read_root(
-    request: Request,
-    name: str = "Nikolay",
-):
-    docs_url = request.url.replace(
-        path="/docs",
-        query="",
-    )
-    return {
-        "message": f"Hello {name}!",
-        "docs_url": str(docs_url),
-    }
-
-
-@app.get("/health")
-def check_health():
-    return {"status": "ok"}
+app.include_router(api_router)
