@@ -8,12 +8,12 @@ from database import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .movie import Movie
+    from models import Movie
 
 
 class Genre(Base):
     __tablename__ = "genres"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(20))
-    movies: Mapped[list["Movie"]] = relationship(back_populates="genres")
+    movies: Mapped[list["Movie"]] = relationship("Movie", back_populates="genre")
     create_date: Mapped[datetime] = mapped_column(server_default=func.now())

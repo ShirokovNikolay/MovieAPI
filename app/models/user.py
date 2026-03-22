@@ -1,9 +1,14 @@
 from datetime import datetime
 
 from sqlalchemy import String, func
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from database import Base
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from models import Review
 
 
 class User(Base):
@@ -16,6 +21,5 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(20))
     login: Mapped[str] = mapped_column(String(20))
     encrypted_password: Mapped[str] = mapped_column(String(20))
-    registration_date: Mapped[datetime] = mapped_column(
-        String(20), server_default=func.now()
-    )
+    registration_date: Mapped[datetime] = mapped_column(server_default=func.now())
+    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="user")
