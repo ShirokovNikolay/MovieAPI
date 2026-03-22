@@ -10,5 +10,7 @@ class Movie(Base):
         primary_key=True,
     )
     name: Mapped[str]
-    description: Mapped[str]
+    description: Mapped[str | None]
+    preview_url: Mapped[str]
+    source_url: Mapped[str]
     release_date: Mapped[datetime]
