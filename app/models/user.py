@@ -22,4 +22,7 @@ class User(Base):
     login: Mapped[str] = mapped_column(String(20))
     encrypted_password: Mapped[str] = mapped_column(String(20))
     registration_date: Mapped[datetime] = mapped_column(server_default=func.now())
-    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="user")
+    reviews: Mapped[list["Review"]] = relationship(
+        "Review",
+        back_populates="user",
+    )

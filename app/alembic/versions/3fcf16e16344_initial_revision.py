@@ -1,8 +1,8 @@
 """initial revision
 
-Revision ID: 6d0f7d1e9c3f
+Revision ID: 3fcf16e16344
 Revises: 
-Create Date: 2026-03-22 18:45:19.771228
+Create Date: 2026-03-23 09:00:49.451560
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '6d0f7d1e9c3f'
+revision: str = '3fcf16e16344'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -45,7 +45,7 @@ def upgrade() -> None:
     sa.Column('source_url', sa.String(), nullable=False),
     sa.Column('genre_id', sa.Integer(), nullable=False),
     sa.Column('release_date', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['genre_id'], ['genres.id'], ),
+    sa.ForeignKeyConstraint(['genre_id'], ['genres.id'], name='fk_movies_genre_id'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reviews',
@@ -55,8 +55,8 @@ def upgrade() -> None:
     sa.Column('review_text', sa.String(length=400), nullable=True),
     sa.Column('rating', sa.Integer(), nullable=False),
     sa.Column('publication_date', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
-    sa.ForeignKeyConstraint(['movie_id'], ['movies.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['movie_id'], ['movies.id'], name='fk_reviews_movie_id'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_reviews_user_id'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

@@ -14,10 +14,26 @@ class Movie(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
     description: Mapped[str | None]
-    rating: Mapped[float] = mapped_column(CheckConstraint("0 <= rating <= 10"))
+    rating: Mapped[float] = mapped_column(
+        CheckConstraint(
+            "0 <= rating <= 10",
+            name="ck_movies_rating",
+        )
+    )
     preview_url: Mapped[str]
     source_url: Mapped[str]
-    genre_id: Mapped[int] = mapped_column(ForeignKey("genres.id"))
-    genre: Mapped["Genre"] = relationship("Genre", back_populates="movies")
+    genre_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "genres.id",
+            name="fk_movies_genre_id",
+        )
+    )
+    genre: Mapped["Genre"] = relationship(
+        "Genre",
+        back_populates="movies",
+    )
     release_date: Mapped[datetime]
-    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="movie")
+    reviews: Mapped[list["Review"]] = relationship(
+        "Review",
+        back_populates="movie",
+    )
