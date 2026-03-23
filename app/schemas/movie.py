@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from annotated_types import Len, MaxLen
@@ -34,6 +35,7 @@ class MovieBase(BaseModel):
     preview_url: str
     source_url: str
     genre_id: int
+    release_date: datetime
 
 
 class MovieCreate(MovieBase):
@@ -59,6 +61,7 @@ class MoviePartialUpdate(MovieBase):
     preview_url: str | None = None
     source_url: str | None = None
     genre_id: int | None = None
+    release_date: datetime | None = None
 
 
 class MovieResponse(MovieBase):
