@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from annotated_types import MaxLen
@@ -65,3 +66,4 @@ class UserResponse(UserBase):
     """
 
     id: int
+    registration_date: datetime
