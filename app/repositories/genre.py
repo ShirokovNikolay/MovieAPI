@@ -17,6 +17,9 @@ class GenreRepository:
         stmt = select(Genre).where(Genre.name == name)
         return self.session.execute(stmt).scalars().first()
 
+    def genre_exists(self, genre_id: int) -> bool:
+        return self.get_genre_by_id(genre_id) is not None
+
     def get_all_genres(self) -> list[Genre]:
         return list(self.session.execute(select(Genre)).scalars().all())
 
