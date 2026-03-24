@@ -20,9 +20,11 @@ class MovieRepository:
         stmt = select(Movie).where(Movie.name == movie_name)
         return self.session.execute(stmt).scalars().first()
 
+    def movie_id_exists(self, movie_id: int) -> bool:
+        return self.get_movie_by_id(movie_id) is not None
+
     def movie_name_exists(self, movie_name: str) -> bool:
-        stmt = select(Movie).where(Movie.name == movie_name)
-        return self.session.execute(stmt).scalars().first() is not None
+        return self.get_movie_by_name(movie_name) is not None
 
     def get_movies_by_genre_id(self, genre_id: int) -> list[Movie]:
         stmt = (
