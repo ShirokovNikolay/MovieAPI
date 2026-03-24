@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, delete, and_, func, between, desc
-from models import Movie
+from models import Movie, Genre
 from schemas.movie import MovieCreate, MovieUpdate, MoviePartialUpdate
 
 
@@ -25,6 +25,17 @@ class MovieRepository:
             select(Movie)
             .options(joinedload(Movie.genre))
             .where(Movie.genre_id == genre_id)
+        )
+        return list(self.session.execute(stmt).scalars().all())
+
+    def get_movies_by_genre_name(self, genre_name: str) -> list[Movie]:
+        stmt = (
+            select(Movie)
+            .join(Movie.genre)
+            .options(
+                joinedload(Movie.genre),
+            )
+            .where(Genre.name == genre_name)
         )
         return list(self.session.execute(stmt).scalars().all())
 
