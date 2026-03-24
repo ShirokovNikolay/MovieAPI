@@ -2,8 +2,7 @@ from datetime import datetime
 from typing import Annotated
 
 from annotated_types import MaxLen
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 
 StringMaxLength255 = Annotated[
     str,
@@ -30,6 +29,7 @@ class UserBase(BaseModel):
     name: StringMaxLength20
     login: StringMaxLength20
     email: StringMaxLength255
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
 
 
 class UserCreate(UserBase):
@@ -67,3 +67,12 @@ class UserResponse(UserBase):
 
     id: int
     registration_date: datetime
+
+
+class UserResponseList(BaseModel):
+    """
+    Модель для вывода информации о списке пользователей.
+    """
+
+    user_list: list[UserResponse]
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
