@@ -57,4 +57,5 @@ class ReviewResponseList(BaseModel):
     """
     Модель для вывода списка отзывов.
     """
+
     review_list: list[ReviewResponse]
