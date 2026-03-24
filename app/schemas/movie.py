@@ -27,6 +27,7 @@ class MovieBase(BaseModel):
     """
     Базовый класс для работы с фильмом.
     """
+
     model_config: ConfigDict = ConfigDict(from_attributes=True)
     name: NameString
     description: DescriptionString
