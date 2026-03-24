@@ -14,11 +14,3 @@ session_factory = sessionmaker(
 )
 
 Base = declarative_base()
-
-
-def get_db():
-    try:
-        db = session_factory()
-        yield db
-    finally:
-        db.close()
