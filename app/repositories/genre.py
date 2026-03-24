@@ -17,10 +17,10 @@ class GenreRepository:
         stmt = select(Genre).where(Genre.name == name)
         return self.session.execute(stmt).scalars().first()
 
-    def genre_exists_by_id(self, genre_id: int) -> bool:
+    def genre_id_exists(self, genre_id: int) -> bool:
         return self.get_genre_by_id(genre_id) is not None
 
-    def genre_exists_by_name(self, name: str) -> bool:
+    def genre_name_exists(self, name: str) -> bool:
         return self.get_genre_by_name(name) is not None
 
     def get_all_genres(self) -> list[Genre]:

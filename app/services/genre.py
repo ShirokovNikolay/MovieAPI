@@ -45,30 +45,56 @@ class GenreService:
         return GenreResponseList(genre_list=genres)
 
     def create_genre(self, create_data: GenreCreate) -> GenreResponse:
+        if self.genre_repository.genre_name_exists(create_data.name):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Genre with genre_name={create_data.name} already exists",
+            )
+
         genre = self.genre_repository.create_genre(create_data)
         return GenreResponse.model_validate(genre)
 
     def update_genre(self, genre_id: int, update_data: GenreUpdate) -> GenreResponse:
-        genre = self.genre_repository.update_genre(genre_id, update_data)
-        if genre is not None:
-            return GenreResponse.model_validate(genre)
+        genre = self.genre_repository.get_genre_by_id(genre_id)
+        if genre is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Genre with {genre_id=} not found",
+            )
 
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Genre with {genre_id=} not found",
-        )
+        if update_data.name != genre.name and self.genre_repository.genre_name_exists(
+            update_data.name
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Genre with genre_name={update_data.name} already exists",
+            )
+        updated_genre = self.genre_repository.update_genre(genre_id, update_data)
+        return GenreResponse.model_validate(updated_genre)
 
     def partial_update_genre(
         self, genre_id: int, update_data: GenrePartialUpdate
     ) -> GenreResponse:
-        genre = self.genre_repository.partial_update_genre(genre_id, update_data)
-        if genre is not None:
-            return GenreResponse.model_validate(genre)
+        genre = self.genre_repository.get_genre_by_id(genre_id)
+        if genre is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Genre with {genre_id=} not found",
+            )
 
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Genre with {genre_id=} not found",
+        if (
+            "name" in update_data.model_fields_set
+            and update_data.name != genre.name
+            and self.genre_repository.genre_name_exists(update_data.name)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Genre with genre_name={update_data.name} already exists",
+            )
+        updated_genre = self.genre_repository.partial_update_genre(
+            genre_id, update_data
         )
+        return GenreResponse.model_validate(updated_genre)
 
     def delete_genre_by_id(self, genre_id: int) -> None:
         movies = self.movie_repository.get_movies_by_genre_id(genre_id)
