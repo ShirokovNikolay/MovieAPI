@@ -2,8 +2,7 @@ from datetime import datetime
 from typing import Annotated
 
 from annotated_types import Len, MaxLen
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, Field, ConfigDict
 
 NameString = Annotated[
     str,
@@ -28,7 +27,7 @@ class MovieBase(BaseModel):
     """
     Базовый класс для работы с фильмом.
     """
-
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
     name: NameString
     description: DescriptionString
     rating: RatingConstarint
@@ -70,6 +69,7 @@ class MovieResponse(MovieBase):
     """
 
     id: int
+
 
 class MovieResponseList(MovieResponse):
     """
