@@ -162,7 +162,7 @@ class MovieService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movie with movie_name={update_movie_data.name} already exists",
             )
-        updated_movie = self.movie_repository.update_movie(movie_id, update_movie_data)
+        updated_movie = self.movie_repository.partial_update_movie(movie_id, update_movie_data)
         return MovieResponse.model_validate(updated_movie)
 
     def delete_movie_by_id(self, movie_id: int) -> None:
