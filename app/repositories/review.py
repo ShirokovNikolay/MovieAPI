@@ -15,6 +15,20 @@ class ReviewRepository:
         stmt = select(Review).where(Review.id == review_id)
         return self.session.execute(stmt).scalars().first()
 
+    def get_review_by_user_id_and_movie_id(
+        self, user_id: int, movie_id: int
+    ) -> Review | None:
+        stmt = select(Review).where(
+            and_(Review.user_id == user_id, Review.movie_id == movie_id)
+        )
+        return self.session.execute(stmt).scalars().first()
+
+    def review_exists(self, movie_id: int, user_id: int) -> bool:
+        return self.get_review_by_user_id_and_movie_id(user_id, movie_id) is not None
+
+    def review_id_exists(self, review_id: int) -> bool:
+        return self.get_review_by_id(review_id) is not None
+
     def get_user_reviews(self, user_id: int) -> list[Review]:
         stmt = (
             select(Review)
