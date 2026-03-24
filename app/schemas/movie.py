@@ -70,3 +70,10 @@ class MovieResponse(MovieBase):
     """
 
     id: int
+
+class MovieResponseList(MovieResponse):
+    """
+    Класс для вывода информации о списке фильмов.
+    """
+
+    movie_list: list[MovieResponse]
