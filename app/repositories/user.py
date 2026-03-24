@@ -11,13 +11,16 @@ class UserRepository:
     def get_user_by_id(self, user_id: int) -> User | None:
         return self.session.get(User, user_id)
 
+    def user_id_exists(self, user_id: int) -> bool:
+        return self.get_user_by_id(user_id) is not None
+
     def get_user_by_login(self, login: str) -> User | None:
         stmt = select(User).where(User.login == login)
         return self.session.execute(stmt).scalars().first()
 
     def get_all_users(self) -> list[User]:
         stmt = select(User)
-        return self.session.execute(stmt).scalars().all()
+        return list(self.session.execute(stmt).scalars().all())
 
     def create_user(self, create_user_data: UserCreate) -> User:
         user = User(**create_user_data.model_dump())
