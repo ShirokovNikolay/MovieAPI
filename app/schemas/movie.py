@@ -72,7 +72,7 @@ class MovieResponse(MovieBase):
     id: int
 
 
-class MovieResponseList(MovieResponse):
+class MovieResponseList(BaseModel):
     """
     Класс для вывода информации о списке фильмов.
     """
