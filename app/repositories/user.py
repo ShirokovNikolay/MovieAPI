@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
-from models import Genre, User
+from models import User
 from schemas.user import UserCreate, UserUpdate, UserPartialUpdate
 
 
@@ -17,6 +17,16 @@ class UserRepository:
     def get_user_by_login(self, login: str) -> User | None:
         stmt = select(User).where(User.login == login)
         return self.session.execute(stmt).scalars().first()
+
+    def get_user_by_email(self, email: str) -> User | None:
+        stmt = select(User).where(User.email == email)
+        return self.session.execute(stmt).scalars().first()
+
+    def user_login_exists(self, login: str) -> bool:
+        return self.get_user_by_login(login) is not None
+
+    def user_email_exists(self, email: str) -> bool:
+        return self.get_user_by_email(email) is not None
 
     def get_all_users(self) -> list[User]:
         stmt = select(User)
