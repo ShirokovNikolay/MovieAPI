@@ -1,8 +1,7 @@
 from typing import Annotated
 
 from annotated_types import Len, MaxLen
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
 
 NameString = Annotated[
     str,
@@ -20,6 +19,7 @@ class GenreBase(BaseModel):
     Базовый класс для работы с жанром фильма.
     """
 
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
     name: NameString
     description: DescriptionString
 
@@ -51,3 +51,11 @@ class GenreResponse(GenreBase):
     """
 
     id: int
+
+
+class GenreResponseList(BaseModel):
+    """
+    Класс для вывода информации о списке жанров.
+    """
+
+    genre_list: list[GenreResponse]
