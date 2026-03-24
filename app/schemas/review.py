@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from annotated_types import MaxLen
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 
@@ -19,6 +19,7 @@ class ReviewBase(BaseModel):
 
     review_text: StringMaxLength400
     rating: RatingConstarint
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
 
 
 class ReviewCreate(ReviewBase):
