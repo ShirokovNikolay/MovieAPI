@@ -51,3 +51,10 @@ class ReviewResponse(ReviewBase):
 
     id: int
     publication_date: datetime
+
+
+class ReviewResponseList(BaseModel):
+    """
+    Модель для вывода списка отзывов.
+    """
+    review_list: list[ReviewResponse]
