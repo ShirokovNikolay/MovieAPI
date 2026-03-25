@@ -41,7 +41,7 @@ class GenreRepository:
         genre = self.get_genre_by_id(genre_id)
         if not genre:
             return None
-        for field, value in update_data.model_dump():
+        for field, value in update_data.model_dump().items():
             setattr(genre, field, value)
 
         self.session.commit()
@@ -57,7 +57,7 @@ class GenreRepository:
         if not genre:
             return None
 
-        for field, value in update_data.model_dump(exclude_unset=True):
+        for field, value in update_data.model_dump(exclude_unset=True).items():
             setattr(genre, field, value)
 
         self.session.commit()

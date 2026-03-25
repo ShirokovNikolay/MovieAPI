@@ -6,17 +6,17 @@ from pydantic import BaseModel, ConfigDict
 
 StringMaxLength255 = Annotated[
     str,
-    MaxLen(maxLength=255),
+    MaxLen(max_length=255),
 ]
 
 StringMaxLength30 = Annotated[
     str,
-    MaxLen(maxLength=30),
+    MaxLen(max_length=30),
 ]
 
 StringMaxLength20 = Annotated[
     str,
-    MaxLen(maxLength=20),
+    MaxLen(max_length=20),
 ]
 
 
