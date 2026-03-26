@@ -48,7 +48,7 @@ class UserRepository:
         if user is None:
             return None
 
-        for field, value in update_data.model_dump():
+        for field, value in update_data.model_dump().items():
             setattr(user, field, value)
 
         self.session.commit()
@@ -64,7 +64,7 @@ class UserRepository:
         if user is None:
             return None
 
-        for field, value in update_data.model_dump(exclude_unset=True):
+        for field, value in update_data.model_dump(exclude_unset=True).items():
             setattr(user, field, value)
 
         self.session.commit()
