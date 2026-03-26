@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from fastapi import status
 
-from repositories import MovieRepository
+from repositories import MovieRepository, GenreRepository
 from schemas.movie import (
     MovieResponse,
     MovieResponseList,
@@ -18,6 +18,7 @@ class MovieService:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.movie_repository = MovieRepository(session)
+        self.genre_repository = GenreRepository(session)
 
     def get_movie_by_id(self, movie_id: int) -> MovieResponse:
         movie = self.movie_repository.get_movie_by_id(movie_id)
@@ -39,7 +40,19 @@ class MovieService:
             detail=f"Movie {movie_name=} not found",
         )
 
+    def get_movies(self) -> MovieResponseList:
+        movies = [
+            MovieResponse.model_validate(movie)
+            for movie in self.movie_repository.get_movies()
+        ]
+        return MovieResponseList(movie_list=movies)
+
     def get_movies_by_genre_id(self, genre_id: int) -> MovieResponseList:
+        if not self.genre_repository.genre_id_exists(genre_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Genre with {genre_id} not found",
+            )
         movies = [
             MovieResponse.model_validate(movie)
             for movie in self.movie_repository.get_movies_by_genre_id(genre_id)
@@ -47,6 +60,11 @@ class MovieService:
         return MovieResponseList(movie_list=movies)
 
     def get_movies_by_genre_name(self, genre_name: str) -> MovieResponseList:
+        if not self.genre_repository.genre_name_exists(genre_name):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Genre with {genre_name=} not found",
+            )
         movies = [
             MovieResponse.model_validate(movie)
             for movie in self.movie_repository.get_movies_by_genre_name(genre_name)
@@ -74,7 +92,7 @@ class MovieService:
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_movies_by_release_date(
+    def get_movies_by_release_date_range(
         self,
         release_date_start: datetime,
         release_date_end: datetime,
@@ -115,6 +133,11 @@ class MovieService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movie with movie_name={create_movie_data.name} already exists",
             )
+        if not self.genre_repository.genre_id_exists(create_movie_data.genre_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Genre with genre_id={create_movie_data.genre_id} not found",
+            )
         movie = self.movie_repository.create_movie(create_movie_data)
         return MovieResponse.model_validate(movie)
 
@@ -128,6 +151,12 @@ class MovieService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Movie with {movie_id=} not found",
+            )
+
+        if not self.genre_repository.genre_id_exists(update_movie_data.genre_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Genre with genre_id={update_movie_data.genre_id} not found",
             )
 
         if (
@@ -151,6 +180,15 @@ class MovieService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Movie with {movie_id=} not found",
+            )
+
+        if (
+            "genre_id" in update_movie_data.model_fields_set
+            and not self.genre_repository.genre_id_exists(update_movie_data.genre_id)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Genre with genre_id={update_movie_data.genre_id} not found",
             )
 
         if (

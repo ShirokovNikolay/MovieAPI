@@ -9,7 +9,7 @@ router = APIRouter(
     prefix="/genres",
 )
 name_router = APIRouter(
-    prefix="/name",
+    prefix="/by-name",
 )
 name_router.include_router(details_genres_names_router)
 router.include_router(list_genres_router)

@@ -26,6 +26,10 @@ class MovieRepository:
     def movie_name_exists(self, movie_name: str) -> bool:
         return self.get_movie_by_name(movie_name) is not None
 
+    def get_movies(self) -> list[Movie]:
+        stmt = select(Movie).options(joinedload(Movie.genre))
+        return list(self.session.execute(stmt).scalars().all())
+
     def get_movies_by_genre_id(self, genre_id: int) -> list[Movie]:
         stmt = (
             select(Movie)
@@ -128,7 +132,7 @@ class MovieRepository:
         if movie is None:
             return None
 
-        for field, value in update_movie_data.model_dump():
+        for field, value in update_movie_data.model_dump().items():
             setattr(movie, field, value)
 
         self.session.commit()
@@ -144,7 +148,7 @@ class MovieRepository:
         if movie is None:
             return None
 
-        for field, value in update_movie_data.model_dump(exclude_unset=True):
+        for field, value in update_movie_data.model_dump(exclude_unset=True).items():
             setattr(movie, field, value)
 
         self.session.commit()

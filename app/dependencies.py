@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from database import session_factory
-from services import GenreService
+from services import GenreService, MovieService
 
 
 def get_db() -> Generator:
@@ -21,6 +21,18 @@ def get_genre_service(
     try:
         genre_service = GenreService(session)
         yield genre_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
+def get_movie_service(
+    session: Annotated[Session, Depends(get_db)],
+):
+    try:
+        movie_service = MovieService(session)
+        yield movie_service
     finally:
         """
         Действия после view.
