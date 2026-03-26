@@ -11,6 +11,28 @@ from schemas.review import (
     ReviewPartialUpdate,
 )
 
+# details_review_views: prefix_router = /{review_id}
+# 1) get_review_by_id
+# 2) update_review
+# 3) partial_update_review
+# 4) delete_review
+
+
+# details_user_views:   prefix_router = "/user"
+# 1) get_user_reviews
+# 2) get_user_review_about_movie
+
+# details_movie_views:  prefix_router = "/movie"
+# 1) get_movie_reviews
+# 2) get_top_rating_movie_reviews
+# 3) get_top_newest_movie_reviews
+# 4) get_top_oldest_movie_reviews
+
+
+# list_views:  prefix_router = ""
+# 1) get_reviews
+# 2) create_review
+
 
 class ReviewService:
     def __init__(self, session: Session) -> None:
@@ -18,6 +40,13 @@ class ReviewService:
         self.user_repository = UserRepository(session)
         self.movie_repository = MovieRepository(session)
         self.review_repository = ReviewRepository(session)
+
+    def get_reviews(self) -> ReviewResponseList:
+        reviews = [
+            ReviewResponse.model_validate(movie)
+            for movie in self.review_repository.get_all_reviews()
+        ]
+        return ReviewResponseList(review_list=reviews)
 
     def get_review_by_id(self, review_id: int) -> ReviewResponse:
         review = self.review_repository.get_review_by_id(review_id)

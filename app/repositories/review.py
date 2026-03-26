@@ -11,6 +11,10 @@ class ReviewRepository:
     def __init__(self, session: Session) -> None:
         self.session = session
 
+    def get_all_reviews(self) -> list[Review]:
+        stmt = select(Review)
+        return list(self.session.execute(stmt).scalars().all())
+
     def get_review_by_id(self, review_id: int) -> Review | None:
         stmt = select(Review).where(Review.id == review_id)
         return self.session.execute(stmt).scalars().first()
@@ -133,7 +137,7 @@ class ReviewRepository:
         if review is None:
             return None
 
-        for field, value in update_review_data.model_dump():
+        for field, value in update_review_data.model_dump().items():
             setattr(review, field, value)
 
         self.session.commit()
@@ -149,7 +153,7 @@ class ReviewRepository:
         if review is None:
             return None
 
-        for field, value in update_review_data.model_dump(exclude_unset=True):
+        for field, value in update_review_data.model_dump(exclude_unset=True).items():
             setattr(review, field, value)
 
         self.session.commit()
