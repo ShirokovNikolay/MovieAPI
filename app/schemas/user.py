@@ -37,7 +37,7 @@ class UserCreate(UserBase):
     Модель для создания пользователя.
     """
 
-    password: StringMaxLength20
+    encrypted_password: StringMaxLength20
 
 
 class UserUpdate(UserBase):
@@ -45,7 +45,7 @@ class UserUpdate(UserBase):
     Модель для обновления данных о пользователе
     """
 
-    password: StringMaxLength20
+    encrypted_password: StringMaxLength20
 
 
 class UserPartialUpdate(UserBase):
@@ -57,7 +57,7 @@ class UserPartialUpdate(UserBase):
     name: StringMaxLength20 | None = None
     login: StringMaxLength20 | None = None
     email: StringMaxLength255 | None = None
-    password: StringMaxLength20 | None = None
+    encrypted_password: StringMaxLength20 | None = None
 
 
 class UserResponse(UserBase):
