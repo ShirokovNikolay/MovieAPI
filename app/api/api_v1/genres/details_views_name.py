@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, status
 
 from dependencies import get_genre_service
 from schemas.genre import GenreResponse
@@ -14,6 +14,7 @@ router = APIRouter(
 @router.get(
     "/",
     response_model=GenreResponse,
+    status_code=status.HTTP_200_OK,
 )
 def get_genre_by_name(
     genre_name: str,
@@ -22,7 +23,10 @@ def get_genre_by_name(
     return genre_service.get_genre_by_name(genre_name)
 
 
-@router.delete("/")
+@router.delete(
+    "/",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_genre_by_name(
     genre_name: str,
     genre_service: Annotated[GenreService, Depends(get_genre_service)],

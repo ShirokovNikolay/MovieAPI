@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from typing import Annotated
 
 from dependencies import get_genre_service
@@ -13,6 +13,7 @@ router = APIRouter(
 @router.get(
     "/",
     response_model=GenreResponse,
+    status_code=status.HTTP_200_OK,
 )
 def get_genre(
     genre_id: int,
@@ -24,6 +25,7 @@ def get_genre(
 @router.put(
     "/",
     response_model=GenreResponse,
+    status_code=status.HTTP_200_OK,
 )
 def update_genre(
     genre_id: int,
@@ -36,6 +38,7 @@ def update_genre(
 @router.patch(
     "/",
     response_model=GenreResponse,
+    status_code=status.HTTP_200_OK,
 )
 def partial_update_genre(
     genre_id: int,
@@ -45,7 +48,10 @@ def partial_update_genre(
     return genre_service.partial_update_genre(genre_id, partial_update_genre_data)
 
 
-@router.delete("/")
+@router.delete(
+    "/",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_genre(
     genre_id: int,
     genre_service: Annotated[GenreService, Depends(get_genre_service)],

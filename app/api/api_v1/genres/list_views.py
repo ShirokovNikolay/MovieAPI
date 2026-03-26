@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from dependencies import get_genre_service
 from schemas.genre import GenreResponseList, GenreResponse, GenreCreate
@@ -12,6 +12,7 @@ router = APIRouter()
 @router.get(
     "/",
     response_model=GenreResponseList,
+    status_code=status.HTTP_200_OK,
 )
 def get_genres(
     genre_service: Annotated[
@@ -25,6 +26,7 @@ def get_genres(
 @router.post(
     "/",
     response_model=GenreResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 def create_genre(
     create_genre_data: GenreCreate,
