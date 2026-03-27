@@ -21,7 +21,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(20))
     login: Mapped[str] = mapped_column(String(20))
     email: Mapped[str] = mapped_column(String(255))
-    encrypted_password: Mapped[str] = mapped_column(String(20))
+    encrypted_password: Mapped[str] = mapped_column(String(128))
     registration_date: Mapped[datetime] = mapped_column(server_default=func.now())
     reviews: Mapped[list["Review"]] = relationship(
         "Review",
