@@ -1,7 +1,10 @@
+from datetime import datetime, timedelta
+
 import bcrypt
 import jwt
 
 from config import settings
+from schemas.user import UserResponse
 
 
 def hash_password(password: str) -> str:
@@ -20,9 +23,17 @@ def encode_jwt(
     payload: dict,
     secret_key: str = settings.auth_jwt.secret_key,
     algorithm: str = settings.auth_jwt.algorithm,
+    expires_minutes: int = settings.auth_jwt.access_token_expire_minutes,
 ) -> str:
+    to_encode = payload.copy()
+    now = datetime.now()
+    expire = now + timedelta(minutes=expires_minutes)
+    to_encode.update(
+        iat=now,
+        exp=expire,
+    )
     return jwt.encode(
-        payload,
+        to_encode,
         secret_key,
         algorithm=algorithm,
     )
@@ -38,3 +49,12 @@ def decode_jwt(
         secret_key,
         algorithms=[algorithm],
     )
+
+
+def create_user_payload(user: UserResponse) -> dict:
+    payload = {
+        "sub": user.id,
+        "login": user.login,
+        "email": user.email,
+    }
+    return payload
