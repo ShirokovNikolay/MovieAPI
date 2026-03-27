@@ -76,3 +76,12 @@ class UserResponseList(BaseModel):
 
     user_list: list[UserResponse]
     model_config: ConfigDict = ConfigDict(from_attributes=True)
+
+
+class UserLogin(BaseModel):
+    """
+    Модель для аутентификации пользователя.
+    """
+
+    login: str
+    password: StringMaxLength20
