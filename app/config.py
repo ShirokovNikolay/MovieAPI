@@ -17,9 +17,16 @@ class DataBaseConfig(BaseModel):
         return f"postgresql+psycopg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
 
 
+class AuthJWTConfig(BaseModel):
+    secret_key: str
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 10
+
+
 class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent
     database: DataBaseConfig
+    auth_jwt: AuthJWTConfig
     debug: bool
 
     model_config: SettingsConfigDict = SettingsConfigDict(
