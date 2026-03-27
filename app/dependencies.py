@@ -1,7 +1,10 @@
 from typing import Generator, Annotated
 
 from fastapi import Depends
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+
+from config import settings
 from database import session_factory
 from services import (
     GenreService,
@@ -9,6 +12,7 @@ from services import (
     ReviewService,
     UserService,
 )
+from security import decode_jwt
 
 
 def get_db() -> Generator:
@@ -65,3 +69,20 @@ def get_user_service(
         """
         Действия после view.
         """
+
+
+def get_current_token_payload(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(settings.security)],
+) -> dict:
+    token = credentials.credentials
+    payload = decode_jwt(
+        token=token,
+    )
+    return payload
+
+
+def get_current_user_id(
+    payload: Annotated[dict, Depends(get_current_token_payload)],
+) -> int:
+    user_id: int = payload["sub"]
+    return user_id

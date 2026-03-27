@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -27,6 +28,7 @@ class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent
     database: DataBaseConfig
     auth_jwt: AuthJWTConfig
+    security: HTTPBearer = HTTPBearer()
     debug: bool
 
     model_config: SettingsConfigDict = SettingsConfigDict(
