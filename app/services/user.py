@@ -1,3 +1,4 @@
+from security import hash_password
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from repositories import UserRepository
@@ -55,6 +56,7 @@ class UserService:
                 detail=f"User with email={create_user_data.email} already exists",
             )
 
+        create_user_data.password = hash_password(create_user_data.password)
         user = self.user_repository.create_user(create_user_data)
         return UserResponse.model_validate(user)
 
@@ -86,6 +88,7 @@ class UserService:
                 detail=f"User with email={update_data.email} already exists",
             )
 
+        update_data.password = hash_password(update_data.password)
         updated_user = self.user_repository.update_user(user_id, update_data)
         return UserResponse.model_validate(updated_user)
 
@@ -121,6 +124,8 @@ class UserService:
                 detail=f"User with email={update_data.email} already exists",
             )
 
+        if update_data.password is not None:
+            update_data.password = hash_password(update_data.password)
         updated_user = self.user_repository.partial_update_user(user_id, update_data)
         return UserResponse.model_validate(updated_user)
 

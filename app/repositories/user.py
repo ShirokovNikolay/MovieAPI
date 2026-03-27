@@ -33,7 +33,10 @@ class UserRepository:
         return list(self.session.execute(stmt).scalars().all())
 
     def create_user(self, create_user_data: UserCreate) -> User:
-        user = User(**create_user_data.model_dump())
+        user = User(
+            **create_user_data.model_dump(exclude={"password"}),
+            encrypted_password=create_user_data.password,
+        )
         self.session.add(user)
         self.session.commit()
         self.session.refresh(user)
@@ -48,9 +51,9 @@ class UserRepository:
         if user is None:
             return None
 
-        for field, value in update_data.model_dump().items():
+        for field, value in update_data.model_dump(exclude={"password"}).items():
             setattr(user, field, value)
-
+        user.encrypted_password = update_data.password
         self.session.commit()
         self.session.refresh(user)
         return user
@@ -64,9 +67,13 @@ class UserRepository:
         if user is None:
             return None
 
-        for field, value in update_data.model_dump(exclude_unset=True).items():
+        for field, value in update_data.model_dump(
+            exclude_unset=True,
+            exclude={"password"},
+        ).items():
             setattr(user, field, value)
-
+        if update_data.password is not None:
+            user.encrypted_password = update_data.password
         self.session.commit()
         self.session.refresh(user)
         return user
