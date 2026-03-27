@@ -1,4 +1,4 @@
-from security import hash_password
+from security import hash_password, verify_password
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from repositories import UserRepository
@@ -8,6 +8,7 @@ from schemas.user import (
     UserCreate,
     UserUpdate,
     UserPartialUpdate,
+    UserLogin,
 )
 
 
@@ -142,3 +143,19 @@ class UserService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"User with login={login} not found",
             )
+
+    def authenticate_user(self, login_data: UserLogin) -> UserResponse:
+        user = self.user_repository.get_user_by_login(login_data.login)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Invalid login",
+            )
+
+        if not verify_password(login_data.password, user.encrypted_password):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Invalid password",
+            )
+
+        return UserResponse.model_validate(user)
