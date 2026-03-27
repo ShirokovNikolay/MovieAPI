@@ -6,9 +6,10 @@ from fastapi import (
     Depends,
 )
 
-from dependencies import get_user_service, get_auth_jwt_token
+from dependencies import get_user_service
 from schemas.token import TokenInfo
-from schemas.user import UserResponse, UserCreate
+from schemas.user import UserResponse, UserCreate, UserLogin
+from security import encode_jwt, create_user_payload
 from services import UserService
 
 router = APIRouter(
@@ -35,8 +36,13 @@ def register_user(
     status_code=status.HTTP_200_OK,
 )
 def login_user(
-    token: Annotated[str, Depends(get_auth_jwt_token)],
+    login_data: UserLogin,
+    user_service: Annotated[UserService, Depends(get_user_service)],
 ):
+    user = user_service.authenticate_user(login_data)
+    token = encode_jwt(
+        payload=create_user_payload(user),
+    )
     return TokenInfo(
         access_token=token,
         token_type="Bearer",
