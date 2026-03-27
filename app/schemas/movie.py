@@ -25,7 +25,7 @@ RatingConstarint = Annotated[
 
 class MovieBase(BaseModel):
     """
-    Базовый класс для работы с фильмом.
+    Базовая модель для работы с фильмом.
     """
 
     model_config: ConfigDict = ConfigDict(from_attributes=True)
@@ -40,19 +40,19 @@ class MovieBase(BaseModel):
 
 class MovieCreate(MovieBase):
     """
-    Класс для создания фильма.
+    Модель для создания фильма.
     """
 
 
 class MovieUpdate(MovieBase):
     """
-    Класс для обновления фильма.
+    Модель для обновления фильма.
     """
 
 
 class MoviePartialUpdate(MovieBase):
     """
-    Класс для частичного обновления фильма.
+    Модель для частичного обновления фильма.
     """
 
     name: NameString | None = None
@@ -66,7 +66,7 @@ class MoviePartialUpdate(MovieBase):
 
 class MovieResponse(MovieBase):
     """
-    Класс для вывода информации о фильме.
+    Модель для вывода информации о фильме.
     """
 
     id: int
@@ -74,7 +74,7 @@ class MovieResponse(MovieBase):
 
 class MovieResponseList(BaseModel):
     """
-    Класс для вывода информации о списке фильмов.
+    Модель для вывода информации о списке фильмов.
     """
 
     movie_list: list[MovieResponse]

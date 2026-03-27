@@ -16,7 +16,7 @@ DescriptionString = Annotated[
 
 class GenreBase(BaseModel):
     """
-    Базовый класс для работы с жанром фильма.
+    Базовая модель для работы с жанром фильма.
     """
 
     model_config: ConfigDict = ConfigDict(from_attributes=True)
@@ -26,19 +26,19 @@ class GenreBase(BaseModel):
 
 class GenreCreate(GenreBase):
     """
-    Класс для создания жанра фильма.
+    Модель для создания жанра фильма.
     """
 
 
 class GenreUpdate(GenreBase):
     """
-    Класс для полного обновления информации о жанре фильма.
+    Модель для полного обновления информации о жанре фильма.
     """
 
 
 class GenrePartialUpdate(GenreBase):
     """
-    Класс для частичного обновления информации о жанре фильма.
+    Модель для частичного обновления информации о жанре фильма.
     """
 
     name: NameString | None = None
@@ -47,7 +47,7 @@ class GenrePartialUpdate(GenreBase):
 
 class GenreResponse(GenreBase):
     """
-    Класс для вывода информации о жанре фильма.
+    Модель для вывода информации о жанре фильма.
     """
 
     id: int
@@ -55,7 +55,7 @@ class GenreResponse(GenreBase):
 
 class GenreResponseList(BaseModel):
     """
-    Класс для вывода информации о списке жанров.
+    Модель для вывода информации о списке жанров.
     """
 
     genre_list: list[GenreResponse]
