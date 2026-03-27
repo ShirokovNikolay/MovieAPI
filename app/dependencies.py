@@ -1,8 +1,10 @@
 from typing import Generator, Annotated
 
-from fastapi import Depends
+from fastapi import Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from database import session_factory
+from schemas.user import UserResponse, UserLogin
+from security import encode_jwt, create_user_payload
 from services import (
     GenreService,
     MovieService,
@@ -65,3 +67,14 @@ def get_user_service(
         """
         Действия после view.
         """
+
+
+def get_auth_jwt_token(
+    login_data: UserLogin,
+    user_service: Annotated[UserService, Depends(get_user_service)],
+) -> str:
+    user = user_service.authenticate_user(login_data)
+    token = encode_jwt(
+        payload=create_user_payload(user),
+    )
+    return token
