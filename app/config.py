@@ -21,14 +21,14 @@ class DataBaseConfig(BaseModel):
 class AuthJWTConfig(BaseModel):
     secret_key: str
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 10
+    access_token_expire_minutes: int = 15
 
 
 class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent
     database: DataBaseConfig
     auth_jwt: AuthJWTConfig
-    security: HTTPBearer = HTTPBearer()
+    http_bearer: HTTPBearer = HTTPBearer()
     debug: bool
 
     model_config: SettingsConfigDict = SettingsConfigDict(

@@ -72,12 +72,13 @@ def get_user_service(
 
 
 def get_current_token_payload(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(settings.security)],
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(settings.http_bearer)],
 ) -> dict:
     token = credentials.credentials
     payload = decode_jwt(
         token=token,
     )
+    payload["sub"] = int(payload["sub"])
     return payload
 
 

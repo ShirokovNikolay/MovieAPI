@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
@@ -26,7 +26,7 @@ def encode_jwt(
     expires_minutes: int = settings.auth_jwt.access_token_expire_minutes,
 ) -> str:
     to_encode = payload.copy()
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     expire = now + timedelta(minutes=expires_minutes)
     to_encode.update(
         iat=now,
@@ -53,7 +53,7 @@ def decode_jwt(
 
 def create_user_payload(user: UserResponse) -> dict:
     payload = {
-        "sub": user.id,
+        "sub": str(user.id),
         "login": user.login,
         "email": user.email,
     }
