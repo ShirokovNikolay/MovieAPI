@@ -92,6 +92,20 @@ def get_user_service(
         """
 
 
+def validate_token_payload(payload: dict, target_token_type: str) -> None:
+    if payload[TOKEN_TYPE] != target_token_type:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type",
+        )
+
+    if "sub" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token content",
+        )
+
+
 def get_current_token_payload(
     credentials: Annotated[
         HTTPAuthorizationCredentials,
@@ -106,27 +120,13 @@ def get_current_token_payload(
     return payload
 
 
-def validate_token_type(payload: dict, target_token_type: str) -> None:
-    if payload[TOKEN_TYPE] != target_token_type:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token type",
-        )
-
-    if "sub" not in payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token content",
-        )
-
-
 def get_current_user_id_by_access_token_payload(
     payload: Annotated[
         dict,
         Depends(get_current_token_payload),
     ],
 ) -> int:
-    validate_token_type(
+    validate_token_payload(
         payload=payload,
         target_token_type=ACCESS_TOKEN_TYPE,
     )
@@ -140,7 +140,7 @@ def get_current_user_id_by_refresh_token_payload(
         Depends(get_current_token_payload),
     ],
 ) -> int:
-    validate_token_type(
+    validate_token_payload(
         payload=payload,
         target_token_type=REFRESH_TOKEN_TYPE,
     )

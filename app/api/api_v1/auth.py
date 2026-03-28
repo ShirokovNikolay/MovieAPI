@@ -72,9 +72,6 @@ def refresh_access_token(
         Depends(get_user_service),
     ],
 ):
-    """
-    View для обновления access токена по refresh токену.
-    """
     user = user_service.get_user_by_id(user_id)
     access_token = create_access_token(user)
     return TokenInfo(access_token=access_token)
