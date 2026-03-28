@@ -1,24 +1,13 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone, timedelta
 
-import bcrypt
 import jwt
-from jwt.exceptions import InvalidTokenError
-from fastapi import HTTPException, status
+from fastapi import HTTPException
+from jwt import InvalidTokenError
+from starlette import status
+
 from core.config import settings
 from core.constants import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from schemas.user import UserResponse
-
-
-def hash_password(password: str) -> str:
-    salt = bcrypt.gensalt()
-    password_bytes = password.encode()
-    return bcrypt.hashpw(password_bytes, salt).decode()
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    password_bytes = password.encode()
-    hashed_password_bytes = hashed_password.encode()
-    return bcrypt.checkpw(password_bytes, hashed_password_bytes)
 
 
 def encode_jwt(
@@ -59,22 +48,6 @@ def decode_jwt(
         )
 
 
-def create_user_payload_for_access_token(user: UserResponse) -> dict:
-    payload = {
-        "sub": str(user.id),
-        "login": user.login,
-        "email": user.email,
-    }
-    return payload
-
-
-def create_user_payload_for_refresh_token(user: UserResponse) -> dict:
-    payload = {
-        "sub": str(user.id),
-    }
-    return payload
-
-
 def create_access_token(user: UserResponse) -> str:
     payload = create_user_payload_for_access_token(user)
     payload.update(
@@ -95,3 +68,19 @@ def create_refresh_token(user: UserResponse) -> str:
         payload,
         expires_minutes=settings.auth_jwt.refresh_token_expire_minutes,
     )
+
+
+def create_user_payload_for_access_token(user: UserResponse) -> dict:
+    payload = {
+        "sub": str(user.id),
+        "login": user.login,
+        "email": user.email,
+    }
+    return payload
+
+
+def create_user_payload_for_refresh_token(user: UserResponse) -> dict:
+    payload = {
+        "sub": str(user.id),
+    }
+    return payload

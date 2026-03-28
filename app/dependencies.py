@@ -19,7 +19,7 @@ from services import (
     ReviewService,
     UserService,
 )
-from security import decode_jwt
+from core.security import decode_jwt
 
 
 def get_db() -> Generator:

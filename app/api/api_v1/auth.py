@@ -13,7 +13,7 @@ from schemas.user import (
     UserCreate,
     UserLogin,
 )
-from security import (
+from core.security import (
     create_access_token,
     create_refresh_token,
 )
