@@ -8,7 +8,7 @@ from fastapi import (
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
-from config import (
+from core.config import (
     settings,
 )
 from core.constants import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE

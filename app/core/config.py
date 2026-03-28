@@ -26,7 +26,7 @@ class AuthJWTConfig(BaseModel):
 
 
 class Settings(BaseSettings):
-    BASE_DIR: Path = Path(__file__).parent
+    BASE_DIR: Path = Path(__file__).parent.parent
     database: DataBaseConfig
     auth_jwt: AuthJWTConfig
     http_bearer: HTTPBearer = HTTPBearer()
