@@ -10,10 +10,8 @@ from sqlalchemy.orm import Session
 
 from config import (
     settings,
-    ACCESS_TOKEN_TYPE,
-    REFRESH_TOKEN_TYPE,
-    TOKEN_TYPE,
 )
+from core.constants import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from database import session_factory
 from services import (
     GenreService,

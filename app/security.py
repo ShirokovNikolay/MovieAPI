@@ -4,7 +4,8 @@ import bcrypt
 import jwt
 from jwt.exceptions import InvalidTokenError
 from fastapi import HTTPException, status
-from config import settings, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, TOKEN_TYPE
+from config import settings
+from core.constants import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from schemas.user import UserResponse
 
 

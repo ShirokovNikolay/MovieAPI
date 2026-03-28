@@ -5,11 +5,6 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-TOKEN_TYPE = "type"
-ACCESS_TOKEN_TYPE = "access"
-REFRESH_TOKEN_TYPE = "refresh"
-
-
 class DataBaseConfig(BaseModel):
     user: str
     password: str
