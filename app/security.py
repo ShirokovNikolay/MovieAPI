@@ -2,8 +2,9 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
-
-from config import settings
+from jwt.exceptions import InvalidTokenError
+from fastapi import HTTPException, status
+from config import settings, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, TOKEN_TYPE
 from schemas.user import UserResponse
 
 
@@ -44,17 +45,52 @@ def decode_jwt(
     secret_key: str = settings.auth_jwt.secret_key,
     algorithm: str = settings.auth_jwt.algorithm,
 ) -> dict:
-    return jwt.decode(
-        token,
-        secret_key,
-        algorithms=[algorithm],
-    )
+    try:
+        return jwt.decode(
+            token,
+            secret_key,
+            algorithms=[algorithm],
+        )
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+        )
 
 
-def create_user_payload(user: UserResponse) -> dict:
+def create_user_payload_for_access_token(user: UserResponse) -> dict:
     payload = {
         "sub": str(user.id),
         "login": user.login,
         "email": user.email,
     }
     return payload
+
+
+def create_user_payload_for_refresh_token(user: UserResponse) -> dict:
+    payload = {
+        "sub": str(user.id),
+    }
+    return payload
+
+
+def create_access_token(user: UserResponse) -> str:
+    payload = create_user_payload_for_access_token(user)
+    payload.update(
+        {TOKEN_TYPE: ACCESS_TOKEN_TYPE},
+    )
+    return encode_jwt(
+        payload,
+        expires_minutes=settings.auth_jwt.access_token_expire_minutes,
+    )
+
+
+def create_refresh_token(user: UserResponse) -> str:
+    payload = create_user_payload_for_refresh_token(user)
+    payload.update(
+        {TOKEN_TYPE: REFRESH_TOKEN_TYPE},
+    )
+    return encode_jwt(
+        payload,
+        expires_minutes=settings.auth_jwt.refresh_token_expire_minutes,
+    )

@@ -6,10 +6,17 @@ from fastapi import (
     Depends,
 )
 
-from dependencies import get_user_service
+from dependencies import get_user_service, get_current_user_id_by_refresh_token_payload
 from schemas.token import TokenInfo
-from schemas.user import UserResponse, UserCreate, UserLogin
-from security import encode_jwt, create_user_payload
+from schemas.user import (
+    UserResponse,
+    UserCreate,
+    UserLogin,
+)
+from security import (
+    create_access_token,
+    create_refresh_token,
+)
 from services import UserService
 
 router = APIRouter(
@@ -40,10 +47,34 @@ def login_user(
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
     user = user_service.authenticate_user(login_data)
-    token = encode_jwt(
-        payload=create_user_payload(user),
-    )
+    access_token = create_access_token(user)
+    refresh_token = create_refresh_token(user)
     return TokenInfo(
-        access_token=token,
+        access_token=access_token,
+        refresh_token=refresh_token,
         token_type="Bearer",
     )
+
+
+@router.post(
+    "/refresh",
+    response_model=TokenInfo,
+    response_model_exclude_unset=True,
+    status_code=status.HTTP_200_OK,
+)
+def refresh_access_token(
+    user_id: Annotated[
+        int,
+        Depends(get_current_user_id_by_refresh_token_payload),
+    ],
+    user_service: Annotated[
+        UserService,
+        Depends(get_user_service),
+    ],
+):
+    """
+    View для обновления access токена по refresh токену.
+    """
+    user = user_service.get_user_by_id(user_id)
+    access_token = create_access_token(user)
+    return TokenInfo(access_token=access_token)

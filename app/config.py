@@ -5,6 +5,11 @@ from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+TOKEN_TYPE = "type"
+ACCESS_TOKEN_TYPE = "access"
+REFRESH_TOKEN_TYPE = "refresh"
+
+
 class DataBaseConfig(BaseModel):
     user: str
     password: str
@@ -22,6 +27,7 @@ class AuthJWTConfig(BaseModel):
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
+    refresh_token_expire_minutes: int = 30 * 24 * 60
 
 
 class Settings(BaseSettings):
