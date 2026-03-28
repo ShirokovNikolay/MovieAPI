@@ -6,14 +6,15 @@ from fastapi import (
     Depends,
 )
 
-from dependencies import get_user_service, get_current_user_id_by_refresh_token_payload
+from dependencies.auth import get_current_user_id_by_refresh_token_payload
+from dependencies.services import get_user_service
 from schemas.token import TokenInfo
 from schemas.user import (
     UserResponse,
     UserCreate,
     UserLogin,
 )
-from core.security import (
+from core.security.jwt_utils import (
     create_access_token,
     create_refresh_token,
 )

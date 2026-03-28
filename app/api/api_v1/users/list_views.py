@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 
 from schemas.user import UserResponseList, UserCreate, UserResponse
 from services import UserService
-from dependencies import get_user_service
+from dependencies.services import get_user_service
 
 router = APIRouter()
 

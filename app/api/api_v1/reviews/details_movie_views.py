@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 
 from schemas.review import ReviewResponseList
 from services import ReviewService
-from dependencies import get_review_service
+from dependencies.services import get_review_service
 
 router = APIRouter(prefix="/{movie_id}")
 

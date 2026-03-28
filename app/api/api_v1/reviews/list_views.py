@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
-from dependencies import get_review_service
+from dependencies.services import get_review_service
 from schemas.review import ReviewResponse, ReviewCreate, ReviewResponseList
 from services import ReviewService
 

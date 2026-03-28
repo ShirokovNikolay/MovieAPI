@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import select, delete, and_, func, between, desc
+from sqlalchemy import select, delete, and_, func, desc
 from models import Movie, Genre
 from schemas.movie import MovieCreate, MovieUpdate, MoviePartialUpdate
 

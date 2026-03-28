@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter
 from fastapi import status, Depends
 
-from dependencies import get_user_service
+from dependencies.services import get_user_service
 from schemas.user import UserResponse
 from services import UserService
 

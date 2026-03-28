@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, status, Depends
 
 from schemas.review import ReviewResponse, ReviewUpdate, ReviewPartialUpdate
-from dependencies import get_review_service
+from dependencies.services import get_review_service
 from services import ReviewService
 
 router = APIRouter(prefix="/{review_id}")

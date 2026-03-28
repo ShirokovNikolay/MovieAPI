@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, APIRouter, status
 
-from dependencies import get_genre_service
+from dependencies.services import get_genre_service
 from schemas.genre import GenreResponse
 from services import GenreService
 

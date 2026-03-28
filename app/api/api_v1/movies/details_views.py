@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi import status
 from fastapi.responses import RedirectResponse
 
-from dependencies import get_movie_service
+from dependencies.services import get_movie_service
 from schemas.movie import (
     MovieResponse,
     MovieUpdate,

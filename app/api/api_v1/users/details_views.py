@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, Depends
 from typing import Annotated
-from dependencies import get_user_service
+from dependencies.services import get_user_service
 from schemas.user import UserUpdate, UserPartialUpdate, UserResponse
 from services import UserService
 
