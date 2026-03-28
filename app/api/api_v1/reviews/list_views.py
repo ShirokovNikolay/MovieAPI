@@ -14,7 +14,10 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 def get_review_list(
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.get_reviews()
 
@@ -26,7 +29,10 @@ def get_review_list(
 )
 def create_review(
     create_review_data: ReviewCreate,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
     user_id: int,
 ):
     return review_service.create_review(user_id, create_review_data)

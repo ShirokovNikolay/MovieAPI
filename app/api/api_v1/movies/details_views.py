@@ -5,6 +5,7 @@ from fastapi import status
 from fastapi.responses import RedirectResponse
 
 from dependencies.services import get_movie_service
+from dependencies.auth import get_current_user_id_by_access_token_payload
 from schemas.movie import (
     MovieResponse,
     MovieUpdate,
@@ -23,7 +24,11 @@ router = APIRouter(
 )
 def watch_movie(
     movie_id: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
+    _=Depends(get_current_user_id_by_access_token_payload),
 ):
     movie = movie_service.get_movie_by_id(movie_id)
     return RedirectResponse(url=movie.source_url)
@@ -36,7 +41,10 @@ def watch_movie(
 )
 def get_movie(
     movie_id: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
 ) -> MovieResponse:
     return movie_service.get_movie_by_id(movie_id)
 
@@ -49,7 +57,10 @@ def get_movie(
 def update_movie(
     movie_id: int,
     update_movie_data: MovieUpdate,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
 ):
     return movie_service.update_movie(movie_id, update_movie_data)
 
@@ -62,7 +73,10 @@ def update_movie(
 def partial_update_movie(
     movie_id: int,
     update_movie_data: MoviePartialUpdate,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
 ):
     return movie_service.partial_update_movie(movie_id, update_movie_data)
 
@@ -73,6 +87,9 @@ def partial_update_movie(
 )
 def delete_movie(
     movie_id: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
 ):
     movie_service.delete_movie_by_id(movie_id)
