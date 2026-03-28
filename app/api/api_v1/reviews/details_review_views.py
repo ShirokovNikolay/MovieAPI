@@ -16,7 +16,10 @@ router = APIRouter(prefix="/{review_id}")
 )
 def get_review(
     review_id: int,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.get_review_by_id(review_id)
 
@@ -30,7 +33,10 @@ def update_review(
     user_id: int,
     review_id: int,
     update_review_data: ReviewUpdate,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.update_review(
         user_id,
@@ -48,7 +54,10 @@ def partial_update_review(
     user_id: int,
     review_id: int,
     update_review_data: ReviewPartialUpdate,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.partial_update_review(
         user_id,
@@ -64,6 +73,9 @@ def partial_update_review(
 def delete_review(
     user_id: int,
     review_id: int,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     review_service.delete_review(user_id, review_id)
