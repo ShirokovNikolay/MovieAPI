@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends, APIRouter, status
-
+from dependencies.auth import get_admin_by_access_token
 from dependencies.services import get_genre_service
 from schemas.genre import GenreResponse
 from services import GenreService
@@ -18,7 +18,10 @@ router = APIRouter(
 )
 def get_genre_by_name(
     genre_name: str,
-    genre_service: Annotated[GenreService, Depends(get_genre_service)],
+    genre_service: Annotated[
+        GenreService,
+        Depends(get_genre_service),
+    ],
 ):
     return genre_service.get_genre_by_name(genre_name)
 
@@ -26,9 +29,15 @@ def get_genre_by_name(
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def delete_genre_by_name(
     genre_name: str,
-    genre_service: Annotated[GenreService, Depends(get_genre_service)],
+    genre_service: Annotated[
+        GenreService,
+        Depends(get_genre_service),
+    ],
 ):
     return genre_service.delete_genre_by_name(genre_name)

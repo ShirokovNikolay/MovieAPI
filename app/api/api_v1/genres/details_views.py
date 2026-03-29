@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from typing import Annotated
 
+from dependencies.auth import get_admin_by_access_token
 from dependencies.services import get_genre_service
 from schemas.genre import GenreResponse, GenreUpdate, GenrePartialUpdate
 from services import GenreService
@@ -17,7 +18,10 @@ router = APIRouter(
 )
 def get_genre(
     genre_id: int,
-    genre_service: Annotated[GenreService, Depends(get_genre_service)],
+    genre_service: Annotated[
+        GenreService,
+        Depends(get_genre_service),
+    ],
 ):
     return genre_service.get_genre_by_id(genre_id)
 
@@ -26,11 +30,17 @@ def get_genre(
     "/",
     response_model=GenreResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def update_genre(
     genre_id: int,
     update_genre_data: GenreUpdate,
-    genre_service: Annotated[GenreService, Depends(get_genre_service)],
+    genre_service: Annotated[
+        GenreService,
+        Depends(get_genre_service),
+    ],
 ):
     return genre_service.update_genre(genre_id, update_genre_data)
 
@@ -39,11 +49,17 @@ def update_genre(
     "/",
     response_model=GenreResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def partial_update_genre(
     genre_id: int,
     partial_update_genre_data: GenrePartialUpdate,
-    genre_service: Annotated[GenreService, Depends(get_genre_service)],
+    genre_service: Annotated[
+        GenreService,
+        Depends(get_genre_service),
+    ],
 ):
     return genre_service.partial_update_genre(genre_id, partial_update_genre_data)
 
@@ -51,9 +67,15 @@ def partial_update_genre(
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def delete_genre(
     genre_id: int,
-    genre_service: Annotated[GenreService, Depends(get_genre_service)],
+    genre_service: Annotated[
+        GenreService,
+        Depends(get_genre_service),
+    ],
 ):
     return genre_service.delete_genre_by_id(genre_id)

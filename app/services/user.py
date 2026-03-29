@@ -1,3 +1,4 @@
+from core.constants import UserRole
 from core.security.password_utils import hash_password, verify_password
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -159,3 +160,13 @@ class UserService:
             )
 
         return UserResponse.model_validate(user)
+
+    def is_admin(self, user_id: int) -> bool:
+        role = self.user_repository.get_user_role(user_id)
+        if role is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with id={user_id} not found",
+            )
+
+        return role == UserRole.admin.value

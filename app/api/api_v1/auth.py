@@ -6,7 +6,7 @@ from fastapi import (
     Depends,
 )
 
-from dependencies.auth import get_current_user_id_by_refresh_token_payload
+from dependencies.auth import get_user_by_refresh_token
 from dependencies.services import get_user_service
 from schemas.token import TokenInfo
 from schemas.user import (
@@ -33,7 +33,10 @@ router = APIRouter(
 )
 def register_user(
     create_user_data: UserCreate,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_service: Annotated[
+        UserService,
+        Depends(get_user_service),
+    ],
 ):
     return user_service.create_user(create_user_data)
 
@@ -45,7 +48,10 @@ def register_user(
 )
 def login_user(
     login_data: UserLogin,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_service: Annotated[
+        UserService,
+        Depends(get_user_service),
+    ],
 ):
     user = user_service.authenticate_user(login_data)
     access_token = create_access_token(user)
@@ -66,7 +72,7 @@ def login_user(
 def refresh_access_token(
     user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_refresh_token_payload),
+        Depends(get_user_by_refresh_token),
     ],
     user_service: Annotated[
         UserService,

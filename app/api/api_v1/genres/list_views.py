@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
-
+from dependencies.auth import get_admin_by_access_token
 from dependencies.services import get_genre_service
 from schemas.genre import GenreResponseList, GenreResponse, GenreCreate
 from services import GenreService
@@ -27,6 +27,9 @@ def get_genres(
     "/",
     response_model=GenreResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def create_genre(
     create_genre_data: GenreCreate,

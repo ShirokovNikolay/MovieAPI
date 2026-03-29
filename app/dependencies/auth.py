@@ -7,12 +7,11 @@ from core.config import settings
 from core.constants import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from core.security.jwt_utils import decode_jwt
 from core.security.validators import validate_token_payload
-from dependencies.services import get_review_service
-from schemas.review import ReviewResponseList, ReviewResponse
-from services import ReviewService
+from dependencies.services import get_user_service
+from services import UserService
 
 
-def get_current_token_payload(
+def get_token_payload(
     credentials: Annotated[
         HTTPAuthorizationCredentials,
         Depends(settings.http_bearer),
@@ -26,10 +25,10 @@ def get_current_token_payload(
     return payload
 
 
-def get_current_user_id_by_access_token_payload(
+def get_user_by_access_token(
     payload: Annotated[
         dict,
-        Depends(get_current_token_payload),
+        Depends(get_token_payload),
     ],
 ) -> int:
     validate_token_payload(
@@ -40,10 +39,10 @@ def get_current_user_id_by_access_token_payload(
     return user_id
 
 
-def get_current_user_id_by_refresh_token_payload(
+def get_user_by_refresh_token(
     payload: Annotated[
         dict,
-        Depends(get_current_token_payload),
+        Depends(get_token_payload),
     ],
 ) -> int:
     validate_token_payload(
@@ -54,40 +53,39 @@ def get_current_user_id_by_refresh_token_payload(
     return user_id
 
 
-def get_own_reviews(
-    current_user_id: Annotated[
+def get_admin_by_access_token(
+    user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_user_by_access_token),
     ],
-    user_id: int,
-    review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+    user_service: Annotated[
+        UserService,
+        Depends(get_user_service),
     ],
-) -> ReviewResponseList:
-    if user_id == current_user_id:
-        return review_service.get_user_reviews(user_id)
+) -> int:
+    if user_service.is_admin(user_id):
+        return user_id
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not allowed to view this user's reviews",
+        detail="You are not allowed to access this resource",
     )
 
 
-def get_own_review_about_movie(
+def get_owner_or_admin_by_access_token(
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_user_by_access_token),
     ],
-    user_id: int,
-    movie_id: int,
-    review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+    owner_id: int,
+    user_service: Annotated[
+        UserService,
+        Depends(get_user_service),
     ],
-) -> ReviewResponse:
-    if user_id == current_user_id:
-        return review_service.get_user_review_about_movie(user_id, movie_id)
+) -> int:
+    if current_user_id == owner_id or user_service.is_admin(current_user_id):
+        return current_user_id
+
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not allowed to view this user's reviews",
+        detail="You are not allowed to access this resource",
     )

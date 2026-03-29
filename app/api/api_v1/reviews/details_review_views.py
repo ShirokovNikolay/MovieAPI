@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Depends
 
-from dependencies.auth import get_current_user_id_by_access_token_payload
+from dependencies.auth import get_current_user_id_by_access_token
 from schemas.review import ReviewResponse, ReviewUpdate, ReviewPartialUpdate
 from dependencies.services import get_review_service
 from services import ReviewService
@@ -33,7 +33,7 @@ def get_review(
 def update_review(
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_current_user_id_by_access_token),
     ],
     review_id: int,
     update_review_data: ReviewUpdate,
@@ -57,7 +57,7 @@ def update_review(
 def partial_update_review(
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_current_user_id_by_access_token),
     ],
     review_id: int,
     update_review_data: ReviewPartialUpdate,

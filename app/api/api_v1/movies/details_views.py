@@ -5,7 +5,7 @@ from fastapi import status
 from fastapi.responses import RedirectResponse
 
 from dependencies.services import get_movie_service
-from dependencies.auth import get_current_user_id_by_access_token_payload
+from dependencies.auth import get_current_user_id_by_access_token
 from schemas.movie import (
     MovieResponse,
     MovieUpdate,
@@ -28,7 +28,7 @@ def watch_movie(
         MovieService,
         Depends(get_movie_service),
     ],
-    _=Depends(get_current_user_id_by_access_token_payload),
+    _=Depends(get_current_user_id_by_access_token),
 ):
     movie = movie_service.get_movie_by_id(movie_id)
     return RedirectResponse(url=movie.source_url)

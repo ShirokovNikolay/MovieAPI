@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, status, Depends
-from dependencies.auth import get_current_user_id_by_access_token_payload
+from dependencies.auth import get_current_user_id_by_access_token
 from dependencies.services import get_user_service
 from schemas.user import (
     UserResponse,
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/me")
 def get_user_profile(
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_current_user_id_by_access_token),
     ],
     user_service: Annotated[
         UserService,
@@ -40,7 +40,7 @@ def update_user_profile(
     update_data: UserUpdate,
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_current_user_id_by_access_token),
     ],
     user_service: Annotated[
         UserService,
@@ -59,7 +59,7 @@ def partial_update_user_profile(
     update_data: UserPartialUpdate,
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_current_user_id_by_access_token),
     ],
     user_service: Annotated[
         UserService,
@@ -76,7 +76,7 @@ def partial_update_user_profile(
 def delete_user_profile(
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token_payload),
+        Depends(get_current_user_id_by_access_token),
     ],
     user_service: Annotated[
         UserService,

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
+
 from models import User
 from schemas.user import UserCreate, UserUpdate, UserPartialUpdate
 
@@ -7,6 +8,10 @@ from schemas.user import UserCreate, UserUpdate, UserPartialUpdate
 class UserRepository:
     def __init__(self, session: Session) -> None:
         self.session = session
+
+    def get_user_role(self, user_id: int) -> str | None:
+        stmt = select(User.role).where(User.id == user_id)
+        return self.session.execute(stmt).scalars().first()
 
     def get_user_by_id(self, user_id: int) -> User | None:
         return self.session.get(User, user_id)
