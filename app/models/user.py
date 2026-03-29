@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import String, func
+from sqlalchemy import String, func, Enum
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
+from core.constants import UserRole
 from database import Base
 
 from typing import TYPE_CHECKING
@@ -16,6 +17,10 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(
         primary_key=True,
+    )
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="user_role"),
+        server_default=UserRole.user.value,
     )
     surname: Mapped[str] = mapped_column(String(30))
     name: Mapped[str] = mapped_column(String(20))
