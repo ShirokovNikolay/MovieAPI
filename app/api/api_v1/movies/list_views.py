@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from dependencies.services import get_movie_service
+from dependencies.auth import get_admin_by_access_token
 from schemas.movie import MovieResponseList, MovieCreate, MovieResponse
 
 from services import MovieService
@@ -122,9 +123,15 @@ def get_top_newest_movies(
     "/",
     response_model=MovieResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def create_movie(
     create_movie_data: MovieCreate,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
 ):
     return movie_service.create_movie(create_movie_data)

@@ -5,7 +5,10 @@ from fastapi import status
 from fastapi.responses import RedirectResponse
 
 from dependencies.services import get_movie_service
-from dependencies.auth import get_current_user_id_by_access_token
+from dependencies.auth import (
+    get_user_by_access_token,
+    get_admin_by_access_token,
+)
 from schemas.movie import (
     MovieResponse,
     MovieUpdate,
@@ -21,6 +24,9 @@ router = APIRouter(
 @router.get(
     "/watch",
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    dependencies=[
+        Depends(get_user_by_access_token),
+    ],
 )
 def watch_movie(
     movie_id: int,
@@ -28,7 +34,6 @@ def watch_movie(
         MovieService,
         Depends(get_movie_service),
     ],
-    _=Depends(get_current_user_id_by_access_token),
 ):
     movie = movie_service.get_movie_by_id(movie_id)
     return RedirectResponse(url=movie.source_url)
@@ -53,6 +58,9 @@ def get_movie(
     "/",
     response_model=MovieResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def update_movie(
     movie_id: int,
@@ -69,6 +77,9 @@ def update_movie(
     "/",
     response_model=MovieResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def partial_update_movie(
     movie_id: int,
@@ -84,6 +95,9 @@ def partial_update_movie(
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def delete_movie(
     movie_id: int,
