@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 
+from core.constants import UserRole
 from repositories import ReviewRepository, UserRepository, MovieRepository
 from sqlalchemy.orm import Session
 from fastapi import status
@@ -10,6 +11,7 @@ from schemas.review import (
     ReviewUpdate,
     ReviewPartialUpdate,
 )
+from schemas.user import UserResponse
 
 
 class ReviewService:
@@ -176,14 +178,8 @@ class ReviewService:
                 detail=f"User with {current_user_id=} not found",
             )
 
-        review = self.review_repository.get_review_by_id(review_id)
-        if review is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Review with {review_id=} not found",
-            )
-
-        if review.user_id != current_user_id:
+        review_owner = self.get_review_owner(review_id)
+        if review_owner.id != current_user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"User with user_id={current_user_id} is not allowed to update review with review_id={review.id}",
@@ -206,14 +202,8 @@ class ReviewService:
                 detail=f"User with {current_user_id=} not found",
             )
 
-        review = self.review_repository.get_review_by_id(review_id)
-        if review is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Review with {review_id=} not found",
-            )
-
-        if review.user_id != current_user_id:
+        review_owner = self.get_review_owner(review_id)
+        if review_owner.id != current_user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"User with user_id={current_user_id} is not allowed to update review with review_id={review.id}",
@@ -235,16 +225,26 @@ class ReviewService:
                 detail=f"User with {current_user_id=} not found",
             )
 
-        review = self.review_repository.get_review_by_id(review_id)
-        if review is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Review with {review_id=} not found",
-            )
+        review_owner = self.get_review_owner(review_id)
 
-        if review.user_id != current_user_id:
+        if (
+            review_owner.id != current_user_id
+            and self.user_repository.get_user_role(current_user_id)
+            != UserRole.admin.value
+        ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"User with user_id={current_user_id} is not allowed to delete review with review_id={review.id}",
+                detail=f"You are not allowed to delete review with review_id={review_id}",
             )
+
         self.review_repository.delete_review(review_id)
+
+    def get_review_owner(self, review_id: int) -> UserResponse:
+        user = self.review_repository.get_review_owner(review_id)
+        if user is not None:
+            return UserResponse.model_validate(user)
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Review with {review_id=} not found",
+        )

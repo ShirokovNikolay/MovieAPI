@@ -3,13 +3,21 @@ from sqlalchemy import and_, desc
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
-from models import Review
+from models import Review, User
 from schemas.review import ReviewCreate, ReviewPartialUpdate, ReviewUpdate
 
 
 class ReviewRepository:
     def __init__(self, session: Session) -> None:
         self.session = session
+
+    def get_review_owner(self, review_id: int) -> User | None:
+        stmt = (
+            select(User)
+            .join(Review, Review.user_id == User.id)
+            .where(Review.id == review_id)
+        )
+        return self.session.execute(stmt).scalars().first()
 
     def get_all_reviews(self) -> list[Review]:
         stmt = select(Review)
