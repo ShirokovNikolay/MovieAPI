@@ -2,11 +2,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 
+from dependencies.auth import get_admin_by_access_token
 from schemas.user import UserResponseList, UserCreate, UserResponse
 from services import UserService
 from dependencies.services import get_user_service
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_admin_by_access_token)],
+)
 
 
 @router.get(
