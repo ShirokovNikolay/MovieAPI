@@ -69,23 +69,3 @@ def get_admin_by_access_token(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="You are not allowed to access this resource",
     )
-
-
-def get_owner_or_admin_by_access_token(
-    current_user_id: Annotated[
-        int,
-        Depends(get_user_by_access_token),
-    ],
-    owner_id: int,
-    user_service: Annotated[
-        UserService,
-        Depends(get_user_service),
-    ],
-) -> int:
-    if current_user_id == owner_id or user_service.is_admin(current_user_id):
-        return current_user_id
-
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not allowed to access this resource",
-    )

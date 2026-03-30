@@ -2,8 +2,15 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Depends
 
-from dependencies.auth import get_current_user_id_by_access_token
-from schemas.review import ReviewResponse, ReviewUpdate, ReviewPartialUpdate
+from dependencies.auth import (
+    get_user_by_access_token,
+    get_admin_by_access_token,
+)
+from schemas.review import (
+    ReviewResponse,
+    ReviewUpdate,
+    ReviewPartialUpdate,
+)
 from dependencies.services import get_review_service
 from services import ReviewService
 
@@ -14,6 +21,9 @@ router = APIRouter(prefix="/{review_id}")
     "/",
     response_model=ReviewResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def get_review(
     review_id: int,
@@ -33,7 +43,7 @@ def get_review(
 def update_review(
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token),
+        Depends(get_user_by_access_token),
     ],
     review_id: int,
     update_review_data: ReviewUpdate,
@@ -57,7 +67,7 @@ def update_review(
 def partial_update_review(
     current_user_id: Annotated[
         int,
-        Depends(get_current_user_id_by_access_token),
+        Depends(get_user_by_access_token),
     ],
     review_id: int,
     update_review_data: ReviewPartialUpdate,
@@ -78,11 +88,14 @@ def partial_update_review(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_review(
-    user_id: int,
+    current_user_id: Annotated[
+        int,
+        Depends(get_user_by_access_token),
+    ],
     review_id: int,
     review_service: Annotated[
         ReviewService,
         Depends(get_review_service),
     ],
 ):
-    review_service.delete_review(user_id, review_id)
+    review_service.delete_review(current_user_id, review_id)

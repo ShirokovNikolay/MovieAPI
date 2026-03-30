@@ -1,8 +1,17 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
+
+from dependencies.auth import (
+    get_admin_by_access_token,
+    get_user_by_access_token,
+)
 from dependencies.services import get_review_service
-from schemas.review import ReviewResponse, ReviewCreate, ReviewResponseList
+from schemas.review import (
+    ReviewResponse,
+    ReviewCreate,
+    ReviewResponseList,
+)
 from services import ReviewService
 
 router = APIRouter()
@@ -12,6 +21,9 @@ router = APIRouter()
     "/",
     response_model=ReviewResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 def get_review_list(
     review_service: Annotated[
@@ -29,10 +41,13 @@ def get_review_list(
 )
 def create_review(
     create_review_data: ReviewCreate,
+    current_user_id: Annotated[
+        int,
+        Depends(get_user_by_access_token),
+    ],
     review_service: Annotated[
         ReviewService,
         Depends(get_review_service),
     ],
-    user_id: int,
 ):
-    return review_service.create_review(user_id, create_review_data)
+    return review_service.create_review(current_user_id, create_review_data)

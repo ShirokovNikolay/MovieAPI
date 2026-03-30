@@ -16,7 +16,10 @@ router = APIRouter(prefix="/{movie_id}")
 )
 def get_movie_reviews(
     movie_id: int,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.get_movie_reviews(movie_id)
 
@@ -29,7 +32,10 @@ def get_movie_reviews(
 def get_top_rating_movie_reviews(
     movie_id: int,
     limit: int,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.get_top_rating_movie_reviews(movie_id, limit)
 
@@ -42,7 +48,10 @@ def get_top_rating_movie_reviews(
 def get_top_newest_movie_reviews(
     movie_id: int,
     limit: int,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.get_top_newest_movie_reviews(movie_id, limit)
 
@@ -55,6 +64,9 @@ def get_top_newest_movie_reviews(
 def get_top_oldest_movie_reviews(
     movie_id: int,
     limit: int,
-    review_service: Annotated[ReviewService, Depends(get_review_service)],
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
 ):
     return review_service.get_top_oldest_movie_reviews(movie_id, limit)
