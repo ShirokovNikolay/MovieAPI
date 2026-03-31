@@ -15,7 +15,7 @@ class DataBaseConfig(BaseModel):
 
     @property
     def url_database(self) -> str:
-        return f"postgresql+psycopg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
+        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
 
 
 class AuthJWTConfig(BaseModel):
