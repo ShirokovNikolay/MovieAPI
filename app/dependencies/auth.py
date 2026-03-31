@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import Depends, status, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials
 
 from core.config import settings
 from core.constants import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
@@ -12,15 +11,12 @@ from services import UserService
 
 
 def get_token_payload(
-    credentials: Annotated[
-        HTTPAuthorizationCredentials,
-        Depends(settings.http_bearer),
+    token: Annotated[
+        str,
+        Depends(settings.oauth2_scheme),
     ],
 ) -> dict:
-    token = credentials.credentials
-    payload = decode_jwt(
-        token=token,
-    )
+    payload = decode_jwt(token=token)
     payload["sub"] = int(payload["sub"])
     return payload
 

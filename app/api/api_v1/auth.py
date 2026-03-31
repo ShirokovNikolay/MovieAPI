@@ -5,6 +5,7 @@ from fastapi import (
     status,
     Depends,
 )
+from fastapi.security import OAuth2PasswordRequestForm
 
 from dependencies.auth import get_user_by_refresh_token
 from dependencies.services import get_user_service
@@ -47,12 +48,16 @@ def register_user(
     status_code=status.HTTP_200_OK,
 )
 def login_user(
-    login_data: UserLogin,
+    oauth2_form: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[
         UserService,
         Depends(get_user_service),
     ],
 ):
+    login_data = UserLogin(
+        login=oauth2_form.username,
+        password=oauth2_form.password,
+    )
     user = user_service.authenticate_user(login_data)
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)

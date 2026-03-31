@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     database: DataBaseConfig
     auth_jwt: AuthJWTConfig
     http_bearer: HTTPBearer = HTTPBearer()
+    oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer("/api/v1/auth/login")
     debug: bool
 
     model_config: SettingsConfigDict = SettingsConfigDict(
