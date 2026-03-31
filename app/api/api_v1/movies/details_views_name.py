@@ -14,8 +14,8 @@ router = APIRouter(prefix="/{movie_name}")
     response_model=MovieResponse,
     status_code=status.HTTP_200_OK,
 )
-def get_movie_by_name(
+async def get_movie_by_name(
     movie_name: str,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ) -> MovieResponse:
-    return movie_service.get_movie_by_name(movie_name)
+    return await movie_service.get_movie_by_name(movie_name)
