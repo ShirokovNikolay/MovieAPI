@@ -25,13 +25,13 @@ router = APIRouter()
         Depends(get_admin_by_access_token),
     ],
 )
-def get_review_list(
+async def get_review_list(
     review_service: Annotated[
         ReviewService,
         Depends(get_review_service),
     ],
 ):
-    return review_service.get_reviews()
+    return await review_service.get_reviews()
 
 
 @router.post(
@@ -39,7 +39,7 @@ def get_review_list(
     response_model=ReviewResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def create_review(
+async def create_review(
     create_review_data: ReviewCreate,
     current_user_id: Annotated[
         int,
@@ -50,4 +50,4 @@ def create_review(
         Depends(get_review_service),
     ],
 ):
-    return review_service.create_review(current_user_id, create_review_data)
+    return await review_service.create_review(current_user_id, create_review_data)
