@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
 from models import Genre
@@ -6,76 +6,79 @@ from schemas.genre import GenreCreate, GenreUpdate, GenrePartialUpdate
 
 
 class GenreRepository:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    def get_genre_by_id(self, genre_id: int) -> Genre | None:
+    async def get_genre_by_id(self, genre_id: int) -> Genre | None:
         stmt = select(Genre).where(Genre.id == genre_id)
-        return self.session.execute(stmt).scalars().first()
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
 
-    def get_genre_by_name(self, name: str) -> Genre | None:
+    async def get_genre_by_name(self, name: str) -> Genre | None:
         stmt = select(Genre).where(Genre.name == name)
-        return self.session.execute(stmt).scalars().first()
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
 
-    def genre_id_exists(self, genre_id: int) -> bool:
-        return self.get_genre_by_id(genre_id) is not None
+    async def genre_id_exists(self, genre_id: int) -> bool:
+        return await self.get_genre_by_id(genre_id) is not None
 
-    def genre_name_exists(self, name: str) -> bool:
-        return self.get_genre_by_name(name) is not None
+    async def genre_name_exists(self, name: str) -> bool:
+        return await self.get_genre_by_name(name) is not None
 
-    def get_all_genres(self) -> list[Genre]:
-        return list(self.session.execute(select(Genre)).scalars().all())
+    async def get_all_genres(self) -> list[Genre]:
+        result = await self.session.execute(select(Genre))
+        return list(result.scalars().all())
 
-    def create_genre(self, create_data: GenreCreate) -> Genre:
+    async def create_genre(self, create_data: GenreCreate) -> Genre:
         genre = Genre(**create_data.model_dump())
         self.session.add(genre)
-        self.session.commit()
-        self.session.refresh(genre)
+        await self.session.commit()
+        await self.session.refresh(genre)
         return genre
 
-    def update_genre(
+    async def update_genre(
         self,
         genre_id: int,
         update_data: GenreUpdate,
     ) -> Genre | None:
-        genre = self.get_genre_by_id(genre_id)
+        genre = await self.get_genre_by_id(genre_id)
         if not genre:
             return None
         for field, value in update_data.model_dump().items():
             setattr(genre, field, value)
 
-        self.session.commit()
-        self.session.refresh(genre)
+        await self.session.commit()
+        await self.session.refresh(genre)
         return genre
 
-    def partial_update_genre(
+    async def partial_update_genre(
         self,
         genre_id: int,
         update_data: GenrePartialUpdate,
     ) -> Genre | None:
-        genre = self.get_genre_by_id(genre_id)
+        genre = await self.get_genre_by_id(genre_id)
         if not genre:
             return None
 
         for field, value in update_data.model_dump(exclude_unset=True).items():
             setattr(genre, field, value)
 
-        self.session.commit()
-        self.session.refresh(genre)
+        await self.session.commit()
+        await self.session.refresh(genre)
         return genre
 
-    def delete_genre_by_id(self, genre_id: int) -> bool:
+    async def delete_genre_by_id(self, genre_id: int) -> bool:
         if self.get_genre_by_id(genre_id) is None:
             return False
         stmt = delete(Genre).where(Genre.id == genre_id)
-        self.session.execute(stmt)
-        self.session.commit()
+        await self.session.execute(stmt)
+        await self.session.commit()
         return True
 
-    def delete_genre_by_name(self, name: str) -> bool:
+    async def delete_genre_by_name(self, name: str) -> bool:
         if self.get_genre_by_name(name) is None:
             return False
         stmt = delete(Genre).where(Genre.name == name)
-        self.session.execute(stmt)
-        self.session.commit()
+        await self.session.execute(stmt)
+        await self.session.commit()
         return True

@@ -1,44 +1,49 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 from sqlalchemy import select, delete, and_, func, desc
 from models import Movie, Genre
 from schemas.movie import MovieCreate, MovieUpdate, MoviePartialUpdate
 
 
 class MovieRepository:
-    def __init__(self, session: Session):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
-    def get_movie_by_id(self, movie_id: int) -> Movie | None:
+    async def get_movie_by_id(self, movie_id: int) -> Movie | None:
         stmt = (
             select(Movie).options(joinedload(Movie.genre)).where(Movie.id == movie_id)
         )
-        return self.session.execute(stmt).scalars().first()
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
 
-    def get_movie_by_name(self, movie_name: str) -> Movie | None:
+    async def get_movie_by_name(self, movie_name: str) -> Movie | None:
         stmt = select(Movie).where(Movie.name == movie_name)
-        return self.session.execute(stmt).scalars().first()
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
 
-    def movie_id_exists(self, movie_id: int) -> bool:
-        return self.get_movie_by_id(movie_id) is not None
+    async def movie_id_exists(self, movie_id: int) -> bool:
+        return await self.get_movie_by_id(movie_id) is not None
 
-    def movie_name_exists(self, movie_name: str) -> bool:
-        return self.get_movie_by_name(movie_name) is not None
+    async def movie_name_exists(self, movie_name: str) -> bool:
+        return await self.get_movie_by_name(movie_name) is not None
 
-    def get_movies(self) -> list[Movie]:
+    async def get_movies(self) -> list[Movie]:
         stmt = select(Movie).options(joinedload(Movie.genre))
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_movies_by_genre_id(self, genre_id: int) -> list[Movie]:
+    async def get_movies_by_genre_id(self, genre_id: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
             .where(Movie.genre_id == genre_id)
         )
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_movies_by_genre_name(self, genre_name: str) -> list[Movie]:
+    async def get_movies_by_genre_name(self, genre_name: str) -> list[Movie]:
         stmt = (
             select(Movie)
             .join(Movie.genre)
@@ -47,9 +52,10 @@ class MovieRepository:
             )
             .where(Genre.name == genre_name)
         )
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_movies_by_rating_range(
+    async def get_movies_by_rating_range(
         self, min_rating: int, max_rating: int
     ) -> list[Movie]:
         stmt = (
@@ -59,9 +65,10 @@ class MovieRepository:
                 Movie.rating.between(min_rating, max_rating),
             )
         )
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_movies_by_year(self, year: int) -> list[Movie]:
+    async def get_movies_by_year(self, year: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
@@ -69,9 +76,10 @@ class MovieRepository:
                 func.extract("year", Movie.release_date) == year,
             )
         )
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_movies_by_release_date(
+    async def get_movies_by_release_date(
         self,
         release_date_start: datetime,
         release_date_end: datetime,
@@ -86,9 +94,10 @@ class MovieRepository:
                 )
             )
         )
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_top_rated_movies(self, limit: int) -> list[Movie]:
+    async def get_top_rated_movies(self, limit: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
@@ -96,70 +105,73 @@ class MovieRepository:
             .limit(limit)
         )
 
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_top_newest_movies(self, limit: int) -> list[Movie]:
+    async def get_top_newest_movies(self, limit: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
             .order_by(desc(Movie.release_date))
             .limit(limit)
         )
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def get_top_oldest_movies(self, limit: int) -> list[Movie]:
+    async def get_top_oldest_movies(self, limit: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
             .order_by(Movie.release_date)
             .limit(limit)
         )
-        return list(self.session.execute(stmt).scalars().all())
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
 
-    def create_movie(self, create_movie_data: MovieCreate) -> Movie | None:
+    async def create_movie(self, create_movie_data: MovieCreate) -> Movie | None:
         movie = Movie(**create_movie_data.model_dump())
         self.session.add(movie)
-        self.session.commit()
-        self.session.refresh(movie)
+        await self.session.commit()
+        await self.session.refresh(movie)
         return movie
 
-    def update_movie(
+    async def update_movie(
         self,
         movie_id,
         update_movie_data: MovieUpdate,
     ) -> Movie | None:
-        movie = self.get_movie_by_id(movie_id)
+        movie = await self.get_movie_by_id(movie_id)
         if movie is None:
             return None
 
         for field, value in update_movie_data.model_dump().items():
             setattr(movie, field, value)
 
-        self.session.commit()
-        self.session.refresh(movie)
+        await self.session.commit()
+        await self.session.refresh(movie)
         return movie
 
-    def partial_update_movie(
+    async def partial_update_movie(
         self,
         movie_id,
         update_movie_data: MoviePartialUpdate,
     ) -> Movie | None:
-        movie = self.get_movie_by_id(movie_id)
+        movie = await self.get_movie_by_id(movie_id)
         if movie is None:
             return None
 
         for field, value in update_movie_data.model_dump(exclude_unset=True).items():
             setattr(movie, field, value)
 
-        self.session.commit()
-        self.session.refresh(movie)
+        await self.session.commit()
+        await self.session.refresh(movie)
         return movie
 
-    def delete_movie_by_id(self, movie_id: int) -> bool:
-        if self.get_movie_by_id(movie_id) is None:
+    async def delete_movie_by_id(self, movie_id: int) -> bool:
+        if await self.get_movie_by_id(movie_id) is None:
             return False
 
         stmt = delete(Movie).where(Movie.id == movie_id)
-        self.session.execute(stmt)
-        self.session.commit()
+        await self.session.execute(stmt)
+        await self.session.commit()
         return True
