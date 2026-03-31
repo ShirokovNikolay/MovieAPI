@@ -49,7 +49,7 @@ def get_user_by_refresh_token(
     return user_id
 
 
-def get_admin_by_access_token(
+async def get_admin_by_access_token(
     user_id: Annotated[
         int,
         Depends(get_user_by_access_token),
@@ -59,7 +59,7 @@ def get_admin_by_access_token(
         Depends(get_user_service),
     ],
 ) -> int:
-    if user_service.is_admin(user_id):
+    if await user_service.is_admin(user_id):
         return user_id
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,

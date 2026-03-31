@@ -1,20 +1,20 @@
-from typing import Generator, Annotated
+from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import session_factory
 from services import GenreService, MovieService, ReviewService, UserService
 
 
 async def get_db():
-    with session_factory() as db:
+    async with session_factory() as db:
         yield db
 
 
-def get_genre_service(
+async def get_genre_service(
     session: Annotated[
-        Session,
+        AsyncSession,
         Depends(get_db),
     ],
 ):
@@ -27,9 +27,9 @@ def get_genre_service(
         """
 
 
-def get_movie_service(
+async def get_movie_service(
     session: Annotated[
-        Session,
+        AsyncSession,
         Depends(get_db),
     ],
 ):
@@ -42,9 +42,9 @@ def get_movie_service(
         """
 
 
-def get_review_service(
+async def get_review_service(
     session: Annotated[
-        Session,
+        AsyncSession,
         Depends(get_db),
     ],
 ):
@@ -57,9 +57,9 @@ def get_review_service(
         """
 
 
-def get_user_service(
+async def get_user_service(
     session: Annotated[
-        Session,
+        AsyncSession,
         Depends(get_db),
     ],
 ):
