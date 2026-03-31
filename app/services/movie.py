@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status
 
 from repositories import MovieRepository, GenreRepository
@@ -15,13 +15,13 @@ from schemas.movie import (
 
 
 class MovieService:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
         self.movie_repository = MovieRepository(session)
         self.genre_repository = GenreRepository(session)
 
-    def get_movie_by_id(self, movie_id: int) -> MovieResponse:
-        movie = self.movie_repository.get_movie_by_id(movie_id)
+    async def get_movie_by_id(self, movie_id: int) -> MovieResponse:
+        movie = await self.movie_repository.get_movie_by_id(movie_id)
         if movie is not None:
             return MovieResponse.model_validate(movie)
 
@@ -30,8 +30,8 @@ class MovieService:
             detail=f"Movie with {movie_id=} not found",
         )
 
-    def get_movie_by_name(self, movie_name: str) -> MovieResponse:
-        movie = self.movie_repository.get_movie_by_name(movie_name)
+    async def get_movie_by_name(self, movie_name: str) -> MovieResponse:
+        movie = await self.movie_repository.get_movie_by_name(movie_name)
         if movie is not None:
             return MovieResponse.model_validate(movie)
 
@@ -40,120 +40,122 @@ class MovieService:
             detail=f"Movie {movie_name=} not found",
         )
 
-    def get_movies(self) -> MovieResponseList:
+    async def get_movies(self) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_movies()
+            for movie in await self.movie_repository.get_movies()
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_movies_by_genre_id(self, genre_id: int) -> MovieResponseList:
-        if not self.genre_repository.genre_id_exists(genre_id):
+    async def get_movies_by_genre_id(self, genre_id: int) -> MovieResponseList:
+        if not await self.genre_repository.genre_id_exists(genre_id):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Genre with {genre_id} not found",
             )
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_movies_by_genre_id(genre_id)
+            for movie in await self.movie_repository.get_movies_by_genre_id(genre_id)
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_movies_by_genre_name(self, genre_name: str) -> MovieResponseList:
-        if not self.genre_repository.genre_name_exists(genre_name):
+    async def get_movies_by_genre_name(self, genre_name: str) -> MovieResponseList:
+        if not await self.genre_repository.genre_name_exists(genre_name):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Genre with {genre_name=} not found",
             )
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_movies_by_genre_name(genre_name)
+            for movie in await self.movie_repository.get_movies_by_genre_name(
+                genre_name
+            )
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_movies_by_rating_range(
+    async def get_movies_by_rating_range(
         self,
         min_rating: int,
         max_rating: int,
     ) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_movies_by_rating_range(
+            for movie in await self.movie_repository.get_movies_by_rating_range(
                 min_rating,
                 max_rating,
             )
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_movies_by_year(self, year: int) -> MovieResponseList:
+    async def get_movies_by_year(self, year: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_movies_by_year(year)
+            for movie in await self.movie_repository.get_movies_by_year(year)
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_movies_by_release_date_range(
+    async def get_movies_by_release_date_range(
         self,
         release_date_start: datetime,
         release_date_end: datetime,
     ) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_movies_by_release_date(
+            for movie in await self.movie_repository.get_movies_by_release_date(
                 release_date_start,
                 release_date_end,
             )
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_top_rated_movies(self, limit: int) -> MovieResponseList:
+    async def get_top_rated_movies(self, limit: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_top_rated_movies(limit)
+            for movie in await self.movie_repository.get_top_rated_movies(limit)
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_top_newest_movies(self, limit: int) -> MovieResponseList:
+    async def get_top_newest_movies(self, limit: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_top_newest_movies(limit)
+            for movie in await self.movie_repository.get_top_newest_movies(limit)
         ]
         return MovieResponseList(movie_list=movies)
 
-    def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
+    async def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in self.movie_repository.get_top_oldest_movies(limit)
+            for movie in await self.movie_repository.get_top_oldest_movies(limit)
         ]
         return MovieResponseList(movie_list=movies)
 
-    def create_movie(self, create_movie_data: MovieCreate) -> MovieResponse:
-        if self.movie_repository.movie_name_exists(create_movie_data.name):
+    async def create_movie(self, create_movie_data: MovieCreate) -> MovieResponse:
+        if await self.movie_repository.movie_name_exists(create_movie_data.name):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movie with movie_name={create_movie_data.name} already exists",
             )
-        if not self.genre_repository.genre_id_exists(create_movie_data.genre_id):
+        if not await self.genre_repository.genre_id_exists(create_movie_data.genre_id):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Genre with genre_id={create_movie_data.genre_id} not found",
             )
-        movie = self.movie_repository.create_movie(create_movie_data)
+        movie = await self.movie_repository.create_movie(create_movie_data)
         return MovieResponse.model_validate(movie)
 
-    def update_movie(
+    async def update_movie(
         self,
         movie_id: int,
         update_movie_data: MovieUpdate,
     ) -> MovieResponse:
-        movie = self.movie_repository.get_movie_by_id(movie_id)
+        movie = await self.movie_repository.get_movie_by_id(movie_id)
         if movie is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Movie with {movie_id=} not found",
             )
 
-        if not self.genre_repository.genre_id_exists(update_movie_data.genre_id):
+        if not await self.genre_repository.genre_id_exists(update_movie_data.genre_id):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Genre with genre_id={update_movie_data.genre_id} not found",
@@ -161,21 +163,23 @@ class MovieService:
 
         if (
             movie.name != update_movie_data.name
-            and self.movie_repository.movie_name_exists(update_movie_data.name)
+            and await self.movie_repository.movie_name_exists(update_movie_data.name)
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movie with movie_name={update_movie_data.name} already exists",
             )
-        updated_movie = self.movie_repository.update_movie(movie_id, update_movie_data)
+        updated_movie = await self.movie_repository.update_movie(
+            movie_id, update_movie_data
+        )
         return MovieResponse.model_validate(updated_movie)
 
-    def partial_update_movie(
+    async def partial_update_movie(
         self,
         movie_id: int,
         update_movie_data: MoviePartialUpdate,
     ) -> MovieResponse:
-        movie = self.movie_repository.get_movie_by_id(movie_id)
+        movie = await self.movie_repository.get_movie_by_id(movie_id)
         if movie is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -184,7 +188,9 @@ class MovieService:
 
         if (
             "genre_id" in update_movie_data.model_fields_set
-            and not self.genre_repository.genre_id_exists(update_movie_data.genre_id)
+            and not await self.genre_repository.genre_id_exists(
+                update_movie_data.genre_id
+            )
         ):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -194,19 +200,19 @@ class MovieService:
         if (
             "name" in update_movie_data.model_fields_set
             and movie.name != update_movie_data.name
-            and self.movie_repository.movie_name_exists(update_movie_data.name)
+            and await self.movie_repository.movie_name_exists(update_movie_data.name)
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movie with movie_name={update_movie_data.name} already exists",
             )
-        updated_movie = self.movie_repository.partial_update_movie(
+        updated_movie = await self.movie_repository.partial_update_movie(
             movie_id, update_movie_data
         )
         return MovieResponse.model_validate(updated_movie)
 
-    def delete_movie_by_id(self, movie_id: int) -> None:
-        if not self.movie_repository.delete_movie_by_id(movie_id):
+    async def delete_movie_by_id(self, movie_id: int) -> None:
+        if not await self.movie_repository.delete_movie_by_id(movie_id):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Movie with {movie_id} not found",
