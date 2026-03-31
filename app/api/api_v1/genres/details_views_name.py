@@ -16,14 +16,14 @@ router = APIRouter(
     response_model=GenreResponse,
     status_code=status.HTTP_200_OK,
 )
-def get_genre_by_name(
+async def get_genre_by_name(
     genre_name: str,
     genre_service: Annotated[
         GenreService,
         Depends(get_genre_service),
     ],
 ):
-    return genre_service.get_genre_by_name(genre_name)
+    return await genre_service.get_genre_by_name(genre_name)
 
 
 @router.delete(
@@ -33,11 +33,11 @@ def get_genre_by_name(
         Depends(get_admin_by_access_token),
     ],
 )
-def delete_genre_by_name(
+async def delete_genre_by_name(
     genre_name: str,
     genre_service: Annotated[
         GenreService,
         Depends(get_genre_service),
     ],
 ):
-    return genre_service.delete_genre_by_name(genre_name)
+    return await genre_service.delete_genre_by_name(genre_name)

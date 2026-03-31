@@ -16,14 +16,14 @@ router = APIRouter(
     response_model=GenreResponse,
     status_code=status.HTTP_200_OK,
 )
-def get_genre(
+async def get_genre(
     genre_id: int,
     genre_service: Annotated[
         GenreService,
         Depends(get_genre_service),
     ],
 ):
-    return genre_service.get_genre_by_id(genre_id)
+    return await genre_service.get_genre_by_id(genre_id)
 
 
 @router.put(
@@ -34,7 +34,7 @@ def get_genre(
         Depends(get_admin_by_access_token),
     ],
 )
-def update_genre(
+async def update_genre(
     genre_id: int,
     update_genre_data: GenreUpdate,
     genre_service: Annotated[
@@ -42,7 +42,7 @@ def update_genre(
         Depends(get_genre_service),
     ],
 ):
-    return genre_service.update_genre(genre_id, update_genre_data)
+    return await genre_service.update_genre(genre_id, update_genre_data)
 
 
 @router.patch(
@@ -53,7 +53,7 @@ def update_genre(
         Depends(get_admin_by_access_token),
     ],
 )
-def partial_update_genre(
+async def partial_update_genre(
     genre_id: int,
     partial_update_genre_data: GenrePartialUpdate,
     genre_service: Annotated[
@@ -61,7 +61,7 @@ def partial_update_genre(
         Depends(get_genre_service),
     ],
 ):
-    return genre_service.partial_update_genre(genre_id, partial_update_genre_data)
+    return await genre_service.partial_update_genre(genre_id, partial_update_genre_data)
 
 
 @router.delete(
@@ -71,11 +71,11 @@ def partial_update_genre(
         Depends(get_admin_by_access_token),
     ],
 )
-def delete_genre(
+async def delete_genre(
     genre_id: int,
     genre_service: Annotated[
         GenreService,
         Depends(get_genre_service),
     ],
 ):
-    return genre_service.delete_genre_by_id(genre_id)
+    return await genre_service.delete_genre_by_id(genre_id)
