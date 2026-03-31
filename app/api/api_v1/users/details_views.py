@@ -16,14 +16,14 @@ router = APIRouter(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-def get_user_by_id(
+async def get_user_by_id(
     user_id: int,
     user_service: Annotated[
         UserService,
         Depends(get_user_service),
     ],
 ):
-    return user_service.get_user_by_id(user_id)
+    return await user_service.get_user_by_id(user_id)
 
 
 @router.put(
@@ -34,7 +34,7 @@ def get_user_by_id(
         Depends(get_admin_by_access_token),
     ],
 )
-def update_user(
+async def update_user(
     user_id: int,
     update_data: UserUpdate,
     user_service: Annotated[
@@ -42,7 +42,7 @@ def update_user(
         Depends(get_user_service),
     ],
 ):
-    return user_service.update_user(user_id, update_data)
+    return await user_service.update_user(user_id, update_data)
 
 
 @router.patch(
@@ -53,7 +53,7 @@ def update_user(
         Depends(get_admin_by_access_token),
     ],
 )
-def partial_update_user(
+async def partial_update_user(
     user_id: int,
     update_data: UserPartialUpdate,
     user_service: Annotated[
@@ -61,7 +61,7 @@ def partial_update_user(
         Depends(get_user_service),
     ],
 ):
-    return user_service.partial_update_user(user_id, update_data)
+    return await user_service.partial_update_user(user_id, update_data)
 
 
 @router.delete(
@@ -71,11 +71,11 @@ def partial_update_user(
         Depends(get_admin_by_access_token),
     ],
 )
-def delete_user_by_id(
+async def delete_user_by_id(
     user_id: int,
     user_service: Annotated[
         UserService,
         Depends(get_user_service),
     ],
 ):
-    user_service.delete_user_by_id(user_id)
+    await user_service.delete_user_by_id(user_id)

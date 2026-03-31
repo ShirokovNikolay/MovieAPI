@@ -18,7 +18,7 @@ router = APIRouter(prefix="/me")
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-def get_user_profile(
+async def get_user_profile(
     current_user_id: Annotated[
         int,
         Depends(get_user_by_access_token),
@@ -28,7 +28,7 @@ def get_user_profile(
         Depends(get_user_service),
     ],
 ):
-    return user_service.get_user_by_id(current_user_id)
+    return await user_service.get_user_by_id(current_user_id)
 
 
 @router.put(
@@ -36,7 +36,7 @@ def get_user_profile(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-def update_user_profile(
+async def update_user_profile(
     update_data: UserUpdate,
     current_user_id: Annotated[
         int,
@@ -47,7 +47,7 @@ def update_user_profile(
         Depends(get_user_service),
     ],
 ):
-    return user_service.update_user(current_user_id, update_data)
+    return await user_service.update_user(current_user_id, update_data)
 
 
 @router.patch(
@@ -55,7 +55,7 @@ def update_user_profile(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-def partial_update_user_profile(
+async def partial_update_user_profile(
     update_data: UserPartialUpdate,
     current_user_id: Annotated[
         int,
@@ -66,14 +66,14 @@ def partial_update_user_profile(
         Depends(get_user_service),
     ],
 ):
-    return user_service.partial_update_user(current_user_id, update_data)
+    return await user_service.partial_update_user(current_user_id, update_data)
 
 
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_user_profile(
+async def delete_user_profile(
     current_user_id: Annotated[
         int,
         Depends(get_user_by_access_token),
@@ -83,4 +83,4 @@ def delete_user_profile(
         Depends(get_user_service),
     ],
 ):
-    user_service.delete_user_by_id(current_user_id)
+    await user_service.delete_user_by_id(current_user_id)
