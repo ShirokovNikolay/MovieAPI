@@ -14,14 +14,14 @@ router = APIRouter(prefix="/{movie_id}")
     response_model=ReviewResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_movie_reviews(
+async def get_movie_reviews(
     movie_id: int,
     review_service: Annotated[
         ReviewService,
         Depends(get_review_service),
     ],
 ):
-    return review_service.get_movie_reviews(movie_id)
+    return await review_service.get_movie_reviews(movie_id)
 
 
 @router.get(
@@ -29,7 +29,7 @@ def get_movie_reviews(
     response_model=ReviewResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_top_rating_movie_reviews(
+async def get_top_rating_movie_reviews(
     movie_id: int,
     limit: int,
     review_service: Annotated[
@@ -37,7 +37,7 @@ def get_top_rating_movie_reviews(
         Depends(get_review_service),
     ],
 ):
-    return review_service.get_top_rating_movie_reviews(movie_id, limit)
+    return await review_service.get_top_rating_movie_reviews(movie_id, limit)
 
 
 @router.get(
@@ -45,7 +45,7 @@ def get_top_rating_movie_reviews(
     response_model=ReviewResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_top_newest_movie_reviews(
+async def get_top_newest_movie_reviews(
     movie_id: int,
     limit: int,
     review_service: Annotated[
@@ -53,7 +53,7 @@ def get_top_newest_movie_reviews(
         Depends(get_review_service),
     ],
 ):
-    return review_service.get_top_newest_movie_reviews(movie_id, limit)
+    return await review_service.get_top_newest_movie_reviews(movie_id, limit)
 
 
 @router.get(
@@ -61,7 +61,7 @@ def get_top_newest_movie_reviews(
     response_model=ReviewResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_top_oldest_movie_reviews(
+async def get_top_oldest_movie_reviews(
     movie_id: int,
     limit: int,
     review_service: Annotated[
@@ -69,4 +69,4 @@ def get_top_oldest_movie_reviews(
         Depends(get_review_service),
     ],
 ):
-    return review_service.get_top_oldest_movie_reviews(movie_id, limit)
+    return await review_service.get_top_oldest_movie_reviews(movie_id, limit)

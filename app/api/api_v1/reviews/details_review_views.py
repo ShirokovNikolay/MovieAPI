@@ -25,14 +25,14 @@ router = APIRouter(prefix="/{review_id}")
         Depends(get_admin_by_access_token),
     ],
 )
-def get_review(
+async def get_review(
     review_id: int,
     review_service: Annotated[
         ReviewService,
         Depends(get_review_service),
     ],
 ):
-    return review_service.get_review_by_id(review_id)
+    return await review_service.get_review_by_id(review_id)
 
 
 @router.put(
@@ -40,7 +40,7 @@ def get_review(
     response_model=ReviewResponse,
     status_code=status.HTTP_200_OK,
 )
-def update_review(
+async def update_review(
     current_user_id: Annotated[
         int,
         Depends(get_user_by_access_token),
@@ -52,7 +52,7 @@ def update_review(
         Depends(get_review_service),
     ],
 ):
-    return review_service.update_review(
+    return await review_service.update_review(
         current_user_id,
         review_id,
         update_review_data,
@@ -64,7 +64,7 @@ def update_review(
     response_model=ReviewResponse,
     status_code=status.HTTP_200_OK,
 )
-def partial_update_review(
+async def partial_update_review(
     current_user_id: Annotated[
         int,
         Depends(get_user_by_access_token),
@@ -76,7 +76,7 @@ def partial_update_review(
         Depends(get_review_service),
     ],
 ):
-    return review_service.partial_update_review(
+    return await review_service.partial_update_review(
         current_user_id,
         review_id,
         update_review_data,
@@ -87,7 +87,7 @@ def partial_update_review(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_review(
+async def delete_review(
     current_user_id: Annotated[
         int,
         Depends(get_user_by_access_token),
@@ -98,4 +98,4 @@ def delete_review(
         Depends(get_review_service),
     ],
 ):
-    review_service.delete_review(current_user_id, review_id)
+    await review_service.delete_review(current_user_id, review_id)

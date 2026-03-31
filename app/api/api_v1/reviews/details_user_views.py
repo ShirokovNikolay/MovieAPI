@@ -21,7 +21,7 @@ router = APIRouter(
     response_model=ReviewResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_user_reviews(
+async def get_user_reviews(
     user_id: int,
     current_user_id: Annotated[
         int,
@@ -36,8 +36,8 @@ def get_user_reviews(
         Depends(get_user_service),
     ],
 ):
-    if current_user_id == user_id or user_service.is_admin(current_user_id):
-        return review_service.get_user_reviews(user_id)
+    if current_user_id == user_id or await user_service.is_admin(current_user_id):
+        return await review_service.get_user_reviews(user_id)
 
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
@@ -50,7 +50,7 @@ def get_user_reviews(
     response_model=ReviewResponse,
     status_code=status.HTTP_200_OK,
 )
-def get_user_review_about_movie(
+async def get_user_review_about_movie(
     user_id: int,
     movie_id: int,
     current_user_id: Annotated[
@@ -66,8 +66,8 @@ def get_user_review_about_movie(
         Depends(get_user_service),
     ],
 ):
-    if current_user_id == user_id or user_service.is_admin(current_user_id):
-        return review_service.get_user_review_about_movie(user_id, movie_id)
+    if current_user_id == user_id or await user_service.is_admin(current_user_id):
+        return await review_service.get_user_review_about_movie(user_id, movie_id)
 
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
