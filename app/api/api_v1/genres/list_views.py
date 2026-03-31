@@ -14,13 +14,13 @@ router = APIRouter()
     response_model=GenreResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_genres(
+async def get_genres(
     genre_service: Annotated[
         GenreService,
         Depends(get_genre_service),
     ],
 ):
-    return genre_service.get_all_genres()
+    return await genre_service.get_all_genres()
 
 
 @router.post(
@@ -31,8 +31,8 @@ def get_genres(
         Depends(get_admin_by_access_token),
     ],
 )
-def create_genre(
+async def create_genre(
     create_genre_data: GenreCreate,
     genre_service: Annotated[GenreService, Depends(get_genre_service)],
 ):
-    return genre_service.create_genre(create_genre_data)
+    return await genre_service.create_genre(create_genre_data)
