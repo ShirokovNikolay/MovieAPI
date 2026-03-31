@@ -1,5 +1,4 @@
-from sqlalchemy.orm import Session
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from repositories import GenreRepository, MovieRepository
 from fastapi import HTTPException, status
 
@@ -13,12 +12,12 @@ from schemas.genre import (
 
 
 class GenreService:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self.genre_repository = GenreRepository(session)
         self.movie_repository = MovieRepository(session)
 
-    def get_genre_by_id(self, genre_id: int) -> GenreResponse:
-        genre = self.genre_repository.get_genre_by_id(genre_id)
+    async def get_genre_by_id(self, genre_id: int) -> GenreResponse:
+        genre = await self.genre_repository.get_genre_by_id(genre_id)
         if genre is not None:
             return GenreResponse.model_validate(genre)
 
@@ -27,8 +26,8 @@ class GenreService:
             detail=f"Genre with {genre_id=} does not exist",
         )
 
-    def get_genre_by_name(self, genre_name: str) -> GenreResponse:
-        genre = self.genre_repository.get_genre_by_name(genre_name)
+    async def get_genre_by_name(self, genre_name: str) -> GenreResponse:
+        genre = await self.genre_repository.get_genre_by_name(genre_name)
         if genre is not None:
             return GenreResponse.model_validate(genre)
 
@@ -37,45 +36,48 @@ class GenreService:
             detail=f"Genre with {genre_name=} does not exist",
         )
 
-    def get_all_genres(self) -> GenreResponseList:
+    async def get_all_genres(self) -> GenreResponseList:
         genres = [
             GenreResponse.model_validate(genre)
-            for genre in self.genre_repository.get_all_genres()
+            for genre in await self.genre_repository.get_all_genres()
         ]
         return GenreResponseList(genre_list=genres)
 
-    def create_genre(self, create_data: GenreCreate) -> GenreResponse:
-        if self.genre_repository.genre_name_exists(create_data.name):
+    async def create_genre(self, create_data: GenreCreate) -> GenreResponse:
+        if await self.genre_repository.genre_name_exists(create_data.name):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Genre with genre_name={create_data.name} already exists",
             )
 
-        genre = self.genre_repository.create_genre(create_data)
+        genre = await self.genre_repository.create_genre(create_data)
         return GenreResponse.model_validate(genre)
 
-    def update_genre(self, genre_id: int, update_data: GenreUpdate) -> GenreResponse:
-        genre = self.genre_repository.get_genre_by_id(genre_id)
+    async def update_genre(
+        self, genre_id: int, update_data: GenreUpdate
+    ) -> GenreResponse:
+        genre = await self.genre_repository.get_genre_by_id(genre_id)
         if genre is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Genre with {genre_id=} not found",
             )
 
-        if update_data.name != genre.name and self.genre_repository.genre_name_exists(
-            update_data.name
+        if (
+            update_data.name != genre.name
+            and await self.genre_repository.genre_name_exists(update_data.name)
         ):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Genre with genre_name={update_data.name} already exists",
             )
-        updated_genre = self.genre_repository.update_genre(genre_id, update_data)
+        updated_genre = await self.genre_repository.update_genre(genre_id, update_data)
         return GenreResponse.model_validate(updated_genre)
 
-    def partial_update_genre(
+    async def partial_update_genre(
         self, genre_id: int, update_data: GenrePartialUpdate
     ) -> GenreResponse:
-        genre = self.genre_repository.get_genre_by_id(genre_id)
+        genre = await self.genre_repository.get_genre_by_id(genre_id)
         if genre is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -91,34 +93,34 @@ class GenreService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Genre with genre_name={update_data.name} already exists",
             )
-        updated_genre = self.genre_repository.partial_update_genre(
+        updated_genre = await self.genre_repository.partial_update_genre(
             genre_id, update_data
         )
         return GenreResponse.model_validate(updated_genre)
 
-    def delete_genre_by_id(self, genre_id: int) -> None:
-        movies = self.movie_repository.get_movies_by_genre_id(genre_id)
+    async def delete_genre_by_id(self, genre_id: int) -> None:
+        movies = await self.movie_repository.get_movies_by_genre_id(genre_id)
         if movies:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movies with {genre_id=} already exist",
             )
 
-        if not self.genre_repository.delete_genre_by_id(genre_id):
+        if not await self.genre_repository.delete_genre_by_id(genre_id):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Genre with {genre_id=} does not exist",
             )
 
-    def delete_genre_by_name(self, genre_name: str) -> None:
-        movies = self.movie_repository.get_movies_by_genre_name(genre_name)
+    async def delete_genre_by_name(self, genre_name: str) -> None:
+        movies = await self.movie_repository.get_movies_by_genre_name(genre_name)
         if movies:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movies with {genre_name=} already exist",
             )
 
-        if not self.genre_repository.delete_genre_by_name(genre_name):
+        if not await self.genre_repository.delete_genre_by_name(genre_name):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Genre with {genre_name=} does not exist",
