@@ -32,14 +32,14 @@ router = APIRouter(
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def register_user(
+async def register_user(
     create_user_data: UserCreate,
     user_service: Annotated[
         UserService,
         Depends(get_user_service),
     ],
 ):
-    return user_service.create_user(create_user_data)
+    return await user_service.create_user(create_user_data)
 
 
 @router.post(
@@ -47,7 +47,7 @@ def register_user(
     response_model=TokenInfo,
     status_code=status.HTTP_200_OK,
 )
-def login_user(
+async def login_user(
     oauth2_form: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[
         UserService,
@@ -58,7 +58,7 @@ def login_user(
         login=oauth2_form.username,
         password=oauth2_form.password,
     )
-    user = user_service.authenticate_user(login_data)
+    user = await user_service.authenticate_user(login_data)
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)
     return TokenInfo(
@@ -74,7 +74,7 @@ def login_user(
     response_model_exclude_unset=True,
     status_code=status.HTTP_200_OK,
 )
-def refresh_access_token(
+async def refresh_access_token(
     user_id: Annotated[
         int,
         Depends(get_user_by_refresh_token),
@@ -84,6 +84,6 @@ def refresh_access_token(
         Depends(get_user_service),
     ],
 ):
-    user = user_service.get_user_by_id(user_id)
+    user = await user_service.get_user_by_id(user_id)
     access_token = create_access_token(user)
     return TokenInfo(access_token=access_token)
