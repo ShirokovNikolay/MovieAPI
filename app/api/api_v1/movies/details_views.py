@@ -28,14 +28,14 @@ router = APIRouter(
         Depends(get_user_by_access_token),
     ],
 )
-def watch_movie(
+async def watch_movie(
     movie_id: int,
     movie_service: Annotated[
         MovieService,
         Depends(get_movie_service),
     ],
 ):
-    movie = movie_service.get_movie_by_id(movie_id)
+    movie = await movie_service.get_movie_by_id(movie_id)
     return RedirectResponse(url=movie.source_url)
 
 
@@ -44,14 +44,14 @@ def watch_movie(
     response_model=MovieResponse,
     status_code=status.HTTP_200_OK,
 )
-def get_movie(
+async def get_movie(
     movie_id: int,
     movie_service: Annotated[
         MovieService,
         Depends(get_movie_service),
     ],
 ) -> MovieResponse:
-    return movie_service.get_movie_by_id(movie_id)
+    return await movie_service.get_movie_by_id(movie_id)
 
 
 @router.put(
@@ -62,7 +62,7 @@ def get_movie(
         Depends(get_admin_by_access_token),
     ],
 )
-def update_movie(
+async def update_movie(
     movie_id: int,
     update_movie_data: MovieUpdate,
     movie_service: Annotated[
@@ -70,7 +70,7 @@ def update_movie(
         Depends(get_movie_service),
     ],
 ):
-    return movie_service.update_movie(movie_id, update_movie_data)
+    return await movie_service.update_movie(movie_id, update_movie_data)
 
 
 @router.patch(
@@ -81,7 +81,7 @@ def update_movie(
         Depends(get_admin_by_access_token),
     ],
 )
-def partial_update_movie(
+async def partial_update_movie(
     movie_id: int,
     update_movie_data: MoviePartialUpdate,
     movie_service: Annotated[
@@ -89,7 +89,7 @@ def partial_update_movie(
         Depends(get_movie_service),
     ],
 ):
-    return movie_service.partial_update_movie(movie_id, update_movie_data)
+    return await movie_service.partial_update_movie(movie_id, update_movie_data)
 
 
 @router.delete(
@@ -99,11 +99,11 @@ def partial_update_movie(
         Depends(get_admin_by_access_token),
     ],
 )
-def delete_movie(
+async def delete_movie(
     movie_id: int,
     movie_service: Annotated[
         MovieService,
         Depends(get_movie_service),
     ],
 ):
-    movie_service.delete_movie_by_id(movie_id)
+    await movie_service.delete_movie_by_id(movie_id)

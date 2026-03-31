@@ -17,10 +17,10 @@ router = APIRouter()
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_movies(
+async def get_movies(
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ):
-    return movie_service.get_movies()
+    return await movie_service.get_movies()
 
 
 @router.get(
@@ -28,11 +28,11 @@ def get_movies(
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_movies_by_genre_id(
+async def get_movies_by_genre_id(
     genre_id: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ):
-    return movie_service.get_movies_by_genre_id(genre_id)
+    return await movie_service.get_movies_by_genre_id(genre_id)
 
 
 @router.get(
@@ -40,11 +40,11 @@ def get_movies_by_genre_id(
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_movies_by_genre_name(
+async def get_movies_by_genre_name(
     genre_name: str,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ):
-    return movie_service.get_movies_by_genre_name(genre_name)
+    return await movie_service.get_movies_by_genre_name(genre_name)
 
 
 @router.get(
@@ -52,21 +52,21 @@ def get_movies_by_genre_name(
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_movies_by_rating_range(
+async def get_movies_by_rating_range(
     min_rating: int,
     max_rating: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ):
-    return movie_service.get_movies_by_rating_range(min_rating, max_rating)
+    return await movie_service.get_movies_by_rating_range(min_rating, max_rating)
 
 
 @router.get("/date-range")
-def get_movies_by_release_date_range(
+async def get_movies_by_release_date_range(
     release_date_start: datetime,
     release_date_end: datetime,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ):
-    return movie_service.get_movies_by_release_date_range(
+    return await movie_service.get_movies_by_release_date_range(
         release_date_start, release_date_end
     )
 
@@ -76,11 +76,11 @@ def get_movies_by_release_date_range(
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_movies_by_year(
+async def get_movies_by_year(
     year: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ):
-    return movie_service.get_movies_by_year(year)
+    return await movie_service.get_movies_by_year(year)
 
 
 @router.get(
@@ -88,11 +88,11 @@ def get_movies_by_year(
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_top_rated_movies(
+async def get_top_rated_movies(
     limit: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ) -> MovieResponseList:
-    return movie_service.get_top_rated_movies(limit)
+    return await movie_service.get_top_rated_movies(limit)
 
 
 @router.get(
@@ -100,11 +100,11 @@ def get_top_rated_movies(
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_top_oldest_movies(
+async def get_top_oldest_movies(
     limit: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ) -> MovieResponseList:
-    return movie_service.get_top_oldest_movies(limit)
+    return await movie_service.get_top_oldest_movies(limit)
 
 
 @router.get(
@@ -112,11 +112,11 @@ def get_top_oldest_movies(
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
-def get_top_newest_movies(
+async def get_top_newest_movies(
     limit: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ) -> MovieResponseList:
-    return movie_service.get_top_newest_movies(limit)
+    return await movie_service.get_top_newest_movies(limit)
 
 
 @router.post(
@@ -127,11 +127,11 @@ def get_top_newest_movies(
         Depends(get_admin_by_access_token),
     ],
 )
-def create_movie(
+async def create_movie(
     create_movie_data: MovieCreate,
     movie_service: Annotated[
         MovieService,
         Depends(get_movie_service),
     ],
 ):
-    return movie_service.create_movie(create_movie_data)
+    return await movie_service.create_movie(create_movie_data)
