@@ -7,12 +7,9 @@ from database import session_factory
 from services import GenreService, MovieService, ReviewService, UserService
 
 
-def get_db() -> Generator:
-    try:
-        db = session_factory()
+async def get_db():
+    with session_factory() as db:
         yield db
-    finally:
-        db.close()
 
 
 def get_genre_service(
