@@ -40,4 +40,4 @@ async def delete_genre_by_name(
         Depends(get_genre_service),
     ],
 ):
-    return await genre_service.delete_genre_by_name(genre_name)
+    await genre_service.delete_genre_by_name(genre_name)

@@ -119,7 +119,6 @@ class GenreService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Movies with {genre_name=} already exist",
             )
-
         if not await self.genre_repository.delete_genre_by_name(genre_name):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
