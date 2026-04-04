@@ -39,6 +39,9 @@ class UserService:
             detail=f"User with {login=} not found",
         )
 
+    async def user_login_exists(self, login: str) -> bool:
+        return await self.user_repository.user_login_exists(login)
+
     async def get_all_users(self) -> UserResponseList:
         users = [
             UserResponse.model_validate(user)
@@ -62,6 +65,13 @@ class UserService:
         create_user_data.password = hash_password(create_user_data.password)
         user = await self.user_repository.create_user(create_user_data)
         return UserResponse.model_validate(user)
+
+    async def make_admin(self, user_id: int) -> None:
+        if not await self.user_repository.make_admin(user_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with id={user_id} not found",
+            )
 
     async def update_user(
         self,

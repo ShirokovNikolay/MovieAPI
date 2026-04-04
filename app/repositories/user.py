@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
+from core.constants import UserRole
 from models import User
 from schemas.user import (
     UserCreate,
@@ -54,6 +55,15 @@ class UserRepository:
         await self.session.commit()
         await self.session.refresh(user)
         return user
+
+    async def make_admin(self, user_id: int) -> bool:
+        user = await self.get_user_by_id(user_id)
+        if user is not None:
+            user.role = UserRole.admin
+            await self.session.commit()
+            await self.session.refresh(user)
+            return True
+        return False
 
     async def update_user(
         self,

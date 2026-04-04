@@ -68,7 +68,7 @@ class GenreRepository:
         return genre
 
     async def delete_genre_by_id(self, genre_id: int) -> bool:
-        if self.get_genre_by_id(genre_id) is None:
+        if await self.get_genre_by_id(genre_id) is None:
             return False
         stmt = delete(Genre).where(Genre.id == genre_id)
         await self.session.execute(stmt)
@@ -76,7 +76,7 @@ class GenreRepository:
         return True
 
     async def delete_genre_by_name(self, name: str) -> bool:
-        if self.get_genre_by_name(name) is None:
+        if await self.get_genre_by_name(name) is None:
             return False
         stmt = delete(Genre).where(Genre.name == name)
         await self.session.execute(stmt)
