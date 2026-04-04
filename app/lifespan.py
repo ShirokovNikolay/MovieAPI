@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from init_database import init_admin
+from database.init_db import init_admin
 
 
 @asynccontextmanager

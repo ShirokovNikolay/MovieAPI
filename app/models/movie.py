@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import ForeignKey, CheckConstraint
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from database import Base
+from database.connection import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
