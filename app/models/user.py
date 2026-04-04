@@ -4,7 +4,7 @@ from sqlalchemy import String, func, Enum
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from core.constants import UserRole
-from database import Base
+from database.connection import Base
 
 from typing import TYPE_CHECKING
 
