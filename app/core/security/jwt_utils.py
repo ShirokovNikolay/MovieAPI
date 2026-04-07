@@ -1,9 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 import jwt
-from fastapi import HTTPException
 from jwt import InvalidTokenError
-from starlette import status
 
 from core.config import settings
 from core.constants import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
@@ -42,10 +40,7 @@ def decode_jwt(
             algorithms=[algorithm],
         )
     except InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
+        raise ValueError("Invalid token")
 
 
 def create_access_token(user: UserResponse) -> str:
