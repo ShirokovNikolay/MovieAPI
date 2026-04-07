@@ -16,6 +16,7 @@ class MovieIdNotFoundError(MovieNotFoundError):
     """
 
     def __init__(self, movie_id: int):
+        self.movie_id = movie_id
         detail = f"Movie with movie id = {movie_id} not found."
         super().__init__(detail)
 
@@ -26,6 +27,7 @@ class MovieNameNotFoundError(MovieNotFoundError):
     """
 
     def __init__(self, movie_name: str):
+        self.movie_name = movie_name
         detail = f"Movie with movie name = {movie_name} not found."
         super().__init__(detail)
 
@@ -36,5 +38,6 @@ class MovieNameAlreadyExistsError(ConflictError):
     """
 
     def __init__(self, movie_name: str):
+        self.movie_name = movie_name
         detail = f"Movie with movie name = {movie_name} already exists."
         super().__init__(detail)
