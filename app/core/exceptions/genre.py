@@ -16,7 +16,7 @@ class GenreIdNotFoundError(GenreNotFoundError):
     """
 
     def __init__(self, genre_id):
-        detail = f"Genre with genre id = {genre_id} doesn't exist"
+        detail = f"Genre with genre id = {genre_id} doesn't exist."
         super().__init__(detail)
 
 
@@ -26,7 +26,7 @@ class GenreNameNotFoundError(GenreNotFoundError):
     """
 
     def __init__(self, genre_name: str):
-        detail = f"Genre with genre name = {genre_name} doesn't exist"
+        detail = f"Genre with genre name = {genre_name} doesn't exist."
         super().__init__(detail)
 
 
@@ -36,5 +36,5 @@ class GenreNameAlreadyExistsError(ConflictError):
     """
 
     def __init__(self, genre_name: str):
-        detail = f"Genre with genre name = {genre_name} already exists"
+        detail = f"Genre with genre name = {genre_name} already exists."
         super().__init__(detail)
