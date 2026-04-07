@@ -41,3 +41,32 @@ class GenreNameAlreadyExistsError(ConflictError):
         self.genre_name = genre_name
         detail = f"Genre with genre name = {genre_name} already exists."
         super().__init__(detail)
+
+
+class GenreAlreadyHasMoviesError(ConflictError):
+    """
+    Класс для ошибок, связанных с уже существующими фильмами такого жанра.
+    """
+
+    def __init__(self, detail: str):
+        super().__init__(detail)
+
+
+class GenreIdAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
+    """
+    Класс для ошибок, связанных с уже существующими фильмами такого id жанра.
+    """
+
+    def __init__(self, genre_id: int):
+        detail = f"Genre with genre id = {genre_id} has movies."
+        super().__init__(detail)
+
+
+class GenreNameAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
+    """
+    Класс для ошибок, связанных с уже существующими фильмами жанра с таким жанром.
+    """
+
+    def __init__(self, genre_name: str):
+        detail = f"Genre with genre name = {genre_name} has movies."
+        super().__init__(detail)
