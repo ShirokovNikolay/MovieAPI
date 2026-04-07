@@ -58,6 +58,7 @@ class GenreIdAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
     """
 
     def __init__(self, genre_id: int):
+        self.genre_id = genre_id
         detail = f"Genre with genre id = {genre_id} has movies."
         super().__init__(detail)
 
@@ -68,5 +69,6 @@ class GenreNameAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
     """
 
     def __init__(self, genre_name: str):
+        self.genre_name = genre_name
         detail = f"Genre with genre name = {genre_name} has movies."
         super().__init__(detail)

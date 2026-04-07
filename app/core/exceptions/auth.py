@@ -38,7 +38,7 @@ class InvalidJWTRefreshTokenError(InvalidTokenError):
     """
 
     def __init__(self, token: str):
-        self.invalid_token = token
+        self.invalid_refresh_token = token
         detail = f"Invalid JWT refresh token = {token}"
         super().__init__(detail)
 

@@ -10,6 +10,17 @@ class UserNotFoundError(NotFoundError):
         super().__init__(detail)
 
 
+class UserIdNotFoundError(NotFoundError):
+    """
+    Класс для ошибок, связанных с ненахождением пользователя с таким id.
+    """
+
+    def __init__(self, user_id: int):
+        self.user_id = user_id
+        detail = f"User with id = {user_id} does not exist."
+        super().__init__(detail)
+
+
 class UserLoginNotFoundError(NotFoundError):
     """
     Класс для ошибок, связанных с ненахождением пользователя с таким логином.
