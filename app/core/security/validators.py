@@ -1,6 +1,3 @@
-from fastapi import HTTPException
-from starlette import status
-
 from core.constants import TOKEN_TYPE
 
 
@@ -9,13 +6,7 @@ def validate_token_payload(
     target_token_type: str,
 ) -> None:
     if payload[TOKEN_TYPE] != target_token_type:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token type",
-        )
+        raise TypeError("Invalid token type in payload")
 
     if "sub" not in payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token content",
-        )
+        raise KeyError("Missing parameter 'sub' in token payload")
