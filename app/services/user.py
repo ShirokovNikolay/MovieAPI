@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import UserRole
 from core.security.password_utils import hash_password, verify_password
-from fastapi import HTTPException, status
 from repositories import UserRepository
 from schemas.user import (
     UserResponse,
