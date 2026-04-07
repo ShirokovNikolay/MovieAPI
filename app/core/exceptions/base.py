@@ -28,7 +28,7 @@ class ForbiddenError(Exception):
         super().__init__(detail)
 
 
-class AuthenticateError(Exception):
+class AuthenticationError(Exception):
     """
     Базовый класс для ошибок аутентификации.
     """
