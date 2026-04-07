@@ -10,25 +10,47 @@ class InvalidTokenError(AuthenticationError):
         super().__init__(detail)
 
 
-class InvalidJWTTokenError(InvalidTokenError):
+class InvalidJWTAccessTokenError(InvalidTokenError):
     """
-    Класс для ошибок из-за невалидного jwt-токена.
+    Класс для ошибок из-за невалидного access jwt-токена.
     """
 
     def __init__(self, token: str):
-        self.invalid_token = token
-        detail = f"Invalid JWT token = {token}"
+        self.invalid_access_token = token
+        detail = f"Invalid JWT access token = {token}"
         super().__init__(detail)
 
 
-class JWTTokenExpiredError(InvalidTokenError):
+class JWTAccessTokenExpiredError(InvalidTokenError):
     """
-    Класс для ошибок из-за истекшего срока wt-токена.
+    Класс для ошибок из-за истекшего срока access jwt-токена.
     """
 
     def __init__(self, exp_time: str):
         self.exp_time = exp_time
-        detail = f"JWT token expired at {exp_time}"
+        detail = f"JWT access token expired at {exp_time}"
+        super().__init__(detail)
+
+
+class InvalidJWTRefreshTokenError(InvalidTokenError):
+    """
+    Класс для ошибок из-за невалидного refresh jwt-токена.
+    """
+
+    def __init__(self, token: str):
+        self.invalid_token = token
+        detail = f"Invalid JWT refresh token = {token}"
+        super().__init__(detail)
+
+
+class JWTRefreshTokenExpiredError(InvalidTokenError):
+    """
+    Класс для ошибок из-за истекшего срока refresh jwt-токена.
+    """
+
+    def __init__(self, exp_time: str):
+        self.exp_time = exp_time
+        detail = f"JWT refresh token expired at {exp_time}"
         super().__init__(detail)
 
 
