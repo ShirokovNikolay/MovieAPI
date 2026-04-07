@@ -170,7 +170,7 @@ class UserService:
 
         if not verify_password(login_data.password, user.encrypted_password):
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid password",
             )
 
