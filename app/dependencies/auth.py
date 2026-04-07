@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import Depends, status, HTTPException
+from fastapi import Depends
 
 from core.config import settings
 from core.constants import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
+from core.exceptions.auth import PermissionDeniedError
 from core.security.jwt_utils import decode_jwt
 from core.security.validators import validate_token_payload
 from dependencies.services import get_user_service
@@ -61,7 +62,5 @@ async def get_admin_by_access_token(
 ) -> int:
     if await user_service.is_admin(user_id):
         return user_id
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not allowed to access this resource",
-    )
+
+    raise PermissionDeniedError()
