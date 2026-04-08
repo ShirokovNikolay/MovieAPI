@@ -17,7 +17,7 @@ class ReviewIdNotFoundError(ReviewNotFoundError):
 
     def __init__(self, review_id: int):
         self.review_id = review_id
-        detail = f"Review with review_id = {review_id} does not exist."
+        detail = f"Review with review id = {review_id} not found."
         super().__init__(detail)
 
 
@@ -29,7 +29,7 @@ class ReviewNotFoundByUserAndMovieError(ReviewNotFoundError):
     def __init__(self, user_id: int, movie_id: int):
         self.user_id = user_id
         self.movie_id = movie_id
-        detail = f"No review with user_id = {user_id} found for the movie with movie_id = {movie_id}."
+        detail = f"No review with owner user_id = {user_id} found for the movie with movie_id = {movie_id}."
         super().__init__(detail)
 
 
@@ -50,5 +50,5 @@ class ReviewAlreadyExistsByUserAndMovieError(ReviewAlreadyExistsError):
     def __init__(self, user_id: int, movie_id: int):
         self.user_id = user_id
         self.movie_id = movie_id
-        detail = f"Review with user_id = {user_id} and movie with movie_id = {movie_id} already exists."
+        detail = f"Review with owner user_id = {user_id} and movie with movie_id = {movie_id} already exists."
         super().__init__(detail)

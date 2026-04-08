@@ -17,7 +17,7 @@ class GenreIdNotFoundError(GenreNotFoundError):
 
     def __init__(self, genre_id):
         self.genre_id = genre_id
-        detail = f"Genre with genre id = {genre_id} doesn't exist."
+        detail = f"Genre with genre id = {genre_id} not found."
         super().__init__(detail)
 
 
@@ -28,7 +28,7 @@ class GenreNameNotFoundError(GenreNotFoundError):
 
     def __init__(self, genre_name: str):
         self.genre_name = genre_name
-        detail = f"Genre with genre name = {genre_name} doesn't exist."
+        detail = f"Genre with genre name = {genre_name} not found."
         super().__init__(detail)
 
 
@@ -59,7 +59,7 @@ class GenreIdAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
 
     def __init__(self, genre_id: int):
         self.genre_id = genre_id
-        detail = f"Genre with genre id = {genre_id} has movies."
+        detail = f"Genre with genre id = {genre_id} has movies. Delete movies first."
         super().__init__(detail)
 
 
@@ -70,5 +70,7 @@ class GenreNameAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
 
     def __init__(self, genre_name: str):
         self.genre_name = genre_name
-        detail = f"Genre with genre name = {genre_name} has movies."
+        detail = (
+            f"Genre with genre name = {genre_name} has movies. Delete movies first."
+        )
         super().__init__(detail)

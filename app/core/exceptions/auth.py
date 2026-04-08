@@ -17,7 +17,7 @@ class InvalidJWTAccessTokenError(InvalidTokenError):
 
     def __init__(self, token: str):
         self.invalid_access_token = token
-        detail = f"Invalid JWT access token = {token}"
+        detail = f"Invalid JWT access token = {token}."
         super().__init__(detail)
 
 
@@ -28,7 +28,7 @@ class JWTAccessTokenExpiredError(InvalidTokenError):
 
     def __init__(self, exp_time: str):
         self.exp_time = exp_time
-        detail = f"JWT access token expired at {exp_time}"
+        detail = f"JWT access token expired at {exp_time}."
         super().__init__(detail)
 
 
@@ -39,7 +39,7 @@ class InvalidJWTRefreshTokenError(InvalidTokenError):
 
     def __init__(self, token: str):
         self.invalid_refresh_token = token
-        detail = f"Invalid JWT refresh token = {token}"
+        detail = f"Invalid JWT refresh token = {token}."
         super().__init__(detail)
 
 
@@ -50,7 +50,7 @@ class JWTRefreshTokenExpiredError(InvalidTokenError):
 
     def __init__(self, exp_time: str):
         self.exp_time = exp_time
-        detail = f"JWT refresh token expired at {exp_time}"
+        detail = f"JWT refresh token expired at {exp_time}."
         super().__init__(detail)
 
 
@@ -60,7 +60,7 @@ class InvalidPasswordError(AuthenticationError):
     """
 
     def __init__(self):
-        super().__init__("Invalid password")
+        super().__init__("Invalid password.")
 
 
 class PermissionDeniedError(ForbiddenError):
@@ -69,4 +69,4 @@ class PermissionDeniedError(ForbiddenError):
     """
 
     def __init__(self):
-        super().__init__("You do not have access rights to use this resource.")
+        super().__init__("You do not have authorization to access this source.")

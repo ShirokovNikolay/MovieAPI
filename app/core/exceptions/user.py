@@ -17,7 +17,7 @@ class UserIdNotFoundError(NotFoundError):
 
     def __init__(self, user_id: int):
         self.user_id = user_id
-        detail = f"User with id = {user_id} does not exist."
+        detail = f"User with id = {user_id} not found."
         super().__init__(detail)
 
 
@@ -27,7 +27,7 @@ class UserLoginNotFoundError(NotFoundError):
     """
 
     def __init__(self, login: str):
-        detail = f"User with login name = {login} not found."
+        detail = f"User with login = {login} not found."
         super().__init__(detail)
 
 
