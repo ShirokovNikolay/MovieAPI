@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class WatchHistoryBase(BaseModel):
@@ -9,6 +9,7 @@ class WatchHistoryBase(BaseModel):
     """
 
     movie_id: int
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
 
 
 class WatchHistoryCreate(WatchHistoryBase):
