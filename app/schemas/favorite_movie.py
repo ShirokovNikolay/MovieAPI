@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class FavoriteMovieBase(BaseModel):
@@ -7,6 +7,7 @@ class FavoriteMovieBase(BaseModel):
     """
 
     movie_id: int
+    model_config: ConfigDict = ConfigDict(from_attributes=True)
 
 
 class FavoriteMovieCreate(FavoriteMovieBase):
@@ -21,3 +22,11 @@ class FavoriteMovieResponse(FavoriteMovieBase):
     """
 
     id: int
+
+
+class FavoriteMovieList(BaseModel):
+    """
+    Модель для отображения списка избранных фильмов.
+    """
+
+    favorite_movie_list: list[FavoriteMovieResponse]
