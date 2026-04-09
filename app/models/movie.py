@@ -5,8 +5,9 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from database.connection import Base
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
-    from models import Genre, Review
+    from models import Genre, Review, FavoriteMovie
 
 
 class Movie(Base):
@@ -35,5 +36,9 @@ class Movie(Base):
     release_date: Mapped[datetime]
     reviews: Mapped[list["Review"]] = relationship(
         "Review",
+        back_populates="movie",
+    )
+    favorited_by_users: Mapped[list["FavoriteMovie"]] = relationship(
+        "FavoriteMovie",
         back_populates="movie",
     )
