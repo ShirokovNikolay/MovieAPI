@@ -10,11 +10,6 @@ class FavoriteMovieRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_all_favorite_movies(self) -> list[FavoriteMovie]:
-        stmt = select(FavoriteMovie)
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
     async def get_favorite_movies_by_user_id(
         self,
         user_id: int,
