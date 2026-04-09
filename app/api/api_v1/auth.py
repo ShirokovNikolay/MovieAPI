@@ -6,6 +6,7 @@ from fastapi import (
     Depends,
 )
 from fastapi.security import OAuth2PasswordRequestForm
+from jwt import InvalidTokenError
 
 from dependencies.auth import get_user_by_refresh_token
 from dependencies.services import get_user_service

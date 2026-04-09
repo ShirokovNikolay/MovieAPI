@@ -33,14 +33,11 @@ def decode_jwt(
     secret_key: str = settings.auth_jwt.secret_key,
     algorithm: str = settings.auth_jwt.algorithm,
 ) -> dict:
-    try:
-        return jwt.decode(
-            token,
-            secret_key,
-            algorithms=[algorithm],
-        )
-    except InvalidTokenError:
-        raise ValueError("Invalid token")
+    return jwt.decode(
+        token,
+        secret_key,
+        algorithms=[algorithm],
+    )
 
 
 def create_access_token(user: UserResponse) -> str:
