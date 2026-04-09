@@ -51,6 +51,7 @@ class ReviewResponse(ReviewBase):
     """
 
     id: int
+    user_id: int
     publication_date: datetime
 
 
