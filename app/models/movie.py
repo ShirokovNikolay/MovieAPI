@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from models import Genre, Review, FavoriteMovie
+    from models import Genre, Review, FavoriteMovie, WatchHistory
 
 
 class Movie(Base):
@@ -40,5 +40,9 @@ class Movie(Base):
     )
     favorited_by_users: Mapped[list["FavoriteMovie"]] = relationship(
         "FavoriteMovie",
+        back_populates="movie",
+    )
+    watch_history: Mapped[list["WatchHistory"]] = relationship(
+        "WatchHistory",
         back_populates="movie",
     )

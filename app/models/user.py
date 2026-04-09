@@ -9,7 +9,7 @@ from database.connection import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from models import Review, FavoriteMovie
+    from models import Review, FavoriteMovie, WatchHistory
 
 
 class User(Base):
@@ -34,5 +34,9 @@ class User(Base):
     )
     favorite_movies: Mapped[list["FavoriteMovie"]] = relationship(
         "FavoriteMovie",
+        back_populates="user",
+    )
+    watch_history: Mapped[list["WatchHistory"]] = relationship(
+        "WatchHistory",
         back_populates="user",
     )
