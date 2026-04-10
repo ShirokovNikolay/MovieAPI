@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.connection import session_factory
 from services import GenreService, MovieService, ReviewService, UserService
 from services.favorite_movie import FavoriteMovieService
+from services.watch_history import WatchHistoryService
 
 
 async def get_db():
@@ -82,6 +83,21 @@ async def get_favorite_movie_service(
     try:
         favorite_movie_service = FavoriteMovieService(session)
         yield favorite_movie_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
+async def get_watch_history_service(
+    session: Annotated[
+        AsyncSession,
+        Depends(get_db),
+    ],
+):
+    try:
+        watch_history_service = WatchHistoryService(session)
+        yield watch_history_service
     finally:
         """
         Действия после view.
