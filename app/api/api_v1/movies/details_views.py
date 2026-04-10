@@ -14,6 +14,7 @@ from schemas.movie import (
     MovieUpdate,
     MoviePartialUpdate,
 )
+from schemas.watch_history import WatchHistoryCreate
 from services import MovieService
 
 router = APIRouter(
@@ -21,21 +22,22 @@ router = APIRouter(
 )
 
 
-@router.get(
+@router.post(
     "/watch",
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-    dependencies=[
-        Depends(get_user_by_access_token),
-    ],
 )
 async def watch_movie(
-    movie_id: int,
+    create_watch_history_data: WatchHistoryCreate,
+    user_id: Annotated[
+        int,
+        Depends(get_user_by_access_token),
+    ],
     movie_service: Annotated[
         MovieService,
         Depends(get_movie_service),
     ],
 ):
-    movie = await movie_service.get_movie_by_id(movie_id)
+    movie = await movie_service.watch_movie(user_id, create_watch_history_data)
     return RedirectResponse(url=movie.source_url)
 
 

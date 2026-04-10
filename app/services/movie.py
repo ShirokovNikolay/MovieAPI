@@ -3,7 +3,9 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions.genre import GenreNameNotFoundError, GenreIdNotFoundError
-from repositories import MovieRepository, GenreRepository
+from core.exceptions.user import UserIdNotFoundError
+from repositories import MovieRepository, GenreRepository, UserRepository
+from repositories.watch_history import WatchHistoryRepository
 from schemas.movie import (
     MovieResponse,
     MovieResponseList,
@@ -17,13 +19,16 @@ from core.exceptions.movie import (
     MovieNameNotFoundError,
     MovieNameAlreadyExistsError,
 )
+from schemas.watch_history import WatchHistoryCreate
 
 
 class MovieService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+        self.user_repository = UserRepository(session)
         self.movie_repository = MovieRepository(session)
         self.genre_repository = GenreRepository(session)
+        self.watch_history_repository = WatchHistoryRepository(session)
 
     async def get_movie_by_id(self, movie_id: int) -> MovieResponse:
         movie = await self.movie_repository.get_movie_by_id(movie_id)
@@ -38,6 +43,26 @@ class MovieService:
             return MovieResponse.model_validate(movie)
 
         raise MovieNameNotFoundError(movie_name)
+
+    async def watch_movie(
+        self,
+        user_id: int,
+        create_watch_history_data: WatchHistoryCreate,
+    ) -> MovieResponse:
+        if not await self.user_repository.user_id_exists(user_id):
+            raise UserIdNotFoundError(user_id)
+
+        movie = await self.movie_repository.get_movie_by_id(
+            movie_id=create_watch_history_data.movie_id
+        )
+        if movie is None:
+            raise MovieIdNotFoundError(create_watch_history_data.movie_id)
+
+        await self.watch_history_repository.add_movie_to_watch_history(
+            user_id,
+            create_watch_history_data,
+        )
+        return MovieResponse.model_validate(movie)
 
     async def get_movies(self) -> MovieResponseList:
         movies = [
