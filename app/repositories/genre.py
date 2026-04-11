@@ -79,11 +79,3 @@ class GenreRepository:
         await self.session.execute(stmt)
         await self.session.commit()
         return True
-
-    async def delete_genre_by_name(self, name: str) -> bool:
-        if await self.get_genre_by_name(name) is None:
-            return False
-        stmt = delete(Genre).where(Genre.name == name)
-        await self.session.execute(stmt)
-        await self.session.commit()
-        return True

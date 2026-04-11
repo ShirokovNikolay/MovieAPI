@@ -24,20 +24,3 @@ async def search_genres_by_name(
     ],
 ):
     return await genre_service.search_genres_by_name(genre_name)
-
-
-@router.delete(
-    "/",
-    status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[
-        Depends(get_admin_by_access_token),
-    ],
-)
-async def delete_genre_by_name(
-    genre_name: str,
-    genre_service: Annotated[
-        GenreService,
-        Depends(get_genre_service),
-    ],
-):
-    await genre_service.delete_genre_by_name(genre_name)

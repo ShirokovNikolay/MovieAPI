@@ -11,9 +11,7 @@ from schemas.genre import (
 
 from core.exceptions.genre import (
     GenreIdNotFoundError,
-    GenreNameNotFoundError,
     GenreNameAlreadyExistsError,
-    GenreNameAlreadyHasMoviesError,
     GenreIdAlreadyHasMoviesError,
 )
 
@@ -36,13 +34,6 @@ class GenreService:
             for genre in await self.genre_repository.search_genres_by_name(name)
         ]
         return GenreResponseList(genre_list=genre_list)
-
-    async def get_genre_by_name(self, genre_name: str) -> GenreResponse:
-        genre = await self.genre_repository.get_genre_by_name(genre_name)
-        if genre is not None:
-            return GenreResponse.model_validate(genre)
-
-        raise GenreNameNotFoundError(genre_name)
 
     async def get_all_genres(self) -> GenreResponseList:
         genres = [
@@ -100,11 +91,3 @@ class GenreService:
 
         if not await self.genre_repository.delete_genre_by_id(genre_id):
             raise GenreIdNotFoundError(genre_id)
-
-    async def delete_genre_by_name(self, genre_name: str) -> None:
-        movies = await self.movie_repository.get_movies_by_genre_name(genre_name)
-        if movies:
-            raise GenreNameAlreadyHasMoviesError(genre_name)
-
-        if not await self.genre_repository.delete_genre_by_name(genre_name):
-            raise GenreNameNotFoundError(genre_name)
