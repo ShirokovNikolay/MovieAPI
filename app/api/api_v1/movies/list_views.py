@@ -24,6 +24,21 @@ async def get_movies(
 
 
 @router.get(
+    "/search/{movie_name}",
+    response_model=MovieResponseList,
+    status_code=status.HTTP_200_OK,
+)
+async def search_movies_by_name(
+    movie_name: str,
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
+):
+    return await movie_service.search_movies_by_name(movie_name)
+
+
+@router.get(
     "/genre/{genre_id}",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
@@ -33,18 +48,6 @@ async def get_movies_by_genre_id(
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
 ):
     return await movie_service.get_movies_by_genre_id(genre_id)
-
-
-@router.get(
-    "/genre-name/{genre_name}",
-    response_model=MovieResponseList,
-    status_code=status.HTTP_200_OK,
-)
-async def get_movies_by_genre_name(
-    genre_name: str,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
-):
-    return await movie_service.get_movies_by_genre_name(genre_name)
 
 
 @router.get(

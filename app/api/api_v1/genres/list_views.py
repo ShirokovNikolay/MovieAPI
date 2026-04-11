@@ -36,3 +36,18 @@ async def create_genre(
     genre_service: Annotated[GenreService, Depends(get_genre_service)],
 ):
     return await genre_service.create_genre(create_genre_data)
+
+
+@router.get(
+    "/search/{genre_name}",
+    response_model=GenreResponseList,
+    status_code=status.HTTP_200_OK,
+)
+async def search_genres_by_name(
+    genre_name: str,
+    genre_service: Annotated[
+        GenreService,
+        Depends(get_genre_service),
+    ],
+):
+    return await genre_service.search_genres_by_name(genre_name)

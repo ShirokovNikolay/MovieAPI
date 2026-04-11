@@ -51,15 +51,8 @@ class MovieRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_movies_by_genre_name(self, genre_name: str) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .join(Movie.genre)
-            .options(
-                joinedload(Movie.genre),
-            )
-            .where(Genre.name == genre_name)
-        )
+    async def search_movies_by_name(self, name: str) -> list[Movie]:
+        stmt = select(Movie).where(Movie.name.ilike("%" + name + "%"))
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 

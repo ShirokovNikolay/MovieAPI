@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.exceptions.genre import GenreNameNotFoundError, GenreIdNotFoundError
+from core.exceptions.genre import GenreIdNotFoundError
 from core.exceptions.user import UserIdNotFoundError
 from repositories import MovieRepository, GenreRepository, UserRepository
 from repositories.watch_history import WatchHistoryRepository
@@ -82,17 +82,12 @@ class MovieService:
         ]
         return MovieResponseList(movie_list=movies)
 
-    async def get_movies_by_genre_name(self, genre_name: str) -> MovieResponseList:
-        if not await self.genre_repository.genre_name_exists(genre_name):
-            raise GenreNameNotFoundError(genre_name)
-
-        movies = [
+    async def search_movies_by_name(self, name: str) -> MovieResponseList:
+        movie_list = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_movies_by_genre_name(
-                genre_name
-            )
+            for movie in await self.movie_repository.search_movies_by_name(name)
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(movie_list=movie_list)
 
     async def get_movies_by_rating_range(
         self,
