@@ -30,3 +30,5 @@ class FavoriteMovieList(BaseModel):
     """
 
     favorite_movie_list: list[FavoriteMovieResponse]
+    size: int
+    page: int

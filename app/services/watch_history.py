@@ -33,12 +33,17 @@ class WatchHistoryService:
             watch_history_id
         )
 
-    async def get_watch_history_list(self, user_id: int) -> WatchHistoryResponseList:
+    async def get_watch_history_list(
+        self,
+        user_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> WatchHistoryResponseList:
         if await self.user_repository.user_id_exists(user_id):
             watch_history_list = [
                 WatchHistoryResponse.model_validate(watch_history)
                 for watch_history in await self.watch_history_repository.get_watch_history_list(
-                    user_id
+                    user_id, size, page
                 )
             ]
             return WatchHistoryResponseList(watch_history_list=watch_history_list)
@@ -49,14 +54,14 @@ class WatchHistoryService:
         user_id: int,
         start_date: datetime,
         end_date: datetime,
+        size: int = 10,
+        page: int = 1,
     ) -> WatchHistoryResponseList:
         if await self.user_repository.user_id_exists(user_id):
             watch_history_list = [
                 WatchHistoryResponse.model_validate(watch_history)
                 for watch_history in await self.watch_history_repository.get_watch_history_by_date_range(
-                    user_id,
-                    start_date,
-                    end_date,
+                    user_id, start_date, end_date, size, page
                 )
             ]
             return WatchHistoryResponseList(watch_history_list=watch_history_list)

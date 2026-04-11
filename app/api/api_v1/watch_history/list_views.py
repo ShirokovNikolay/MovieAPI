@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query
 
 from dependencies.auth import get_user_by_access_token
 from dependencies.services import get_watch_history_service
@@ -27,8 +27,10 @@ async def get_watch_history_list(
         WatchHistoryService,
         Depends(get_watch_history_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await watch_history_service.get_watch_history_list(user_id)
+    return await watch_history_service.get_watch_history_list(user_id, size, page)
 
 
 @router.get(
@@ -47,11 +49,15 @@ async def get_watch_history_by_date_range(
         WatchHistoryService,
         Depends(get_watch_history_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
     return await watch_history_service.get_watch_history_by_date_range(
         user_id,
         start_date,
         end_date,
+        size,
+        page,
     )
 
 

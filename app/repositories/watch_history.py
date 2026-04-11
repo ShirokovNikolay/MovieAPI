@@ -13,7 +13,8 @@ class WatchHistoryRepository:
         self.session = session
 
     async def get_watch_history_by_id(
-        self, watch_history_id: int
+        self,
+        watch_history_id: int,
     ) -> WatchHistory | None:
         stmt = (
             select(WatchHistory)
@@ -26,12 +27,19 @@ class WatchHistoryRepository:
     async def watch_history_exists(self, watch_history_id: int) -> bool:
         return await self.get_watch_history_by_id(watch_history_id) is not None
 
-    async def get_watch_history_list(self, user_id: int) -> list[WatchHistory]:
+    async def get_watch_history_list(
+        self,
+        user_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[WatchHistory]:
         stmt = (
             select(WatchHistory)
             .options(joinedload(WatchHistory.movie))
             .where(WatchHistory.user_id == user_id)
             .order_by(desc(WatchHistory.watched_at))
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -41,6 +49,8 @@ class WatchHistoryRepository:
         user_id: int,
         start_date: datetime,
         end_date: datetime,
+        size: int = 10,
+        page: int = 1,
     ) -> list[WatchHistory]:
         stmt = (
             select(WatchHistory)
@@ -53,6 +63,8 @@ class WatchHistoryRepository:
                 )
             )
             .order_by(desc(WatchHistory.watched_at))
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

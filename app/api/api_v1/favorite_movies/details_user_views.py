@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, Query
 from starlette import status
 
 from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
 from dependencies.services import get_favorite_movie_service
-from schemas.favorite_movie import FavoriteMovieList, FavoriteMovieResponse
+from schemas.favorite_movie import FavoriteMovieList
 from services.favorite_movie import FavoriteMovieService
 
 router = APIRouter(prefix="/users")
@@ -25,8 +25,12 @@ async def get_current_user_favorite_movies(
         FavoriteMovieService,
         Depends(get_favorite_movie_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await favorite_movie_service.get_favorite_movies_by_user_id(user_id)
+    return await favorite_movie_service.get_favorite_movies_by_user_id(
+        user_id, size, page
+    )
 
 
 @router.get(
@@ -43,5 +47,11 @@ async def get_user_favorite_movies(
         FavoriteMovieService,
         Depends(get_favorite_movie_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await favorite_movie_service.get_favorite_movies_by_user_id(user_id)
+    return await favorite_movie_service.get_favorite_movies_by_user_id(
+        user_id,
+        size,
+        page,
+    )

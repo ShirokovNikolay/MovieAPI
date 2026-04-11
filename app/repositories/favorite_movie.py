@@ -13,6 +13,8 @@ class FavoriteMovieRepository:
     async def get_favorite_movies_by_user_id(
         self,
         user_id: int,
+        size: int = 10,
+        page: int = 1,
     ) -> list[FavoriteMovie]:
         stmt = (
             select(FavoriteMovie)
@@ -27,6 +29,8 @@ class FavoriteMovieRepository:
             .where(
                 FavoriteMovie.user_id == user_id,
             )
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

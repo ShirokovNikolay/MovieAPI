@@ -41,8 +41,12 @@ class UserRepository:
     async def user_email_exists(self, email: str) -> bool:
         return await self.get_user_by_email(email) is not None
 
-    async def get_all_users(self) -> list[User]:
-        stmt = select(User)
+    async def get_all_users(
+        self,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[User]:
+        stmt = select(User).limit(size).offset(size * (page - 1))
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 

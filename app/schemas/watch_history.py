@@ -34,3 +34,5 @@ class WatchHistoryResponseList(BaseModel):
     """
 
     watch_history_list: list[WatchHistoryResponse]
+    size: int
+    page: int

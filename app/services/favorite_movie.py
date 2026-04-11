@@ -22,12 +22,17 @@ class FavoriteMovieService:
         self.user_repository = UserRepository(session)
         self.movie_repository = MovieRepository(session)
 
-    async def get_favorite_movies_by_user_id(self, user_id: int) -> FavoriteMovieList:
+    async def get_favorite_movies_by_user_id(
+        self,
+        user_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> FavoriteMovieList:
         if await self.user_repository.user_id_exists(user_id):
             favorite_movies = [
                 FavoriteMovieResponse.model_validate(favorite_movie)
                 for favorite_movie in await self.favorite_movie_repository.get_favorite_movies_by_user_id(
-                    user_id
+                    user_id, size, page
                 )
             ]
             return FavoriteMovieList(favorite_movie_list=favorite_movies)

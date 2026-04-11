@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 from dependencies.auth import get_admin_by_access_token
 from schemas.user import UserResponseList, UserCreate, UserResponse
@@ -19,8 +19,10 @@ router = APIRouter(
 )
 async def get_users(
     user_service: Annotated[UserService, Depends(get_user_service)],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await user_service.get_all_users()
+    return await user_service.get_all_users(size, page)
 
 
 @router.post(

@@ -74,8 +74,10 @@ class UserResponseList(BaseModel):
     Модель для вывода информации о списке пользователей.
     """
 
-    user_list: list[UserResponse]
     model_config: ConfigDict = ConfigDict(from_attributes=True)
+    user_list: list[UserResponse]
+    size: int
+    page: int = 1
 
 
 class UserLogin(BaseModel):

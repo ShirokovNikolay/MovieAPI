@@ -43,12 +43,16 @@ class UserService:
     async def user_login_exists(self, login: str) -> bool:
         return await self.user_repository.user_login_exists(login)
 
-    async def get_all_users(self) -> UserResponseList:
+    async def get_all_users(self, size: int = 10, page: int = 1) -> UserResponseList:
         users = [
             UserResponse.model_validate(user)
-            for user in await self.user_repository.get_all_users()
+            for user in await self.user_repository.get_all_users(size, page)
         ]
-        return UserResponseList(user_list=users)
+        return UserResponseList(
+            user_list=users,
+            size=size,
+            page=page,
+        )
 
     async def create_user(self, create_user_data: UserCreate) -> UserResponse:
         if await self.user_repository.user_login_exists(create_user_data.login):
