@@ -29,11 +29,11 @@ class Movie(Base):
             name="fk_movies_genre_id",
         )
     )
+    release_date: Mapped[datetime]
     genre: Mapped["Genre"] = relationship(
         "Genre",
         back_populates="movies",
     )
-    release_date: Mapped[datetime]
     reviews: Mapped[list["Review"]] = relationship(
         "Review",
         back_populates="movie",

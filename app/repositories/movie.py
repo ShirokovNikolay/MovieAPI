@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy import select, delete, and_, func, desc
 from models import Movie, Genre
 from schemas.movie import MovieCreate, MovieUpdate, MoviePartialUpdate
@@ -13,8 +13,16 @@ class MovieRepository:
 
     async def get_movie_by_id(self, movie_id: int) -> Movie | None:
         stmt = (
-            select(Movie).options(joinedload(Movie.genre)).where(Movie.id == movie_id)
+            select(Movie)
+            .options(
+                joinedload(Movie.genre),
+                selectinload(Movie.reviews),
+                selectinload(Movie.favorited_by_users),
+                selectinload(Movie.watch_history),
+            )
+            .where(Movie.id == movie_id)
         )
+
         result = await self.session.execute(stmt)
         return result.scalars().first()
 

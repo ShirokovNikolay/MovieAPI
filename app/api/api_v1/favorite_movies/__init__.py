@@ -6,7 +6,7 @@ from .details_user_views import router as details_user_router
 
 router = APIRouter(
     prefix="/favorite-movies",
-    tags=["favorite movies"],
+    tags=["Favorite Movies"],
 )
 list_views_router.include_router(details_user_router)
 router.include_router(list_views_router)

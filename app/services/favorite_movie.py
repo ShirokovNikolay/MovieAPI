@@ -45,19 +45,6 @@ class FavoriteMovieService:
             return FavoriteMovieResponse.model_validate(favorite_movie)
         raise FavoriteMovieIdNotFoundError(favorite_movie_id)
 
-    async def get_user_favorite_movie(
-        self,
-        user_id: int,
-        movie_id: int,
-    ) -> FavoriteMovieResponse:
-        favorite_movie = await self.favorite_movie_repository.get_user_favorite_movie(
-            user_id,
-            movie_id,
-        )
-        if favorite_movie is not None:
-            return FavoriteMovieResponse.model_validate(favorite_movie)
-        raise FavoriteMovieNotFoundByUserAndMovieError(user_id, movie_id)
-
     async def favorite_movie_exists(self, user_id: int, movie_id: int) -> bool:
         return (
             await self.favorite_movie_repository.get_user_favorite_movie(
@@ -88,6 +75,11 @@ class FavoriteMovieService:
     ) -> FavoriteMovieResponse:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
+
+        if not await self.movie_repository.movie_id_exists(
+            create_favorite_movie_data.movie_id
+        ):
+            raise MovieIdNotFoundError(create_favorite_movie_data.movie_id)
 
         if await self.favorite_movie_repository.favorite_movie_exists(
             user_id, create_favorite_movie_data.movie_id

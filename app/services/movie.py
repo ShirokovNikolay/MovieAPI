@@ -62,6 +62,7 @@ class MovieService:
             user_id,
             create_watch_history_data,
         )
+        await self.session.refresh(movie)
         return MovieResponse.model_validate(movie)
 
     async def get_movies(self) -> MovieResponseList:

@@ -10,7 +10,6 @@ from services.watch_history import WatchHistoryService
 
 router = APIRouter(
     prefix="/about-me",
-    tags=["watch-history"],
 )
 
 

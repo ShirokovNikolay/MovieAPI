@@ -12,24 +12,6 @@ router = APIRouter(prefix="/users")
 
 
 @router.get(
-    "/{user_id}",
-    response_model=FavoriteMovieList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(get_admin_by_access_token),
-    ],
-)
-async def get_user_favorite_movies(
-    user_id: int,
-    favorite_movie_service: Annotated[
-        FavoriteMovieService,
-        Depends(get_favorite_movie_service),
-    ],
-):
-    return await favorite_movie_service.get_favorite_movies_by_user_id(user_id)
-
-
-@router.get(
     "/about-me",
     response_model=FavoriteMovieList,
     status_code=status.HTTP_200_OK,
@@ -48,19 +30,18 @@ async def get_current_user_favorite_movies(
 
 
 @router.get(
-    "/{user_id}/movies/{movie_id}",
-    response_model=FavoriteMovieResponse,
+    "/{user_id}",
+    response_model=FavoriteMovieList,
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
     ],
 )
-async def get_user_favorite_movie(
+async def get_user_favorite_movies(
     user_id: int,
-    movie_id: int,
     favorite_movie_service: Annotated[
         FavoriteMovieService,
         Depends(get_favorite_movie_service),
     ],
 ):
-    return await favorite_movie_service.get_user_favorite_movie(user_id, movie_id)
+    return await favorite_movie_service.get_favorite_movies_by_user_id(user_id)

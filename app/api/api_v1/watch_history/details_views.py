@@ -8,7 +8,9 @@ from dependencies.services import get_watch_history_service
 from schemas.watch_history import WatchHistoryResponse
 from services.watch_history import WatchHistoryService
 
-router = APIRouter(prefix="/{watch_history_id}")
+router = APIRouter(
+    prefix="/{watch_history_id}",
+)
 
 
 @router.get(

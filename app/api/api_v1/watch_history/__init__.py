@@ -6,7 +6,7 @@ from .details_views import router as details_router
 
 router = APIRouter(
     prefix="/watch-history",
-    tags=["watch-history"],
+    tags=["Watch History"],
 )
 router.include_router(list_router)
 router.include_router(details_router)
