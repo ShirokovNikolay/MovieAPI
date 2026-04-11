@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select, delete, and_, func
+from sqlalchemy import select, delete, and_, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -31,6 +31,7 @@ class WatchHistoryRepository:
             select(WatchHistory)
             .options(joinedload(WatchHistory.movie))
             .where(WatchHistory.user_id == user_id)
+            .order_by(desc(WatchHistory.watched_at))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -51,6 +52,7 @@ class WatchHistoryRepository:
                     WatchHistory.watched_at <= end_date,
                 )
             )
+            .order_by(desc(WatchHistory.watched_at))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
