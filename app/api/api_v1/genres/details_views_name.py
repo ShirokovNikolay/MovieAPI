@@ -16,14 +16,14 @@ router = APIRouter(
     response_model=GenreResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_genre_by_name(
+async def search_genres_by_name(
     genre_name: str,
     genre_service: Annotated[
         GenreService,
         Depends(get_genre_service),
     ],
 ):
-    return await genre_service.get_genre_by_name(genre_name)
+    return await genre_service.search_genres_by_name(genre_name)
 
 
 @router.delete(

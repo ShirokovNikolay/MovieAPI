@@ -30,6 +30,13 @@ class GenreService:
 
         raise GenreIdNotFoundError(genre_id)
 
+    async def search_genres_by_name(self, name: str) -> GenreResponseList:
+        genre_list = [
+            GenreResponse.model_validate(genre)
+            for genre in await self.genre_repository.search_genres_by_name(name)
+        ]
+        return GenreResponseList(genre_list=genre_list)
+
     async def get_genre_by_name(self, genre_name: str) -> GenreResponse:
         genre = await self.genre_repository.get_genre_by_name(genre_name)
         if genre is not None:

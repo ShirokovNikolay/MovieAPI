@@ -14,6 +14,11 @@ class GenreRepository:
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
+    async def search_genres_by_name(self, name: str) -> list[Genre]:
+        stmt = select(Genre).where(Genre.name.ilike("%" + name + "%"))
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_genre_by_name(self, name: str) -> Genre | None:
         stmt = select(Genre).where(Genre.name == name)
         result = await self.session.execute(stmt)
