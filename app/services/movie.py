@@ -16,7 +16,6 @@ from schemas.movie import (
 
 from core.exceptions.movie import (
     MovieIdNotFoundError,
-    MovieNameNotFoundError,
     MovieNameAlreadyExistsError,
 )
 from schemas.watch_history import WatchHistoryCreate
@@ -36,13 +35,6 @@ class MovieService:
             return MovieResponse.model_validate(movie)
 
         raise MovieIdNotFoundError(movie_id)
-
-    async def get_movie_by_name(self, movie_name: str) -> MovieResponse:
-        movie = await self.movie_repository.get_movie_by_name(movie_name)
-        if movie is not None:
-            return MovieResponse.model_validate(movie)
-
-        raise MovieNameNotFoundError(movie_name)
 
     async def watch_movie(
         self,
@@ -65,85 +57,157 @@ class MovieService:
         await self.session.refresh(movie)
         return MovieResponse.model_validate(movie)
 
-    async def get_movies(self) -> MovieResponseList:
+    async def get_movies(
+        self,
+        size: int = 10,
+        page: int = 1,
+    ) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_movies()
+            for movie in await self.movie_repository.get_movies(size, page)
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=size,
+            page=page,
+        )
 
-    async def get_movies_by_genre_id(self, genre_id: int) -> MovieResponseList:
+    async def get_movies_by_genre_id(
+        self,
+        genre_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> MovieResponseList:
         if not await self.genre_repository.genre_id_exists(genre_id):
             raise MovieIdNotFoundError(genre_id)
 
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_movies_by_genre_id(genre_id)
+            for movie in await self.movie_repository.get_movies_by_genre_id(
+                genre_id,
+                size,
+                page,
+            )
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=size,
+            page=page,
+        )
 
-    async def search_movies_by_name(self, name: str) -> MovieResponseList:
+    async def search_movies_by_name(
+        self,
+        name: str,
+        size: int = 10,
+        page: int = 1,
+    ) -> MovieResponseList:
         movie_list = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.search_movies_by_name(name)
+            for movie in await self.movie_repository.search_movies_by_name(
+                name,
+                size,
+                page,
+            )
         ]
-        return MovieResponseList(movie_list=movie_list)
+        return MovieResponseList(
+            movie_list=movie_list,
+            size=size,
+            page=page,
+        )
 
     async def get_movies_by_rating_range(
         self,
         min_rating: int,
         max_rating: int,
+        size: int = 10,
+        page: int = 1,
     ) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
             for movie in await self.movie_repository.get_movies_by_rating_range(
                 min_rating,
                 max_rating,
+                size,
+                page,
             )
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=size,
+            page=page,
+        )
 
-    async def get_movies_by_year(self, year: int) -> MovieResponseList:
+    async def get_movies_by_year(
+        self,
+        year: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_movies_by_year(year)
+            for movie in await self.movie_repository.get_movies_by_year(
+                year,
+                size,
+                page,
+            )
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=size,
+            page=page,
+        )
 
     async def get_movies_by_release_date_range(
         self,
         release_date_start: datetime,
         release_date_end: datetime,
+        size: int = 10,
+        page: int = 1,
     ) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
             for movie in await self.movie_repository.get_movies_by_release_date(
                 release_date_start,
                 release_date_end,
+                size=size,
+                page=page,
             )
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=size,
+            page=page,
+        )
 
     async def get_top_rated_movies(self, limit: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
             for movie in await self.movie_repository.get_top_rated_movies(limit)
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=limit,
+        )
 
     async def get_top_newest_movies(self, limit: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
             for movie in await self.movie_repository.get_top_newest_movies(limit)
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=limit,
+        )
 
     async def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
             for movie in await self.movie_repository.get_top_oldest_movies(limit)
         ]
-        return MovieResponseList(movie_list=movies)
+        return MovieResponseList(
+            movie_list=movies,
+            size=limit,
+        )
 
     async def create_movie(self, create_movie_data: MovieCreate) -> MovieResponse:
         if await self.movie_repository.movie_name_exists(create_movie_data.name):

@@ -28,19 +28,30 @@ class GenreService:
 
         raise GenreIdNotFoundError(genre_id)
 
-    async def search_genres_by_name(self, name: str) -> GenreResponseList:
-        genre_list = [
-            GenreResponse.model_validate(genre)
-            for genre in await self.genre_repository.search_genres_by_name(name)
-        ]
-        return GenreResponseList(genre_list=genre_list)
-
-    async def get_all_genres(self) -> GenreResponseList:
+    async def get_all_genres(
+        self,
+        size: int = 10,
+        page: int = 1,
+    ) -> GenreResponseList:
         genres = [
             GenreResponse.model_validate(genre)
-            for genre in await self.genre_repository.get_all_genres()
+            for genre in await self.genre_repository.get_all_genres(size, page)
         ]
         return GenreResponseList(genre_list=genres)
+
+    async def search_genres_by_name(
+        self,
+        name: str,
+        size: int = 10,
+        page: int = 1,
+    ) -> GenreResponseList:
+        genre_list = [
+            GenreResponse.model_validate(genre)
+            for genre in await self.genre_repository.search_genres_by_name(
+                name, size, page
+            )
+        ]
+        return GenreResponseList(genre_list=genre_list)
 
     async def create_genre(self, create_data: GenreCreate) -> GenreResponse:
         if await self.genre_repository.genre_name_exists(create_data.name):

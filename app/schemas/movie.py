@@ -78,3 +78,5 @@ class MovieResponseList(BaseModel):
     """
 
     movie_list: list[MovieResponse]
+    size: int
+    page: int = 1

@@ -14,8 +14,27 @@ class GenreRepository:
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def search_genres_by_name(self, name: str) -> list[Genre]:
-        stmt = select(Genre).where(Genre.name.ilike("%" + name + "%"))
+    async def get_all_genres(
+        self,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Genre]:
+        stmt = select(Genre).limit(size).offset(size * (page - 1))
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def search_genres_by_name(
+        self,
+        name: str,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Genre]:
+        stmt = (
+            select(Genre)
+            .where(Genre.name.ilike("%" + name + "%"))
+            .limit(size)
+            .offset(size * (page - 1))
+        )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -29,10 +48,6 @@ class GenreRepository:
 
     async def genre_name_exists(self, name: str) -> bool:
         return await self.get_genre_by_name(name) is not None
-
-    async def get_all_genres(self) -> list[Genre]:
-        result = await self.session.execute(select(Genre))
-        return list(result.scalars().all())
 
     async def create_genre(self, create_data: GenreCreate) -> Genre:
         genre = Genre(**create_data.model_dump())

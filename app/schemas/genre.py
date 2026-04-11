@@ -59,3 +59,5 @@ class GenreResponseList(BaseModel):
     """
 
     genre_list: list[GenreResponse]
+    page: int
+    size: int

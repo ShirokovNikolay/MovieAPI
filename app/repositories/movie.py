@@ -37,27 +37,57 @@ class MovieRepository:
     async def movie_name_exists(self, movie_name: str) -> bool:
         return await self.get_movie_by_name(movie_name) is not None
 
-    async def get_movies(self) -> list[Movie]:
-        stmt = select(Movie).options(joinedload(Movie.genre))
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_movies_by_genre_id(self, genre_id: int) -> list[Movie]:
+    async def get_movies(
+        self,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
-            .where(Movie.genre_id == genre_id)
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def search_movies_by_name(self, name: str) -> list[Movie]:
-        stmt = select(Movie).where(Movie.name.ilike("%" + name + "%"))
+    async def get_movies_by_genre_id(
+        self,
+        genre_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Movie]:
+        stmt = (
+            select(Movie)
+            .options(joinedload(Movie.genre))
+            .where(Movie.genre_id == genre_id)
+            .limit(size)
+            .offset(size * (page - 1))
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def search_movies_by_name(
+        self,
+        name: str,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Movie]:
+        stmt = (
+            select(Movie)
+            .where(Movie.name.ilike("%" + name + "%"))
+            .limit(size)
+            .offset(size * (page - 1))
+        )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_movies_by_rating_range(
-        self, min_rating: int, max_rating: int
+        self,
+        min_rating: int,
+        max_rating: int,
+        size: int = 10,
+        page: int = 1,
     ) -> list[Movie]:
         stmt = (
             select(Movie)
@@ -65,17 +95,26 @@ class MovieRepository:
             .where(
                 Movie.rating.between(min_rating, max_rating),
             )
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_movies_by_year(self, year: int) -> list[Movie]:
+    async def get_movies_by_year(
+        self,
+        year: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
             .where(
                 func.extract("year", Movie.release_date) == year,
             )
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -84,6 +123,8 @@ class MovieRepository:
         self,
         release_date_start: datetime,
         release_date_end: datetime,
+        size: int = 10,
+        page: int = 1,
     ) -> list[Movie]:
         stmt = (
             select(Movie)
@@ -94,6 +135,8 @@ class MovieRepository:
                     Movie.release_date <= release_date_end,
                 )
             )
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

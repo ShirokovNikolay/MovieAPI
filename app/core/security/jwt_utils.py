@@ -1,7 +1,6 @@
 from datetime import datetime, timezone, timedelta
 
 import jwt
-from jwt import InvalidTokenError
 
 from core.config import settings
 from core.constants import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE

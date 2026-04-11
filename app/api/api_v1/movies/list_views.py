@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 from dependencies.services import get_movie_service
 from dependencies.auth import get_admin_by_access_token
@@ -19,12 +19,14 @@ router = APIRouter()
 )
 async def get_movies(
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies()
+    return await movie_service.get_movies(size, page)
 
 
 @router.get(
-    "/search/{movie_name}",
+    "/search",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
 )
@@ -34,8 +36,10 @@ async def search_movies_by_name(
         MovieService,
         Depends(get_movie_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await movie_service.search_movies_by_name(movie_name)
+    return await movie_service.search_movies_by_name(movie_name, size, page)
 
 
 @router.get(
@@ -46,8 +50,10 @@ async def search_movies_by_name(
 async def get_movies_by_genre_id(
     genre_id: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies_by_genre_id(genre_id)
+    return await movie_service.get_movies_by_genre_id(genre_id, size, page)
 
 
 @router.get(
@@ -59,18 +65,34 @@ async def get_movies_by_rating_range(
     min_rating: int,
     max_rating: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies_by_rating_range(min_rating, max_rating)
+    return await movie_service.get_movies_by_rating_range(
+        min_rating,
+        max_rating,
+        size,
+        page,
+    )
 
 
-@router.get("/date-range")
+@router.get(
+    "/date-range",
+    response_model=MovieResponseList,
+    status_code=status.HTTP_200_OK,
+)
 async def get_movies_by_release_date_range(
     release_date_start: datetime,
     release_date_end: datetime,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
     return await movie_service.get_movies_by_release_date_range(
-        release_date_start, release_date_end
+        release_date_start,
+        release_date_end,
+        size,
+        page,
     )
 
 
@@ -82,8 +104,14 @@ async def get_movies_by_release_date_range(
 async def get_movies_by_year(
     year: int,
     movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies_by_year(year)
+    return await movie_service.get_movies_by_year(
+        year,
+        size,
+        page,
+    )
 
 
 @router.get(
