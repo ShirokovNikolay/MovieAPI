@@ -62,4 +62,4 @@ class ReviewResponseList(BaseModel):
 
     review_list: list[ReviewResponse]
     size: int
-    page: int
+    page: int = 1

@@ -28,12 +28,20 @@ class ReviewService:
         self.movie_repository = MovieRepository(session)
         self.review_repository = ReviewRepository(session)
 
-    async def get_reviews(self) -> ReviewResponseList:
+    async def get_reviews(
+        self,
+        size: int = 10,
+        page: int = 1,
+    ) -> ReviewResponseList:
         reviews = [
             ReviewResponse.model_validate(movie)
-            for movie in await self.review_repository.get_all_reviews()
+            for movie in await self.review_repository.get_all_reviews(size, page)
         ]
-        return ReviewResponseList(review_list=reviews)
+        return ReviewResponseList(
+            review_list=reviews,
+            size=size,
+            page=page,
+        )
 
     async def get_review_by_id(self, review_id: int) -> ReviewResponse:
         review = await self.review_repository.get_review_by_id(review_id)
@@ -41,15 +49,28 @@ class ReviewService:
             return ReviewResponse.model_validate(review)
         raise ReviewIdNotFoundError(review_id)
 
-    async def get_user_reviews(self, user_id: int) -> ReviewResponseList:
+    async def get_user_reviews(
+        self,
+        user_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> ReviewResponseList:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
 
         reviews = [
             ReviewResponse.model_validate(review)
-            for review in await self.review_repository.get_user_reviews(user_id)
+            for review in await self.review_repository.get_user_reviews(
+                user_id,
+                size,
+                page,
+            )
         ]
-        return ReviewResponseList(review_list=reviews)
+        return ReviewResponseList(
+            review_list=reviews,
+            size=size,
+            page=page,
+        )
 
     async def get_user_review_about_movie(
         self, user_id: int, movie_id: int
@@ -68,15 +89,28 @@ class ReviewService:
 
         return ReviewResponse.model_validate(review)
 
-    async def get_movie_reviews(self, movie_id: int) -> ReviewResponseList:
+    async def get_movie_reviews(
+        self,
+        movie_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> ReviewResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
 
         reviews = [
             ReviewResponse.model_validate(review)
-            for review in await self.review_repository.get_movie_reviews(movie_id)
+            for review in await self.review_repository.get_movie_reviews(
+                movie_id,
+                size,
+                page,
+            )
         ]
-        return ReviewResponseList(review_list=reviews)
+        return ReviewResponseList(
+            review_list=reviews,
+            size=size,
+            page=page,
+        )
 
     async def get_top_rating_movie_reviews(
         self,
@@ -92,7 +126,7 @@ class ReviewService:
                 movie_id, limit
             )
         ]
-        return ReviewResponseList(review_list=reviews)
+        return ReviewResponseList(review_list=reviews, size=limit)
 
     async def get_top_newest_movie_reviews(
         self,
@@ -108,7 +142,7 @@ class ReviewService:
                 movie_id, limit
             )
         ]
-        return ReviewResponseList(review_list=reviews)
+        return ReviewResponseList(review_list=reviews, size=limit)
 
     async def get_top_oldest_movie_reviews(
         self,
@@ -124,7 +158,7 @@ class ReviewService:
                 movie_id, limit
             )
         ]
-        return ReviewResponseList(review_list=reviews)
+        return ReviewResponseList(review_list=reviews, size=limit)
 
     async def create_review(
         self,

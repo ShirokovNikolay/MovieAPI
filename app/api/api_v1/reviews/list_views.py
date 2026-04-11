@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 from dependencies.auth import (
     get_admin_by_access_token,
@@ -30,8 +30,10 @@ async def get_review_list(
         ReviewService,
         Depends(get_review_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await review_service.get_reviews()
+    return await review_service.get_reviews(size, page)
 
 
 @router.post(

@@ -21,8 +21,12 @@ class ReviewRepository:
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def get_all_reviews(self) -> list[Review]:
-        stmt = select(Review)
+    async def get_all_reviews(
+        self,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Review]:
+        stmt = select(Review).limit(size).offset(size * (page - 1))
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -48,7 +52,12 @@ class ReviewRepository:
     async def review_id_exists(self, review_id: int) -> bool:
         return await self.get_review_by_id(review_id) is not None
 
-    async def get_user_reviews(self, user_id: int) -> list[Review]:
+    async def get_user_reviews(
+        self,
+        user_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Review]:
         stmt = (
             select(Review)
             .options(
@@ -57,6 +66,8 @@ class ReviewRepository:
             .where(
                 Review.user_id == user_id,
             )
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -80,7 +91,12 @@ class ReviewRepository:
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def get_movie_reviews(self, movie_id: int) -> list[Review]:
+    async def get_movie_reviews(
+        self,
+        movie_id: int,
+        size: int = 10,
+        page: int = 1,
+    ) -> list[Review]:
         stmt = (
             select(Review)
             .options(
@@ -90,6 +106,8 @@ class ReviewRepository:
             .where(
                 Review.movie_id == movie_id,
             )
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 from schemas.review import ReviewResponseList
 from services import ReviewService
@@ -20,8 +20,10 @@ async def get_movie_reviews(
         ReviewService,
         Depends(get_review_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await review_service.get_movie_reviews(movie_id)
+    return await review_service.get_movie_reviews(movie_id, size, page)
 
 
 @router.get(

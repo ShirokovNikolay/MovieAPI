@@ -4,6 +4,7 @@ from fastapi import (
     APIRouter,
     status,
     Depends,
+    Query,
 )
 from dependencies.auth import get_admin_by_access_token
 from dependencies.services import get_review_service
@@ -27,8 +28,10 @@ async def get_user_reviews(
         ReviewService,
         Depends(get_review_service),
     ],
+    size: int = Query(10, ge=1),
+    page: int = Query(1, ge=1),
 ):
-    return await review_service.get_user_reviews(user_id)
+    return await review_service.get_user_reviews(user_id, size, page)
 
 
 @router.get(
