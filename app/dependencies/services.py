@@ -4,6 +4,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.connection import session_factory
+from redis_client import RedisClient
 from services import GenreService, MovieService, ReviewService, UserService
 from services.favorite_movie import FavoriteMovieService
 from services.watch_history import WatchHistoryService
@@ -12,6 +13,11 @@ from services.watch_history import WatchHistoryService
 async def get_db():
     async with session_factory() as db:
         yield db
+
+
+async def get_redis_client():
+    async with RedisClient() as redis_client:
+        yield redis_client
 
 
 async def get_genre_service(

@@ -55,3 +55,29 @@ class RedisClient:
 
     async def incr_by(self, key: str, amount: int = 1) -> int:
         return await self._redis.incrby(key, amount)
+
+    async def zget_all_members(self, key: str) -> list[str]:
+        return await self._redis.zrange(key, 0, -1, withscores=False)
+
+    async def zget_all_members_with_scores(self, key: str) -> list[tuple]:
+        return await self._redis.zrange(key, 0, -1, withscores=True)
+
+    async def zadd(self, key: str, pairs: dict[str, str]) -> None:
+        """
+        Параметр pairs - словарь, в котором содержатся пары ключ - значение вида member - score.
+        """
+        await self._redis.zadd(key, pairs)
+
+    async def zcard(self, key: str) -> int:
+        """
+        Возвращает количество member в отсортированном множестве по ключу key.
+        """
+        return await self._redis.zcard(key)
+
+    async def zrem(self, key: str, *values: str) -> None:
+        await self._redis.zrem(key, *values)
+
+    async def zremrangebyscore(
+        self, key: str, min_value: float, max_value: float
+    ) -> int:
+        return await self._redis.zremrangebyscore(key, min_value, max_value)
