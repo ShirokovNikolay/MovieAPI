@@ -40,6 +40,12 @@ services:
     volumes:
       - "redis-data:/data"
 
+  redis_gui:
+    image: redis/redisinsight
+    container_name: redis_gui
+    ports:
+      - "5540:5540"
+
 volumes:
   postgres-data:
   redis-data:
