@@ -37,7 +37,11 @@ class GenreService:
             GenreResponse.model_validate(genre)
             for genre in await self.genre_repository.get_all_genres(size, page)
         ]
-        return GenreResponseList(genre_list=genres)
+        return GenreResponseList(
+            genre_list=genres,
+            size=size,
+            page=page,
+        )
 
     async def search_genres_by_name(
         self,
@@ -51,7 +55,11 @@ class GenreService:
                 name, size, page
             )
         ]
-        return GenreResponseList(genre_list=genre_list)
+        return GenreResponseList(
+            genre_list=genre_list,
+            size=size,
+            page=page,
+        )
 
     async def create_genre(self, create_data: GenreCreate) -> GenreResponse:
         if await self.genre_repository.genre_name_exists(create_data.name):

@@ -4,6 +4,7 @@ services:
     container_name: movie-catalog
     environment:
       DATABASE__HOST: database
+      REDIS__CONNECTION__HOST: redis
     ports:
       - "8000:8000"
     depends_on:
