@@ -2,7 +2,7 @@ __all__ = ("router",)
 
 from fastapi import APIRouter, Depends
 
-from dependencies.redis import check_rate_limit_auth
+from dependencies.rate_limiter import check_rate_limit_auth
 from .list_views import router as list_router
 from .details_views import router as details_router
 
