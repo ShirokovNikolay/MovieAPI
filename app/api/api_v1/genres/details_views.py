@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from typing import Annotated
 
 from dependencies.auth import get_admin_by_access_token
+from dependencies.redis import check_rate_limit_not_auth, check_rate_limit_auth
 from dependencies.services import get_genre_service
 from schemas.genre import GenreResponse, GenreUpdate, GenrePartialUpdate
 from services import GenreService
@@ -15,6 +16,9 @@ router = APIRouter(
     "/",
     response_model=GenreResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_genre(
     genre_id: int,
@@ -32,6 +36,7 @@ async def get_genre(
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def update_genre(
@@ -51,6 +56,7 @@ async def update_genre(
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def partial_update_genre(
@@ -69,6 +75,7 @@ async def partial_update_genre(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def delete_genre(

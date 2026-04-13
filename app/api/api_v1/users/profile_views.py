@@ -10,7 +10,9 @@ from schemas.user import (
 )
 from services import UserService
 
-router = APIRouter(prefix="/me")
+router = APIRouter(
+    prefix="/me",
+)
 
 
 @router.get(

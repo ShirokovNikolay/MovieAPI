@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi import status
 from fastapi.responses import RedirectResponse
 
+from dependencies.redis import check_rate_limit_auth, check_rate_limit_not_auth
 from dependencies.services import get_movie_service
 from dependencies.auth import (
     get_user_by_access_token,
@@ -25,6 +26,7 @@ router = APIRouter(
 @router.post(
     "/watch",
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    dependencies=[Depends(check_rate_limit_auth)],
 )
 async def watch_movie(
     create_watch_history_data: WatchHistoryCreate,
@@ -45,6 +47,7 @@ async def watch_movie(
     "/",
     response_model=MovieResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(check_rate_limit_not_auth)],
 )
 async def get_movie(
     movie_id: int,
@@ -62,6 +65,7 @@ async def get_movie(
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def update_movie(
@@ -81,6 +85,7 @@ async def update_movie(
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def partial_update_movie(
@@ -99,6 +104,7 @@ async def partial_update_movie(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def delete_movie(

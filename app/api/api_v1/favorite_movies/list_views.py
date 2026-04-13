@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 
 from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
 from api.api_v1.favorite_movies.details_user_views import get_favorite_movie_service
+from dependencies.redis import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.favorite_movie import (
     FavoriteMovieResponse,
     FavoriteMovieCreate,
@@ -34,6 +35,9 @@ async def get_favorite_movie_by_id(
 @router.get(
     "/count/{movie_id}",
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def count_favorites_by_movie(
     movie_id: int,
@@ -49,6 +53,9 @@ async def count_favorites_by_movie(
     "/",
     response_model=FavoriteMovieResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(check_rate_limit_auth),
+    ],
 )
 async def create_user_favorite_movie(
     create_favorite_movie_data: FavoriteMovieCreate,
@@ -72,6 +79,7 @@ async def create_user_favorite_movie(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def delete_favorite_movie_by_id(
@@ -87,6 +95,9 @@ async def delete_favorite_movie_by_id(
 @router.delete(
     "/movies/{movie_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[
+        Depends(check_rate_limit_auth),
+    ],
 )
 async def delete_user_favorite_movie(
     user_id: Annotated[

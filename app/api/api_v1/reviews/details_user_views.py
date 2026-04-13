@@ -7,13 +7,17 @@ from fastapi import (
     Query,
 )
 from dependencies.auth import get_admin_by_access_token
+from dependencies.redis import check_rate_limit_auth
 from dependencies.services import get_review_service
 from schemas.review import ReviewResponseList, ReviewResponse
 from services import ReviewService
 
 router = APIRouter(
     prefix="/{user_id}",
-    dependencies=[Depends(get_admin_by_access_token)],
+    dependencies=[
+        Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
+    ],
 )
 
 

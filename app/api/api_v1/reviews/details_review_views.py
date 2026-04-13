@@ -6,6 +6,7 @@ from dependencies.auth import (
     get_user_by_access_token,
     get_admin_by_access_token,
 )
+from dependencies.redis import check_rate_limit_auth
 from schemas.review import (
     ReviewResponse,
     ReviewUpdate,
@@ -14,7 +15,12 @@ from schemas.review import (
 from dependencies.services import get_review_service
 from services import ReviewService
 
-router = APIRouter(prefix="/{review_id}")
+router = APIRouter(
+    prefix="/{review_id}",
+    dependencies=[
+        Depends(check_rate_limit_auth),
+    ],
+)
 
 
 @router.get(

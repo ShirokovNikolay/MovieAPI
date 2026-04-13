@@ -46,7 +46,11 @@ class WatchHistoryService:
                     user_id, size, page
                 )
             ]
-            return WatchHistoryResponseList(watch_history_list=watch_history_list)
+            return WatchHistoryResponseList(
+                watch_history_list=watch_history_list,
+                size=size,
+                page=page,
+            )
         raise UserIdNotFoundError(user_id)
 
     async def get_watch_history_by_date_range(
@@ -64,7 +68,11 @@ class WatchHistoryService:
                     user_id, start_date, end_date, size, page
                 )
             ]
-            return WatchHistoryResponseList(watch_history_list=watch_history_list)
+            return WatchHistoryResponseList(
+                watch_history_list=watch_history_list,
+                size=size,
+                page=page,
+            )
         raise UserIdNotFoundError(user_id)
 
     async def count_user_watch_history(self, user_id: int) -> int:

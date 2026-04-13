@@ -7,6 +7,7 @@ from core.exceptions.base import (
     ConflictError,
     ForbiddenError,
     AuthenticationError,
+    TooManyRequestsError,
 )
 
 
@@ -15,6 +16,7 @@ def register_exception_handlers(app: FastAPI):
     app.add_exception_handler(ConflictError, conflict_exception_handler)
     app.add_exception_handler(AuthenticationError, authentication_exception_handler)
     app.add_exception_handler(ForbiddenError, forbidden_exception_handler)
+    app.add_exception_handler(TooManyRequestsError, too_many_requests_exception_handler)
 
 
 def not_found_exception_handler(
@@ -54,4 +56,14 @@ def forbidden_exception_handler(
     return JSONResponse(
         content={"message": exception.detail},
         status_code=status.HTTP_403_FORBIDDEN,
+    )
+
+
+def too_many_requests_exception_handler(
+    request: Request,
+    exception: TooManyRequestsError,
+) -> JSONResponse:
+    return JSONResponse(
+        content={"message": exception.detail},
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
     )

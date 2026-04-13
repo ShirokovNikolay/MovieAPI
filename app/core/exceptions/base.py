@@ -36,3 +36,13 @@ class AuthenticationError(Exception):
     def __init__(self, detail: str):
         self.detail = detail
         super().__init__(detail)
+
+
+class TooManyRequestsError(Exception):
+    """
+    Базовый класс для ошибок, связанных со слишком частыми запросами.
+    """
+
+    def __init__(self, detail: str):
+        self.detail = detail
+        super().__init__(detail)

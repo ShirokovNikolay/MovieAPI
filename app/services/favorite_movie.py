@@ -35,7 +35,11 @@ class FavoriteMovieService:
                     user_id, size, page
                 )
             ]
-            return FavoriteMovieList(favorite_movie_list=favorite_movies)
+            return FavoriteMovieList(
+                favorite_movie_list=favorite_movies,
+                size=size,
+                page=page,
+            )
 
         raise UserIdNotFoundError(user_id)
 

@@ -4,11 +4,17 @@ from fastapi import Depends, APIRouter, Query
 from starlette import status
 
 from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
+from dependencies.redis import check_rate_limit_auth
 from dependencies.services import get_favorite_movie_service
 from schemas.favorite_movie import FavoriteMovieList
 from services.favorite_movie import FavoriteMovieService
 
-router = APIRouter(prefix="/users")
+router = APIRouter(
+    prefix="/users",
+    dependencies=[
+        Depends(check_rate_limit_auth),
+    ],
+)
 
 
 @router.get(

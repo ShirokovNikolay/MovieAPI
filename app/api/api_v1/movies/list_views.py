@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
 
+from dependencies.redis import check_rate_limit_not_auth, check_rate_limit_auth
 from dependencies.services import get_movie_service
 from dependencies.auth import get_admin_by_access_token
 from schemas.movie import MovieResponseList, MovieCreate, MovieResponse
@@ -16,9 +17,13 @@ router = APIRouter()
     "/",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(check_rate_limit_not_auth)],
 )
 async def get_movies(
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
@@ -29,6 +34,9 @@ async def get_movies(
     "/search",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def search_movies_by_name(
     movie_name: str,
@@ -46,10 +54,14 @@ async def search_movies_by_name(
     "/genre/{genre_id}",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(check_rate_limit_not_auth)],
 )
 async def get_movies_by_genre_id(
     genre_id: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
@@ -60,6 +72,9 @@ async def get_movies_by_genre_id(
     "/rating-range",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_movies_by_rating_range(
     min_rating: int,
@@ -80,11 +95,15 @@ async def get_movies_by_rating_range(
     "/date-range",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(check_rate_limit_not_auth)],
 )
 async def get_movies_by_release_date_range(
     release_date_start: datetime,
     release_date_end: datetime,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
@@ -100,10 +119,16 @@ async def get_movies_by_release_date_range(
     "/year/{year}",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_movies_by_year(
     year: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_service: Annotated[
+        MovieService,
+        Depends(get_movie_service),
+    ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
@@ -118,6 +143,9 @@ async def get_movies_by_year(
     "/top-rated/{limit}",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_top_rated_movies(
     limit: int,
@@ -130,6 +158,9 @@ async def get_top_rated_movies(
     "/top-oldest/{limit}",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_top_oldest_movies(
     limit: int,
@@ -142,6 +173,9 @@ async def get_top_oldest_movies(
     "/top-newest/{limit}",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_top_newest_movies(
     limit: int,
@@ -156,6 +190,7 @@ async def get_top_newest_movies(
     status_code=status.HTTP_201_CREATED,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def create_movie(
