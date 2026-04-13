@@ -10,6 +10,9 @@ from services.watch_history import WatchHistoryService
 
 router = APIRouter(
     prefix="/{watch_history_id}",
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 
 
@@ -17,9 +20,6 @@ router = APIRouter(
     "/",
     response_model=WatchHistoryResponse,
     status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(get_admin_by_access_token),
-    ],
 )
 async def get_watch_history_by_id(
     watch_history_id: int,
@@ -34,9 +34,6 @@ async def get_watch_history_by_id(
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[
-        Depends(get_admin_by_access_token),
-    ],
 )
 async def delete_watch_history_by_id(
     watch_history_id: int,

@@ -2,11 +2,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
 
+from dependencies.redis import check_rate_limit_not_auth
 from schemas.review import ReviewResponseList
 from services import ReviewService
 from dependencies.services import get_review_service
 
-router = APIRouter(prefix="/{movie_id}")
+router = APIRouter(
+    prefix="/{movie_id}",
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
+)
 
 
 @router.get(

@@ -10,6 +10,9 @@ from services import UserService
 
 router = APIRouter(
     prefix="/{login}",
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 
 
@@ -31,9 +34,6 @@ async def get_user_by_login(
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[
-        Depends(get_admin_by_access_token),
-    ],
 )
 async def delete_user_by_login(
     login: str,

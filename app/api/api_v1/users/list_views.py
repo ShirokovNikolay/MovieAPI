@@ -8,7 +8,9 @@ from services import UserService
 from dependencies.services import get_user_service
 
 router = APIRouter(
-    dependencies=[Depends(get_admin_by_access_token)],
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 
 

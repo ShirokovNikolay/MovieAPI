@@ -7,8 +7,8 @@ from core.constants import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from core.exceptions.auth import PermissionDeniedError
 from core.security.jwt_utils import decode_jwt
 from core.security.validators import validate_token_payload
-from dependencies.services import get_user_service, get_review_service
-from services import UserService, ReviewService
+from dependencies.services import get_user_service
+from services import UserService
 
 
 def get_token_payload(
