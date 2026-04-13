@@ -6,7 +6,7 @@ from dependencies.auth import (
     get_user_by_access_token,
     get_admin_by_access_token,
 )
-from dependencies.redis import check_rate_limit_auth
+from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.review import (
     ReviewResponse,
     ReviewUpdate,

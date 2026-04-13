@@ -9,7 +9,7 @@ class RedisClient:
         self,
         host: str = settings.redis.connection.host,
         port: int = settings.redis.connection.port,
-        db: int = settings.redis.db.default,
+        db: int = settings.redis.db.rate_limiter,
         decode_responses: bool = True,
     ):
         self._redis = Redis(

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 
 from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
 from api.api_v1.favorite_movies.details_user_views import get_favorite_movie_service
-from dependencies.redis import check_rate_limit_auth, check_rate_limit_not_auth
+from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.favorite_movie import (
     FavoriteMovieResponse,
     FavoriteMovieCreate,

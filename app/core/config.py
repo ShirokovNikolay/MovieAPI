@@ -24,7 +24,7 @@ class RedisConnectionConfig(BaseModel):
 
 
 class RedisDataBaseConfig(BaseModel):
-    default: int = 0
+    rate_limiter: int = 0
     genres: int = 1
     movies: int = 2
     users: int = 3

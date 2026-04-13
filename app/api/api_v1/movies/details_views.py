@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi import status
 from fastapi.responses import RedirectResponse
 
-from dependencies.redis import check_rate_limit_auth, check_rate_limit_not_auth
+from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from dependencies.services import get_movie_service
 from dependencies.auth import (
     get_user_by_access_token,
