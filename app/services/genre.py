@@ -1,4 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from redis_cache import CacheService
 from repositories import GenreRepository, MovieRepository
 
 from schemas.genre import (
@@ -17,14 +19,26 @@ from core.exceptions.genre import (
 
 
 class GenreService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        cache_service: CacheService,
+    ) -> None:
         self.genre_repository = GenreRepository(session)
         self.movie_repository = MovieRepository(session)
+        self.cache_service = cache_service
 
     async def get_genre_by_id(self, genre_id: int) -> GenreResponse:
+        key = f"genre:{genre_id}"
+        if (
+            cache_value := await self.cache_service.get(key, GenreResponse)
+        ) is not None:
+            return cache_value
         genre = await self.genre_repository.get_genre_by_id(genre_id)
         if genre is not None:
-            return GenreResponse.model_validate(genre)
+            result = GenreResponse.model_validate(genre)
+            await self.cache_service.set(key, result, ttl=60)
+            return result
 
         raise GenreIdNotFoundError(genre_id)
 
