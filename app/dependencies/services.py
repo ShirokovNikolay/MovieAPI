@@ -4,9 +4,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.connection import session_factory
-from dependencies.redis_client import get_redis_client_for_genres
-from redis_cache import CacheService
-from redis_client import RedisClient
+
 from services import GenreService, MovieService, ReviewService, UserService
 from services.favorite_movie import FavoriteMovieService
 from services.watch_history import WatchHistoryService
@@ -17,33 +15,14 @@ async def get_db():
         yield db
 
 
-async def get_genre_cache_service(
-    redis_client: Annotated[
-        RedisClient,
-        Depends(get_redis_client_for_genres),
-    ],
-):
-    try:
-        cache_service = CacheService(redis_client)
-        yield cache_service
-    finally:
-        """
-        Действия после view.
-        """
-
-
 async def get_genre_service(
     session: Annotated[
         AsyncSession,
         Depends(get_db),
     ],
-    cache_service: Annotated[
-        CacheService,
-        Depends(get_genre_cache_service),
-    ],
 ):
     try:
-        genre_service = GenreService(session, cache_service)
+        genre_service = GenreService(session)
         yield genre_service
     finally:
         """
