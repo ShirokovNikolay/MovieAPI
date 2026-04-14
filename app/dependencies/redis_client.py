@@ -8,7 +8,7 @@ def redis_client_factory(
     db: int = settings.redis.db.rate_limiter,
     decode_responses: bool = True,
 ):
-    async def get_redis():
+    async def get_redis_client():
         async with RedisClient(
             host=host,
             port=port,
@@ -17,7 +17,7 @@ def redis_client_factory(
         ) as redis_client:
             yield redis_client
 
-    return get_redis
+    return get_redis_client
 
 
 get_redis_client_for_rate_limiter = redis_client_factory(
