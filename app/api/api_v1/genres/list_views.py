@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
 from dependencies.auth import get_admin_by_access_token
+from dependencies.cache_services import get_genre_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
-from dependencies.services import get_genre_service
 from schemas.genre import GenreResponseList, GenreResponse, GenreCreate
 from services import GenreService
 
@@ -19,14 +19,14 @@ router = APIRouter()
     ],
 )
 async def get_genres(
-    genre_service: Annotated[
+    genre_cache_service: Annotated[
         GenreService,
-        Depends(get_genre_service),
+        Depends(get_genre_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await genre_service.get_all_genres(size, page)
+    return await genre_cache_service.get_all_genres(size, page)
 
 
 @router.get(
@@ -39,14 +39,14 @@ async def get_genres(
 )
 async def search_genres_by_name(
     genre_name: str,
-    genre_service: Annotated[
+    genre_cache_service: Annotated[
         GenreService,
-        Depends(get_genre_service),
+        Depends(get_genre_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await genre_service.search_genres_by_name(genre_name, size, page)
+    return await genre_cache_service.search_genres_by_name(genre_name, size, page)
 
 
 @router.post(
@@ -60,9 +60,9 @@ async def search_genres_by_name(
 )
 async def create_genre(
     create_genre_data: GenreCreate,
-    genre_service: Annotated[
+    genre_cache_service: Annotated[
         GenreService,
-        Depends(get_genre_service),
+        Depends(get_genre_cache_service),
     ],
 ):
-    return await genre_service.create_genre(create_genre_data)
+    return await genre_cache_service.create_genre(create_genre_data)
