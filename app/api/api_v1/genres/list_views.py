@@ -1,11 +1,12 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
+
+from cache_services import GenreCacheService
 from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_genre_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.genre import GenreResponseList, GenreResponse, GenreCreate
-from services import GenreService
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ router = APIRouter()
 )
 async def get_genres(
     genre_cache_service: Annotated[
-        GenreService,
+        GenreCacheService,
         Depends(get_genre_cache_service),
     ],
     size: int = Query(10, ge=1),
@@ -40,7 +41,7 @@ async def get_genres(
 async def search_genres_by_name(
     genre_name: str,
     genre_cache_service: Annotated[
-        GenreService,
+        GenreCacheService,
         Depends(get_genre_cache_service),
     ],
     size: int = Query(10, ge=1),
@@ -61,7 +62,7 @@ async def search_genres_by_name(
 async def create_genre(
     create_genre_data: GenreCreate,
     genre_cache_service: Annotated[
-        GenreService,
+        GenreCacheService,
         Depends(get_genre_cache_service),
     ],
 ):

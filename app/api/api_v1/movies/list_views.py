@@ -3,6 +3,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
 
+from cache_services import MovieCacheService
+from dependencies.cache_services import get_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from dependencies.services import get_movie_service
 from dependencies.auth import get_admin_by_access_token
@@ -20,14 +22,14 @@ router = APIRouter()
     dependencies=[Depends(check_rate_limit_not_auth)],
 )
 async def get_movies(
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies(size, page)
+    return await movie_cache_service.get_movies(size, page)
 
 
 @router.get(
@@ -40,14 +42,14 @@ async def get_movies(
 )
 async def search_movies_by_name(
     movie_name: str,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await movie_service.search_movies_by_name(movie_name, size, page)
+    return await movie_cache_service.search_movies_by_name(movie_name, size, page)
 
 
 @router.get(
@@ -58,14 +60,14 @@ async def search_movies_by_name(
 )
 async def get_movies_by_genre_id(
     genre_id: int,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies_by_genre_id(genre_id, size, page)
+    return await movie_cache_service.get_movies_by_genre_id(genre_id, size, page)
 
 
 @router.get(
@@ -79,11 +81,14 @@ async def get_movies_by_genre_id(
 async def get_movies_by_rating_range(
     min_rating: int,
     max_rating: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
+    ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies_by_rating_range(
+    return await movie_cache_service.get_movies_by_rating_range(
         min_rating,
         max_rating,
         size,
@@ -100,14 +105,14 @@ async def get_movies_by_rating_range(
 async def get_movies_by_release_date_range(
     release_date_start: datetime,
     release_date_end: datetime,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies_by_release_date_range(
+    return await movie_cache_service.get_movies_by_release_date_range(
         release_date_start,
         release_date_end,
         size,
@@ -125,14 +130,14 @@ async def get_movies_by_release_date_range(
 )
 async def get_movies_by_year(
     year: int,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await movie_service.get_movies_by_year(
+    return await movie_cache_service.get_movies_by_year(
         year,
         size,
         page,
@@ -149,9 +154,12 @@ async def get_movies_by_year(
 )
 async def get_top_rated_movies(
     limit: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
+    ],
 ) -> MovieResponseList:
-    return await movie_service.get_top_rated_movies(limit)
+    return await movie_cache_service.get_top_rated_movies(limit)
 
 
 @router.get(
@@ -164,9 +172,12 @@ async def get_top_rated_movies(
 )
 async def get_top_oldest_movies(
     limit: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
+    ],
 ) -> MovieResponseList:
-    return await movie_service.get_top_oldest_movies(limit)
+    return await movie_cache_service.get_top_oldest_movies(limit)
 
 
 @router.get(
@@ -179,9 +190,12 @@ async def get_top_oldest_movies(
 )
 async def get_top_newest_movies(
     limit: int,
-    movie_service: Annotated[MovieService, Depends(get_movie_service)],
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
+    ],
 ) -> MovieResponseList:
-    return await movie_service.get_top_newest_movies(limit)
+    return await movie_cache_service.get_top_newest_movies(limit)
 
 
 @router.post(
@@ -195,9 +209,9 @@ async def get_top_newest_movies(
 )
 async def create_movie(
     create_movie_data: MovieCreate,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
 ):
-    return await movie_service.create_movie(create_movie_data)
+    return await movie_cache_service.create_movie(create_movie_data)

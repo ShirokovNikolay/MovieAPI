@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from typing import Annotated
 
+from cache_services import GenreCacheService
 from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_genre_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
@@ -23,7 +24,7 @@ router = APIRouter(
 async def get_genre(
     genre_id: int,
     genre_cache_service: Annotated[
-        GenreService,
+        GenreCacheService,
         Depends(get_genre_cache_service),
     ],
 ):
@@ -43,7 +44,7 @@ async def update_genre(
     genre_id: int,
     update_genre_data: GenreUpdate,
     genre_cache_service: Annotated[
-        GenreService,
+        GenreCacheService,
         Depends(get_genre_cache_service),
     ],
 ):
@@ -63,7 +64,7 @@ async def partial_update_genre(
     genre_id: int,
     partial_update_genre_data: GenrePartialUpdate,
     genre_cache_service: Annotated[
-        GenreService,
+        GenreCacheService,
         Depends(get_genre_cache_service),
     ],
 ):
@@ -83,7 +84,7 @@ async def partial_update_genre(
 async def delete_genre(
     genre_id: int,
     genre_cache_service: Annotated[
-        GenreService,
+        GenreCacheService,
         Depends(get_genre_cache_service),
     ],
 ):

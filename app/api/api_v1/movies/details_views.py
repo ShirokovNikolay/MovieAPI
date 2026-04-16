@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends
 from fastapi import status
 from fastapi.responses import RedirectResponse
 
+from cache_services import MovieCacheService
+from dependencies.cache_services import get_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from dependencies.services import get_movie_service
 from dependencies.auth import (
@@ -34,12 +36,12 @@ async def watch_movie(
         int,
         Depends(get_user_by_access_token),
     ],
-    movie_service: Annotated[
+    movie_cache_service: Annotated[
         MovieService,
-        Depends(get_movie_service),
+        Depends(get_movie_cache_service),
     ],
 ):
-    movie = await movie_service.watch_movie(user_id, create_watch_history_data)
+    movie = await movie_cache_service.watch_movie(user_id, create_watch_history_data)
     return RedirectResponse(url=movie.source_url)
 
 
@@ -51,12 +53,12 @@ async def watch_movie(
 )
 async def get_movie(
     movie_id: int,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
 ) -> MovieResponse:
-    return await movie_service.get_movie_by_id(movie_id)
+    return await movie_cache_service.get_movie_by_id(movie_id)
 
 
 @router.put(
@@ -71,12 +73,12 @@ async def get_movie(
 async def update_movie(
     movie_id: int,
     update_movie_data: MovieUpdate,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
 ):
-    return await movie_service.update_movie(movie_id, update_movie_data)
+    return await movie_cache_service.update_movie(movie_id, update_movie_data)
 
 
 @router.patch(
@@ -91,12 +93,12 @@ async def update_movie(
 async def partial_update_movie(
     movie_id: int,
     update_movie_data: MoviePartialUpdate,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
 ):
-    return await movie_service.partial_update_movie(movie_id, update_movie_data)
+    return await movie_cache_service.partial_update_movie(movie_id, update_movie_data)
 
 
 @router.delete(
@@ -109,9 +111,9 @@ async def partial_update_movie(
 )
 async def delete_movie(
     movie_id: int,
-    movie_service: Annotated[
-        MovieService,
-        Depends(get_movie_service),
+    movie_cache_service: Annotated[
+        MovieCacheService,
+        Depends(get_movie_cache_service),
     ],
 ):
-    await movie_service.delete_movie_by_id(movie_id)
+    await movie_cache_service.delete_movie_by_id(movie_id)
