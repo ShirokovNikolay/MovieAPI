@@ -1,3 +1,7 @@
 from .genre import GenreCacheService
+from .movie import MovieCacheService
 
-__all == ("GenreCacheService",)
+__all__ = (
+    "GenreCacheService",
+    "MovieCacheService",
+)
