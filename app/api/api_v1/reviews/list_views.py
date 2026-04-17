@@ -33,14 +33,14 @@ router = APIRouter(
     ],
 )
 async def get_review_list(
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await review_service.get_reviews(size, page)
+    return await review_cache_service.get_reviews(size, page)
 
 
 @router.post(
@@ -54,9 +54,9 @@ async def create_review(
         int,
         Depends(get_user_by_access_token),
     ],
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.create_review(current_user_id, create_review_data)
+    return await review_cache_service.create_review(current_user_id, create_review_data)
