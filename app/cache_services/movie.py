@@ -22,17 +22,19 @@ class MovieCacheService:
         cache_service_for_watch_history: CacheService,
     ):
         self.movie_service = movie_service
-        self.cache_service = cache_service_for_movie
+        self.cache_service_for_movie = cache_service_for_movie
         self.cache_service_for_watch_history = cache_service_for_watch_history
 
     async def get_movie_by_id(self, movie_id: int) -> MovieResponse:
         key = create_cache_key("movie", movie_id=movie_id)
-        cached_movie_response = await self.cache_service.get(key, MovieResponse)
+        cached_movie_response = await self.cache_service_for_movie.get(
+            key, MovieResponse
+        )
         if cached_movie_response is not None:
             return cached_movie_response
 
         movie_response = await self.movie_service.get_movie_by_id(movie_id)
-        await self.cache_service.set(key, movie_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movie_response, ttl=60)
         return movie_response
 
     async def get_movies(
@@ -41,12 +43,14 @@ class MovieCacheService:
         page: int = 1,
     ) -> MovieResponseList:
         key = create_cache_key("movies", size=size, page=page)
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
         movies_response = await self.movie_service.get_movies(size, page)
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def get_movies_by_genre_id(
@@ -61,14 +65,16 @@ class MovieCacheService:
             size=size,
             page=page,
         )
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
         movies_response = await self.movie_service.get_movies_by_genre_id(
             genre_id, size, page
         )
-        await self.cache_service.set(key, movies_response, ttl=1800)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=1800)
         return movies_response
 
     async def search_movies_by_name(
@@ -83,14 +89,16 @@ class MovieCacheService:
             size=size,
             page=page,
         )
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
         movies_response = await self.movie_service.search_movies_by_name(
             name, size, page
         )
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def get_movies_by_rating_range(
@@ -107,7 +115,9 @@ class MovieCacheService:
             size=size,
             page=page,
         )
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
@@ -117,7 +127,7 @@ class MovieCacheService:
             size,
             page,
         )
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def get_movies_by_year(
@@ -127,12 +137,14 @@ class MovieCacheService:
         page: int = 1,
     ) -> MovieResponseList:
         key = create_cache_key("movies", year=year, size=size, page=page)
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
         movies_response = await self.movie_service.get_movies_by_year(year, size, page)
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def get_movies_by_release_date_range(
@@ -149,7 +161,9 @@ class MovieCacheService:
             size=size,
             page=page,
         )
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
@@ -159,37 +173,43 @@ class MovieCacheService:
             size,
             page,
         )
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def get_top_rated_movies(self, limit: int) -> MovieResponseList:
         key = create_cache_key("movies:top-rated", limit=limit)
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
         movies_response = await self.movie_service.get_top_rated_movies(limit)
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def get_top_newest_movies(self, limit: int) -> MovieResponseList:
         key = create_cache_key("movies:top-newest", limit=limit)
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
         movies_response = await self.movie_service.get_top_newest_movies(limit)
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
         key = create_cache_key("movies:top-oldest", limit=limit)
-        cached_movies_response = await self.cache_service.get(key, MovieResponseList)
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key, MovieResponseList
+        )
         if cached_movies_response is not None:
             return cached_movies_response
 
         movies_response = await self.movie_service.get_top_oldest_movies(limit)
-        await self.cache_service.set(key, movies_response, ttl=60)
+        await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
     async def watch_movie(
@@ -209,7 +229,7 @@ class MovieCacheService:
         movie_response = await self.movie_service.create_movie(create_movie_data)
         key = create_cache_key("movie")
         pattern = key + "*"
-        await self.cache_service.delete_by_pattern(pattern)
+        await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
 
     async def update_movie(
@@ -222,7 +242,7 @@ class MovieCacheService:
         )
         key = create_cache_key("movie")
         pattern = key + "*"
-        await self.cache_service.delete_by_pattern(pattern)
+        await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
 
     async def partial_update_movie(
@@ -235,11 +255,11 @@ class MovieCacheService:
         )
         key = create_cache_key("movie")
         pattern = key + "*"
-        await self.cache_service.delete_by_pattern(pattern)
+        await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
 
     async def delete_movie_by_id(self, movie_id: int) -> None:
         await self.movie_service.delete_movie_by_id(movie_id)
         key = create_cache_key("movie")
         pattern = key + "*"
-        await self.cache_service.delete_by_pattern(pattern)
+        await self.cache_service_for_movie.delete_by_pattern(pattern)
