@@ -24,7 +24,7 @@ class FavoriteMovieResponse(FavoriteMovieBase):
     id: int
 
 
-class FavoriteMovieList(BaseModel):
+class FavoriteMovieResponseList(BaseModel):
     """
     Модель для отображения списка избранных фильмов.
     """

@@ -10,7 +10,7 @@ from core.exceptions.user import UserIdNotFoundError
 from repositories import UserRepository, MovieRepository
 from repositories.favorite_movie import FavoriteMovieRepository
 from schemas.favorite_movie import (
-    FavoriteMovieList,
+    FavoriteMovieResponseList,
     FavoriteMovieResponse,
     FavoriteMovieCreate,
 )
@@ -27,7 +27,7 @@ class FavoriteMovieService:
         user_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> FavoriteMovieList:
+    ) -> FavoriteMovieResponseList:
         if await self.user_repository.user_id_exists(user_id):
             favorite_movies = [
                 FavoriteMovieResponse.model_validate(favorite_movie)
@@ -35,7 +35,7 @@ class FavoriteMovieService:
                     user_id, size, page
                 )
             ]
-            return FavoriteMovieList(
+            return FavoriteMovieResponseList(
                 favorite_movie_list=favorite_movies,
                 size=size,
                 page=page,

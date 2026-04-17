@@ -2,8 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 
+from cache_services import FavoriteMovieCacheService
 from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
 from api.api_v1.favorite_movies.details_user_views import get_favorite_movie_service
+from dependencies.cache_services import get_favorite_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.favorite_movie import (
     FavoriteMovieResponse,
@@ -24,12 +26,14 @@ router = APIRouter()
 )
 async def get_favorite_movie_by_id(
     favorite_movie_id: int,
-    favorite_movie_service: Annotated[
-        FavoriteMovieService,
-        Depends(get_favorite_movie_service),
+    favorite_movie_cache_service: Annotated[
+        FavoriteMovieCacheService,
+        Depends(get_favorite_movie_cache_service),
     ],
 ):
-    return await favorite_movie_service.get_favorite_movie_by_id(favorite_movie_id)
+    return await favorite_movie_cache_service.get_favorite_movie_by_id(
+        favorite_movie_id
+    )
 
 
 @router.get(
@@ -41,12 +45,12 @@ async def get_favorite_movie_by_id(
 )
 async def count_favorites_by_movie(
     movie_id: int,
-    favorite_movie_service: Annotated[
-        FavoriteMovieService,
-        Depends(get_favorite_movie_service),
+    favorite_movie_cache_service: Annotated[
+        FavoriteMovieCacheService,
+        Depends(get_favorite_movie_cache_service),
     ],
 ):
-    return await favorite_movie_service.count_favorites_by_movie(movie_id)
+    return await favorite_movie_cache_service.count_favorites_by_movie(movie_id)
 
 
 @router.post(
@@ -63,12 +67,12 @@ async def create_user_favorite_movie(
         int,
         Depends(get_user_by_access_token),
     ],
-    favorite_movie_service: Annotated[
-        FavoriteMovieService,
-        Depends(get_favorite_movie_service),
+    favorite_movie_cache_service: Annotated[
+        FavoriteMovieCacheService,
+        Depends(get_favorite_movie_cache_service),
     ],
 ):
-    return await favorite_movie_service.create_user_favorite_movie(
+    return await favorite_movie_cache_service.create_user_favorite_movie(
         user_id,
         create_favorite_movie_data,
     )
@@ -84,12 +88,12 @@ async def create_user_favorite_movie(
 )
 async def delete_favorite_movie_by_id(
     favorite_movie_id: int,
-    favorite_movie_service: Annotated[
-        FavoriteMovieService,
-        Depends(get_favorite_movie_service),
+    favorite_movie_cache_service: Annotated[
+        FavoriteMovieCacheService,
+        Depends(get_favorite_movie_cache_service),
     ],
 ):
-    await favorite_movie_service.delete_favorite_movie_by_id(favorite_movie_id)
+    await favorite_movie_cache_service.delete_favorite_movie_by_id(favorite_movie_id)
 
 
 @router.delete(
@@ -105,9 +109,9 @@ async def delete_user_favorite_movie(
         Depends(get_user_by_access_token),
     ],
     movie_id: int,
-    favorite_movie_service: Annotated[
-        FavoriteMovieService,
-        Depends(get_favorite_movie_service),
+    favorite_movie_cache_service: Annotated[
+        FavoriteMovieCacheService,
+        Depends(get_favorite_movie_cache_service),
     ],
 ):
-    await favorite_movie_service.delete_user_favorite_movie(user_id, movie_id)
+    await favorite_movie_cache_service.delete_user_favorite_movie(user_id, movie_id)
