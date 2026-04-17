@@ -7,6 +7,7 @@ from cache_services import (
     MovieCacheService,
     FavoriteMovieCacheService,
     ReviewCacheService,
+    UserCacheService,
 )
 from cache_services.watch_history import WatchHistoryCacheService
 from dependencies.redis_client import (
@@ -15,6 +16,7 @@ from dependencies.redis_client import (
     get_redis_client_for_favorite_movies,
     get_redis_client_for_watch_history,
     get_redis_client_for_reviews,
+    get_redis_client_for_users,
 )
 from dependencies.services import (
     get_genre_service,
@@ -22,6 +24,7 @@ from dependencies.services import (
     get_favorite_movie_service,
     get_watch_history_service,
     get_review_service,
+    get_user_service,
 )
 from redis_cache import CacheService
 from redis_client import RedisClient
@@ -31,6 +34,7 @@ from services import (
     FavoriteMovieService,
     WatchHistoryService,
     ReviewService,
+    UserService,
 )
 
 
@@ -103,6 +107,21 @@ async def get_cache_service_for_reviews(
     try:
         review_cache_service = CacheService(redis)
         yield review_cache_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
+async def get_cache_service_for_users(
+    redis: Annotated[
+        RedisClient,
+        Depends(get_redis_client_for_users),
+    ],
+):
+    try:
+        user_cache_service = CacheService(redis)
+        yield user_cache_service
     finally:
         """
         Действия после view.
@@ -210,6 +229,25 @@ async def get_review_cache_service(
     try:
         review_cache_service = ReviewCacheService(review_service, cache_service)
         yield review_cache_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
+async def get_user_cache_service(
+    user_service: Annotated[
+        UserService,
+        Depends(get_user_service),
+    ],
+    cache_service: Annotated[
+        CacheService,
+        Depends(get_cache_service_for_users),
+    ],
+):
+    try:
+        user_cache_service = UserCacheService(user_service, cache_service)
+        yield user_cache_service
     finally:
         """
         Действия после view.
