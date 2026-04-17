@@ -36,7 +36,10 @@ class CacheService:
         return schema.model_validate_json(value)
 
     @staticmethod
-    def convert_object_to_string(value: Any) -> str:
-        if isinstance(value, str):
+    def convert_object_to_string(value: Any) -> Any:
+        if isinstance(
+            value,
+            (str, int, float, bool),
+        ):
             return value
         return value.model_dump_json()

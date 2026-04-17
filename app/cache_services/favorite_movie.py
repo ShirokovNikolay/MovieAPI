@@ -1,7 +1,7 @@
 from core.security.cache_utils import create_cache_key
 from redis_cache import CacheService
 from schemas.favorite_movie import (
-    FavoriteMovieList,
+    FavoriteMovieResponseList,
     FavoriteMovieResponse,
     FavoriteMovieCreate,
 )
@@ -22,7 +22,7 @@ class FavoriteMovieCacheService:
         user_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> FavoriteMovieList:
+    ) -> FavoriteMovieResponseList:
         key = create_cache_key(
             "favorite movies",
             user_id=user_id,
@@ -30,7 +30,7 @@ class FavoriteMovieCacheService:
             page=page,
         )
         cached_favorite_movies_response = await self.cache_service.get(
-            key, FavoriteMovieList
+            key, FavoriteMovieResponseList
         )
         if cached_favorite_movies_response is not None:
             return cached_favorite_movies_response
@@ -70,10 +70,8 @@ class FavoriteMovieCacheService:
         return favorite_movie_response
 
     async def count_favorites_by_movie(self, movie_id: int) -> int:
-        key = create_cache_key("favorite movie", movie_id=movie_id)
-        cached_favorite_movie_response = await self.cache_service.get(
-            key, FavoriteMovieList
-        )
+        key = create_cache_key("favorite movie:count", movie_id=movie_id)
+        cached_favorite_movie_response = await self.cache_service.get(key)
         if cached_favorite_movie_response is not None:
             return cached_favorite_movie_response
 
@@ -96,8 +94,6 @@ class FavoriteMovieCacheService:
         )
         key = create_cache_key(
             "favorite movie",
-            user_id=user_id,
-            movie_id=favorite_movie_response.movie_id,
         )
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
@@ -107,7 +103,6 @@ class FavoriteMovieCacheService:
         await self.favorite_movie_service.delete_favorite_movie_by_id(favorite_movie_id)
         key = create_cache_key(
             "favorite movie",
-            favorite_movie_id=favorite_movie_id,
         )
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
@@ -116,8 +111,6 @@ class FavoriteMovieCacheService:
         await self.favorite_movie_service.delete_user_favorite_movie(user_id, movie_id)
         key = create_cache_key(
             "favorite movie",
-            favorite_movie_id=user_id,
-            movie_id=movie_id,
         )
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
