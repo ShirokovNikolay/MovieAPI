@@ -42,7 +42,7 @@ class UserCacheService:
 
     async def get_all_users(self, size: int = 10, page: int = 1) -> UserResponseList:
         key = create_cache_key("users", size=size, page=page)
-        cached_users_response = await self.cache_service.get(key, UserResponse)
+        cached_users_response = await self.cache_service.get(key, UserResponseList)
         if cached_users_response is not None:
             return cached_users_response
 

@@ -2,7 +2,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
 
+from cache_services import UserCacheService
 from dependencies.auth import get_admin_by_access_token
+from dependencies.cache_services import get_user_cache_service
 from schemas.user import UserResponseList, UserCreate, UserResponse
 from services import UserService
 from dependencies.services import get_user_service
@@ -20,11 +22,14 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_cache_service: Annotated[
+        UserCacheService,
+        Depends(get_user_cache_service),
+    ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await user_service.get_all_users(size, page)
+    return await user_cache_service.get_all_users(size, page)
 
 
 @router.post(
@@ -34,6 +39,9 @@ async def get_users(
 )
 async def create_user(
     create_user_data: UserCreate,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_cache_service: Annotated[
+        UserCacheService,
+        Depends(get_user_cache_service),
+    ],
 ):
-    return await user_service.create_user(create_user_data)
+    return await user_cache_service.create_user(create_user_data)
