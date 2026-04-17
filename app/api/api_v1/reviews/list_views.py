@@ -2,10 +2,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
 
+from cache_services import ReviewCacheService
 from dependencies.auth import (
     get_admin_by_access_token,
     get_user_by_access_token,
 )
+from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
 from dependencies.services import get_review_service
 from schemas.review import (
@@ -32,8 +34,8 @@ router = APIRouter(
 )
 async def get_review_list(
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
@@ -53,8 +55,8 @@ async def create_review(
         Depends(get_user_by_access_token),
     ],
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.create_review(current_user_id, create_review_data)

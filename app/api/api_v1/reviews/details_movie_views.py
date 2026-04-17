@@ -2,6 +2,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Query
 
+from cache_services import ReviewCacheService
+from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_not_auth
 from schemas.review import ReviewResponseList
 from services import ReviewService
@@ -23,8 +25,8 @@ router = APIRouter(
 async def get_movie_reviews(
     movie_id: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
@@ -41,8 +43,8 @@ async def get_top_rating_movie_reviews(
     movie_id: int,
     limit: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.get_top_rating_movie_reviews(movie_id, limit)
@@ -57,8 +59,8 @@ async def get_top_newest_movie_reviews(
     movie_id: int,
     limit: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.get_top_newest_movie_reviews(movie_id, limit)
@@ -73,8 +75,8 @@ async def get_top_oldest_movie_reviews(
     movie_id: int,
     limit: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.get_top_oldest_movie_reviews(movie_id, limit)

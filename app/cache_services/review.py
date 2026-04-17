@@ -207,11 +207,7 @@ class ReviewCacheService:
         review_response = await self.review_service.create_review(
             user_id, create_review_data
         )
-        key = create_cache_key(
-            "review",
-            user_id=user_id,
-            movie_id=create_review_data.movie_id,
-        )
+        key = create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return review_response
