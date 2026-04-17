@@ -3,7 +3,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Depends, Query
 
+from cache_services.watch_history import WatchHistoryCacheService
 from dependencies.auth import get_user_by_access_token
+from dependencies.cache_services import get_watch_history_cache_service
 from dependencies.services import get_watch_history_service
 from schemas.watch_history import WatchHistoryResponseList
 from services.watch_history import WatchHistoryService
@@ -23,14 +25,14 @@ async def get_watch_history_list(
         int,
         Depends(get_user_by_access_token),
     ],
-    watch_history_service: Annotated[
-        WatchHistoryService,
-        Depends(get_watch_history_service),
+    watch_history_cache_service: Annotated[
+        WatchHistoryCacheService,
+        Depends(get_watch_history_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await watch_history_service.get_watch_history_list(user_id, size, page)
+    return await watch_history_cache_service.get_watch_history_list(user_id, size, page)
 
 
 @router.get(
@@ -45,14 +47,14 @@ async def get_watch_history_by_date_range(
     ],
     start_date: datetime,
     end_date: datetime,
-    watch_history_service: Annotated[
-        WatchHistoryService,
-        Depends(get_watch_history_service),
+    watch_history_cache_service: Annotated[
+        WatchHistoryCacheService,
+        Depends(get_watch_history_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await watch_history_service.get_watch_history_by_date_range(
+    return await watch_history_cache_service.get_watch_history_by_date_range(
         user_id,
         start_date,
         end_date,
@@ -70,12 +72,12 @@ async def count_user_watch_history(
         int,
         Depends(get_user_by_access_token),
     ],
-    watch_history_service: Annotated[
-        WatchHistoryService,
-        Depends(get_watch_history_service),
+    watch_history_cache_service: Annotated[
+        WatchHistoryCacheService,
+        Depends(get_watch_history_cache_service),
     ],
 ):
-    return await watch_history_service.count_user_watch_history(user_id)
+    return await watch_history_cache_service.count_user_watch_history(user_id)
 
 
 @router.delete(
@@ -87,9 +89,9 @@ async def delete_user_watch_history(
         int,
         Depends(get_user_by_access_token),
     ],
-    watch_history_service: Annotated[
-        WatchHistoryService,
-        Depends(get_watch_history_service),
+    watch_history_cache_service: Annotated[
+        WatchHistoryCacheService,
+        Depends(get_watch_history_cache_service),
     ],
 ):
-    await watch_history_service.delete_user_watch_history(user_id)
+    await watch_history_cache_service.delete_user_watch_history(user_id)

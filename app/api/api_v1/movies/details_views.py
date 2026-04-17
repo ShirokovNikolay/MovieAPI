@@ -37,7 +37,7 @@ async def watch_movie(
         Depends(get_user_by_access_token),
     ],
     movie_cache_service: Annotated[
-        MovieService,
+        MovieCacheService,
         Depends(get_movie_cache_service),
     ],
 ):
