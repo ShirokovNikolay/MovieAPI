@@ -9,6 +9,7 @@ from schemas.movie import (
     MovieUpdate,
     MoviePartialUpdate,
 )
+from schemas.watch_history import WatchHistoryCreate
 
 from services import MovieService
 
@@ -17,10 +18,12 @@ class MovieCacheService:
     def __init__(
         self,
         movie_service: MovieService,
-        cache_service: CacheService,
+        cache_service_for_movie: CacheService,
+        cache_service_for_watch_history: CacheService,
     ):
         self.movie_service = movie_service
-        self.cache_service = cache_service
+        self.cache_service = cache_service_for_movie
+        self.cache_service_for_watch_history = cache_service_for_watch_history
 
     async def get_movie_by_id(self, movie_id: int) -> MovieResponse:
         key = create_cache_key("movie", movie_id=movie_id)
@@ -188,6 +191,19 @@ class MovieCacheService:
         movies_response = await self.movie_service.get_top_oldest_movies(limit)
         await self.cache_service.set(key, movies_response, ttl=60)
         return movies_response
+
+    async def watch_movie(
+        self,
+        user_id: int,
+        create_watch_history_data: WatchHistoryCreate,
+    ) -> MovieResponse:
+        movie_response = await self.movie_service.watch_movie(
+            user_id, create_watch_history_data
+        )
+        key = create_cache_key("watch_history")
+        pattern = key + "*"
+        await self.cache_service_for_watch_history.delete_by_pattern(pattern)
+        return movie_response
 
     async def create_movie(self, create_movie_data: MovieCreate) -> MovieResponse:
         movie_response = await self.movie_service.create_movie(create_movie_data)
