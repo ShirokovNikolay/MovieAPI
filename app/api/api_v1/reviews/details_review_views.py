@@ -35,12 +35,12 @@ router = APIRouter(
 )
 async def get_review(
     review_id: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.get_review_by_id(review_id)
+    return await review_cache_service.get_review_by_id(review_id)
 
 
 @router.put(
@@ -55,12 +55,12 @@ async def update_review(
     ],
     review_id: int,
     update_review_data: ReviewUpdate,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.update_review(
+    return await review_cache_service.update_review(
         current_user_id,
         review_id,
         update_review_data,
@@ -79,12 +79,12 @@ async def partial_update_review(
     ],
     review_id: int,
     update_review_data: ReviewPartialUpdate,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.partial_update_review(
+    return await review_cache_service.partial_update_review(
         current_user_id,
         review_id,
         update_review_data,
@@ -101,9 +101,9 @@ async def delete_review(
         Depends(get_user_by_access_token),
     ],
     review_id: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    await review_service.delete_review(current_user_id, review_id)
+    await review_cache_service.delete_review(current_user_id, review_id)

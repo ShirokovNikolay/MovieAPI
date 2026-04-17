@@ -31,14 +31,14 @@ router = APIRouter(
 )
 async def get_user_reviews(
     user_id: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await review_service.get_user_reviews(user_id, size, page)
+    return await review_cache_service.get_user_reviews(user_id, size, page)
 
 
 @router.get(
@@ -49,9 +49,9 @@ async def get_user_reviews(
 async def get_user_review_about_movie(
     user_id: int,
     movie_id: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.get_user_review_about_movie(user_id, movie_id)
+    return await review_cache_service.get_user_review_about_movie(user_id, movie_id)

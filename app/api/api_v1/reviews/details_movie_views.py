@@ -24,14 +24,14 @@ router = APIRouter(
 )
 async def get_movie_reviews(
     movie_id: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
 ):
-    return await review_service.get_movie_reviews(movie_id, size, page)
+    return await review_cache_service.get_movie_reviews(movie_id, size, page)
 
 
 @router.get(
@@ -42,12 +42,12 @@ async def get_movie_reviews(
 async def get_top_rating_movie_reviews(
     movie_id: int,
     limit: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.get_top_rating_movie_reviews(movie_id, limit)
+    return await review_cache_service.get_top_rating_movie_reviews(movie_id, limit)
 
 
 @router.get(
@@ -58,12 +58,12 @@ async def get_top_rating_movie_reviews(
 async def get_top_newest_movie_reviews(
     movie_id: int,
     limit: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.get_top_newest_movie_reviews(movie_id, limit)
+    return await review_cache_service.get_top_newest_movie_reviews(movie_id, limit)
 
 
 @router.get(
@@ -74,9 +74,9 @@ async def get_top_newest_movie_reviews(
 async def get_top_oldest_movie_reviews(
     movie_id: int,
     limit: int,
-    review_service: Annotated[
+    review_cache_service: Annotated[
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
 ):
-    return await review_service.get_top_oldest_movie_reviews(movie_id, limit)
+    return await review_cache_service.get_top_oldest_movie_reviews(movie_id, limit)
