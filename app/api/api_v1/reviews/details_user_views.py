@@ -6,7 +6,10 @@ from fastapi import (
     Depends,
     Query,
 )
+
+from cache_services import ReviewCacheService
 from dependencies.auth import get_admin_by_access_token
+from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
 from dependencies.services import get_review_service
 from schemas.review import ReviewResponseList, ReviewResponse
@@ -29,8 +32,8 @@ router = APIRouter(
 async def get_user_reviews(
     user_id: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
@@ -47,8 +50,8 @@ async def get_user_review_about_movie(
     user_id: int,
     movie_id: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.get_user_review_about_movie(user_id, movie_id)

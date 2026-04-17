@@ -6,6 +6,7 @@ from cache_services import (
     GenreCacheService,
     MovieCacheService,
     FavoriteMovieCacheService,
+    ReviewCacheService,
 )
 from cache_services.watch_history import WatchHistoryCacheService
 from dependencies.redis_client import (
@@ -13,12 +14,14 @@ from dependencies.redis_client import (
     get_redis_client_for_movies,
     get_redis_client_for_favorite_movies,
     get_redis_client_for_watch_history,
+    get_redis_client_for_reviews,
 )
 from dependencies.services import (
     get_genre_service,
     get_movie_service,
     get_favorite_movie_service,
     get_watch_history_service,
+    get_review_service,
 )
 from redis_cache import CacheService
 from redis_client import RedisClient
@@ -27,6 +30,7 @@ from services import (
     MovieService,
     FavoriteMovieService,
     WatchHistoryService,
+    ReviewService,
 )
 
 
@@ -84,6 +88,21 @@ async def get_cache_service_for_watch_history(
     try:
         watch_history_cache_service = CacheService(redis)
         yield watch_history_cache_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
+async def get_cache_service_for_reviews(
+    redis: Annotated[
+        RedisClient,
+        Depends(get_redis_client_for_reviews),
+    ],
+):
+    try:
+        review_cache_service = CacheService(redis)
+        yield review_cache_service
     finally:
         """
         Действия после view.
@@ -172,6 +191,25 @@ async def get_watch_history_cache_service(
             watch_history_service, cache_service
         )
         yield watch_history_cache_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
+async def get_review_cache_service(
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
+    cache_service: Annotated[
+        CacheService,
+        Depends(get_cache_service_for_reviews),
+    ],
+):
+    try:
+        review_cache_service = ReviewCacheService(review_service, cache_service)
+        yield review_cache_service
     finally:
         """
         Действия после view.

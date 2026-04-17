@@ -2,10 +2,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, status, Depends
 
+from cache_services import ReviewCacheService
 from dependencies.auth import (
     get_user_by_access_token,
     get_admin_by_access_token,
 )
+from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.review import (
     ReviewResponse,
@@ -34,8 +36,8 @@ router = APIRouter(
 async def get_review(
     review_id: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.get_review_by_id(review_id)
@@ -54,8 +56,8 @@ async def update_review(
     review_id: int,
     update_review_data: ReviewUpdate,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.update_review(
@@ -78,8 +80,8 @@ async def partial_update_review(
     review_id: int,
     update_review_data: ReviewPartialUpdate,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     return await review_service.partial_update_review(
@@ -100,8 +102,8 @@ async def delete_review(
     ],
     review_id: int,
     review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
+        ReviewCacheService,
+        Depends(get_review_cache_service),
     ],
 ):
     await review_service.delete_review(current_user_id, review_id)
