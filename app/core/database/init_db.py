@@ -1,4 +1,4 @@
-from core.database.connection import session_factory
+from core.database import session_factory
 from schemas.user import UserCreate, UserResponse
 from services import UserService
 
