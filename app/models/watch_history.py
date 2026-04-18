@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from database.connection import Base
+from core.database.connection import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
