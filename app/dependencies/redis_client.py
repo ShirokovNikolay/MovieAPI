@@ -1,5 +1,5 @@
 from core.config import settings
-from redis_client import RedisClient
+from core.redis.client import RedisClient
 
 
 def redis_client_factory(

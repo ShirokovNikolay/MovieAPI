@@ -1,7 +1,7 @@
 import time
 import random
 
-from redis_client import RedisClient
+from core.redis.client import RedisClient
 
 
 class RateLimiter:
