@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.connection import session_factory
+from core.database.connection import session_factory
 
 from services import GenreService, MovieService, ReviewService, UserService
 from services.favorite_movie import FavoriteMovieService
