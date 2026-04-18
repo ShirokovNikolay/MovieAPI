@@ -10,13 +10,13 @@ from cache_services import (
     UserCacheService,
 )
 from cache_services.watch_history import WatchHistoryCacheService
-from dependencies.redis_client import (
-    get_redis_client_for_genres,
-    get_redis_client_for_movies,
-    get_redis_client_for_favorite_movies,
-    get_redis_client_for_watch_history,
-    get_redis_client_for_reviews,
-    get_redis_client_for_users,
+from dependencies.caching import (
+    get_cache_service_for_genres,
+    get_cache_service_for_movies,
+    get_cache_service_for_favorite_movies,
+    get_cache_service_for_watch_history,
+    get_cache_service_for_reviews,
+    get_cache_service_for_users,
 )
 from dependencies.services import (
     get_genre_service,
@@ -27,7 +27,6 @@ from dependencies.services import (
     get_user_service,
 )
 from core.redis.cache_service import CacheService
-from core.redis.client import RedisClient
 from services import (
     GenreService,
     MovieService,
@@ -36,96 +35,6 @@ from services import (
     ReviewService,
     UserService,
 )
-
-
-async def get_cache_service_for_genres(
-    redis: Annotated[
-        RedisClient,
-        Depends(get_redis_client_for_genres),
-    ],
-):
-    try:
-        genre_cache_service = CacheService(redis)
-        yield genre_cache_service
-    finally:
-        """
-        Действия после view.
-        """
-
-
-async def get_cache_service_for_movies(
-    redis: Annotated[
-        RedisClient,
-        Depends(get_redis_client_for_movies),
-    ],
-):
-    try:
-        movie_cache_service = CacheService(redis)
-        yield movie_cache_service
-    finally:
-        """
-        Действия после view.
-        """
-
-
-async def get_cache_service_for_favorite_movies(
-    redis: Annotated[
-        RedisClient,
-        Depends(get_redis_client_for_favorite_movies),
-    ],
-):
-    try:
-        favorite_movie_cache_service = CacheService(redis)
-        yield favorite_movie_cache_service
-    finally:
-        """
-        Действия после view.
-        """
-
-
-async def get_cache_service_for_watch_history(
-    redis: Annotated[
-        RedisClient,
-        Depends(get_redis_client_for_watch_history),
-    ],
-):
-    try:
-        watch_history_cache_service = CacheService(redis)
-        yield watch_history_cache_service
-    finally:
-        """
-        Действия после view.
-        """
-
-
-async def get_cache_service_for_reviews(
-    redis: Annotated[
-        RedisClient,
-        Depends(get_redis_client_for_reviews),
-    ],
-):
-    try:
-        review_cache_service = CacheService(redis)
-        yield review_cache_service
-    finally:
-        """
-        Действия после view.
-        """
-
-
-async def get_cache_service_for_users(
-    redis: Annotated[
-        RedisClient,
-        Depends(get_redis_client_for_users),
-    ],
-):
-    try:
-        user_cache_service = CacheService(redis)
-        yield user_cache_service
-    finally:
-        """
-        Действия после view.
-        """
 
 
 async def get_genre_cache_service(
@@ -195,6 +104,25 @@ async def get_favorite_movie_cache_service(
         """
 
 
+async def get_review_cache_service(
+    review_service: Annotated[
+        ReviewService,
+        Depends(get_review_service),
+    ],
+    cache_service: Annotated[
+        CacheService,
+        Depends(get_cache_service_for_reviews),
+    ],
+):
+    try:
+        review_cache_service = ReviewCacheService(review_service, cache_service)
+        yield review_cache_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
 async def get_watch_history_cache_service(
     watch_history_service: Annotated[
         WatchHistoryService,
@@ -210,25 +138,6 @@ async def get_watch_history_cache_service(
             watch_history_service, cache_service
         )
         yield watch_history_cache_service
-    finally:
-        """
-        Действия после view.
-        """
-
-
-async def get_review_cache_service(
-    review_service: Annotated[
-        ReviewService,
-        Depends(get_review_service),
-    ],
-    cache_service: Annotated[
-        CacheService,
-        Depends(get_cache_service_for_reviews),
-    ],
-):
-    try:
-        review_cache_service = ReviewCacheService(review_service, cache_service)
-        yield review_cache_service
     finally:
         """
         Действия после view.
