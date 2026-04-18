@@ -26,8 +26,8 @@ from dependencies.services import (
     get_review_service,
     get_user_service,
 )
-from redis_cache import CacheService
-from redis_client import RedisClient
+from core.redis.cache_service import CacheService
+from core.redis.client import RedisClient
 from services import (
     GenreService,
     MovieService,

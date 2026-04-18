@@ -1,6 +1,6 @@
 from typing import Any
 
-from redis_client import RedisClient
+from core.redis.client import RedisClient
 
 
 class CacheService:

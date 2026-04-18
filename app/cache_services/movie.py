@@ -1,6 +1,6 @@
 from datetime import datetime
 from core.security.cache_utils import create_cache_key
-from redis_cache import CacheService
+from core.redis.cache_service import CacheService
 
 from schemas.movie import (
     MovieResponse,
