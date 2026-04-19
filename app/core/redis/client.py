@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, Union
 
 from redis.asyncio import Redis
 from core.config import settings
@@ -66,7 +66,7 @@ class RedisClient:
     async def zget_all_members_with_scores(self, key: str) -> list[tuple]:
         return await self._redis.zrange(key, 0, -1, withscores=True)
 
-    async def zadd(self, key: str, pairs: dict[str, str]) -> None:
+    async def zadd(self, key: str, pairs: dict[str, Union[int, float]]) -> None:
         """
         Параметр pairs - словарь, в котором содержатся пары ключ - значение вида member - score.
         """

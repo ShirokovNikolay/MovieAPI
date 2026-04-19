@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import ClassVar
 
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 from pydantic import BaseModel
@@ -54,7 +55,7 @@ class Settings(BaseSettings):
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer("/api/v1/auth/login")
     debug: bool = False
 
-    model_config: SettingsConfigDict = SettingsConfigDict(
+    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         case_sensitive=False,
         env_file=BASE_DIR / ".env",
         env_nested_delimiter="__",

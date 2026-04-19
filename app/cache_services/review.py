@@ -249,11 +249,10 @@ class ReviewCacheService:
         current_user_id: int,
         review_id: int,
     ) -> None:
-        review_response = await self.review_service.delete_review(
+        await self.review_service.delete_review(
             current_user_id,
             review_id,
         )
         key = create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
-        return review_response

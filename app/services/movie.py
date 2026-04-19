@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import cast
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -254,7 +255,7 @@ class MovieService:
         if (
             "genre_id" in update_movie_data.model_fields_set
             and not await self.genre_repository.genre_id_exists(
-                update_movie_data.genre_id
+                cast(int, update_movie_data.genre_id)
             )
         ):
             raise GenreIdNotFoundError(update_movie_data.genre_id)
@@ -262,9 +263,11 @@ class MovieService:
         if (
             "name" in update_movie_data.model_fields_set
             and movie.name != update_movie_data.name
-            and await self.movie_repository.movie_name_exists(update_movie_data.name)
+            and await self.movie_repository.movie_name_exists(
+                cast(str, update_movie_data.name)
+            )
         ):
-            raise MovieNameAlreadyExistsError(update_movie_data.name)
+            raise MovieNameAlreadyExistsError(cast(str, update_movie_data.name))
 
         updated_movie = await self.movie_repository.partial_update_movie(
             movie_id, update_movie_data

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import cast
 
 from sqlalchemy import select, delete, and_, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -76,7 +77,7 @@ class WatchHistoryRepository:
             WatchHistory.user_id == user_id,
         )
         result = await self.session.execute(stmt)
-        return result.scalar()
+        return cast(int, result.scalar())
 
     async def add_movie_to_watch_history(
         self,

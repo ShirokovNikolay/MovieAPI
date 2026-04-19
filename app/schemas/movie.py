@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, ClassVar
 
 from annotated_types import Len, MaxLen
 from pydantic import BaseModel, Field, ConfigDict
@@ -28,7 +28,6 @@ class MovieBase(BaseModel):
     Базовая модель для работы с фильмом.
     """
 
-    model_config: ConfigDict = ConfigDict(from_attributes=True)
     name: NameString
     description: DescriptionString
     rating: RatingConstarint
@@ -36,6 +35,7 @@ class MovieBase(BaseModel):
     source_url: str
     genre_id: int
     release_date: datetime
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
 class MovieCreate(MovieBase):
@@ -50,7 +50,7 @@ class MovieUpdate(MovieBase):
     """
 
 
-class MoviePartialUpdate(MovieBase):
+class MoviePartialUpdate(BaseModel):
     """
     Модель для частичного обновления фильма.
     """

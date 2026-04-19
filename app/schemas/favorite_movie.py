@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -7,7 +9,7 @@ class FavoriteMovieBase(BaseModel):
     """
 
     movie_id: int
-    model_config: ConfigDict = ConfigDict(from_attributes=True)
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
 class FavoriteMovieCreate(FavoriteMovieBase):

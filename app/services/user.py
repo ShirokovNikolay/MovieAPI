@@ -1,3 +1,5 @@
+from typing import cast
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import UserRole
@@ -106,16 +108,20 @@ class UserService:
         if (
             "login" in update_data.model_fields_set
             and user.login != update_data.login
-            and await self.user_repository.user_login_exists(update_data.login)
+            and await self.user_repository.user_login_exists(
+                cast(str, update_data.login)
+            )
         ):
-            raise UserLoginAlreadyExistsError(update_data.login)
+            raise UserLoginAlreadyExistsError(cast(str, update_data.login))
 
         if (
             "email" in update_data.model_fields_set
             and user.email != update_data.email
-            and await self.user_repository.user_email_exists(update_data.email)
+            and await self.user_repository.user_email_exists(
+                cast(str, update_data.email)
+            )
         ):
-            raise UserEmailAlreadyExistsError(update_data.email)
+            raise UserEmailAlreadyExistsError(cast(str, update_data.email))
 
         if update_data.password is not None:
             update_data.password = hash_password(update_data.password)

@@ -15,5 +15,5 @@ async def init_admin():
                 password="admin",
             )
             await user_service.create_user(create_user_data)
-            admin: UserResponse = await user_service.get_user_by_login("admin")
+            admin = await user_service.get_user_by_login("admin")
             await user_service.make_admin(admin.id)
