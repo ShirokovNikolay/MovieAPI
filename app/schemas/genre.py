@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, ClassVar
 
 from annotated_types import Len, MaxLen
 from pydantic import BaseModel, ConfigDict
@@ -19,9 +19,9 @@ class GenreBase(BaseModel):
     Базовая модель для работы с жанром фильма.
     """
 
-    model_config: ConfigDict = ConfigDict(from_attributes=True)
     name: NameString
     description: DescriptionString
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
 class GenreCreate(GenreBase):
@@ -36,7 +36,7 @@ class GenreUpdate(GenreBase):
     """
 
 
-class GenrePartialUpdate(GenreBase):
+class GenrePartialUpdate(BaseModel):
     """
     Модель для частичного обновления информации о жанре фильма.
     """

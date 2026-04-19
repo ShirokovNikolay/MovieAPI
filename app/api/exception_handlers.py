@@ -12,11 +12,11 @@ from core.exceptions.base import (
 
 
 def register_exception_handlers(app: FastAPI):
-    app.add_exception_handler(NotFoundError, not_found_exception_handler)
-    app.add_exception_handler(ConflictError, conflict_exception_handler)
-    app.add_exception_handler(AuthenticationError, authentication_exception_handler)
-    app.add_exception_handler(ForbiddenError, forbidden_exception_handler)
-    app.add_exception_handler(TooManyRequestsError, too_many_requests_exception_handler)
+    app.add_exception_handler(NotFoundError, not_found_exception_handler)  # type: ignore
+    app.add_exception_handler(ConflictError, conflict_exception_handler)  # type: ignore
+    app.add_exception_handler(AuthenticationError, authentication_exception_handler)  # type: ignore
+    app.add_exception_handler(ForbiddenError, forbidden_exception_handler)  # type: ignore
+    app.add_exception_handler(TooManyRequestsError, too_many_requests_exception_handler)  # type: ignore
 
 
 def not_found_exception_handler(

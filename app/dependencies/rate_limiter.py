@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import Depends
 from starlette.requests import Request
@@ -17,6 +17,7 @@ def rate_limit_dependency_factory(max_requests: int, time_period: int):
             Depends(get_rate_limiter),
         ],
     ):
+        assert request.client is not None
         ip_address: str = request.client.host
         if await rate_limiter.is_limited(
             ip_address,

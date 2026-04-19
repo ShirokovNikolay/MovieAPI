@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, ClassVar
 
 from annotated_types import MaxLen
 from pydantic import BaseModel, ConfigDict
@@ -29,7 +29,7 @@ class UserBase(BaseModel):
     name: StringMaxLength20
     login: StringMaxLength20
     email: StringMaxLength255
-    model_config: ConfigDict = ConfigDict(from_attributes=True)
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
 class UserCreate(UserBase):
@@ -48,7 +48,7 @@ class UserUpdate(UserBase):
     password: StringMaxLength20
 
 
-class UserPartialUpdate(UserBase):
+class UserPartialUpdate(BaseModel):
     """
     Модель для частичного обновления данных о пользователе.
     """
@@ -74,10 +74,10 @@ class UserResponseList(BaseModel):
     Модель для вывода информации о списке пользователей.
     """
 
-    model_config: ConfigDict = ConfigDict(from_attributes=True)
     user_list: list[UserResponse]
     size: int
     page: int = 1
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
 class UserLogin(BaseModel):

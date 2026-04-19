@@ -16,6 +16,8 @@ from core.exceptions.genre import (
     GenreIdAlreadyHasMoviesError,
 )
 
+from typing import cast
+
 
 class GenreService:
     def __init__(self, session: AsyncSession) -> None:
@@ -96,9 +98,11 @@ class GenreService:
         if (
             "name" in update_data.model_fields_set
             and update_data.name != genre.name
-            and await self.genre_repository.genre_name_exists(update_data.name)
+            and await self.genre_repository.genre_name_exists(
+                cast(str, update_data.name)
+            )
         ):
-            raise GenreNameAlreadyExistsError(update_data.name)
+            raise GenreNameAlreadyExistsError(cast(str, update_data.name))
 
         updated_genre = await self.genre_repository.partial_update_genre(
             genre_id, update_data

@@ -1,3 +1,5 @@
+from typing import cast
+
 from sqlalchemy import select, delete, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -78,7 +80,7 @@ class FavoriteMovieRepository:
             FavoriteMovie.movie_id == movie_id
         )
         result = await self.session.execute(stmt)
-        return result.scalar()
+        return cast(int, result.scalar())
 
     async def create_user_favorite_movie(
         self,
