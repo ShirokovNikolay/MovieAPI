@@ -6,9 +6,7 @@ from fastapi import APIRouter, status, Depends, Query
 from cache_services.watch_history import WatchHistoryCacheService
 from dependencies.auth import get_user_by_access_token
 from dependencies.cache_services import get_watch_history_cache_service
-from dependencies.services import get_watch_history_service
 from schemas.watch_history import WatchHistoryResponseList
-from services.watch_history import WatchHistoryService
 
 router = APIRouter(
     prefix="/about-me",
@@ -31,7 +29,7 @@ async def get_watch_history_list(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> WatchHistoryResponseList:
     return await watch_history_cache_service.get_watch_history_list(user_id, size, page)
 
 
@@ -53,7 +51,7 @@ async def get_watch_history_by_date_range(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> WatchHistoryResponseList:
     return await watch_history_cache_service.get_watch_history_by_date_range(
         user_id,
         start_date,
@@ -76,7 +74,7 @@ async def count_user_watch_history(
         WatchHistoryCacheService,
         Depends(get_watch_history_cache_service),
     ],
-):
+) -> int:
     return await watch_history_cache_service.count_user_watch_history(user_id)
 
 
@@ -93,5 +91,5 @@ async def delete_user_watch_history(
         WatchHistoryCacheService,
         Depends(get_watch_history_cache_service),
     ],
-):
+) -> None:
     await watch_history_cache_service.delete_user_watch_history(user_id)

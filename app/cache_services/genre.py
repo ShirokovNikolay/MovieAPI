@@ -1,3 +1,5 @@
+from typing import cast
+
 from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
 
@@ -25,7 +27,7 @@ class GenreCacheService:
         key = create_cache_key("genre", genre_id=genre_id)
         cached_genre_response = await self.cache_service.get(key, GenreResponse)
         if cached_genre_response is not None:
-            return cached_genre_response
+            return cast(GenreResponse, cached_genre_response)
 
         genre_response = await self.genre_service.get_genre_by_id(genre_id)
         await self.cache_service.set(key, genre_response, ttl=1800)
@@ -43,7 +45,7 @@ class GenreCacheService:
         )
         cached_genres_response = await self.cache_service.get(key, GenreResponseList)
         if cached_genres_response is not None:
-            return cached_genres_response
+            return cast(GenreResponseList, cached_genres_response)
 
         genres_response = await self.genre_service.get_all_genres(size, page)
         await self.cache_service.set(key, genres_response, ttl=180)
@@ -63,7 +65,7 @@ class GenreCacheService:
         )
         cached_genres_response = await self.cache_service.get(key, GenreResponseList)
         if cached_genres_response is not None:
-            return cached_genres_response
+            return cast(GenreResponseList, cached_genres_response)
 
         genres_response = await self.genre_service.search_genres_by_name(
             name,

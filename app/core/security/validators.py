@@ -2,7 +2,7 @@ from core.constants import TOKEN_TYPE
 
 
 def validate_token_payload(
-    payload: dict,
+    payload: dict[str, str | int],
     target_token_type: str,
 ) -> None:
     if payload[TOKEN_TYPE] != target_token_type:

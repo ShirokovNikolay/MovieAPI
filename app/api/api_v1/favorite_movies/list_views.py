@@ -4,14 +4,12 @@ from fastapi import APIRouter, Depends, status
 
 from cache_services import FavoriteMovieCacheService
 from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
-from api.api_v1.favorite_movies.details_user_views import get_favorite_movie_service
 from dependencies.cache_services import get_favorite_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.favorite_movie import (
     FavoriteMovieResponse,
     FavoriteMovieCreate,
 )
-from services.favorite_movie import FavoriteMovieService
 
 router = APIRouter()
 
@@ -30,7 +28,7 @@ async def get_favorite_movie_by_id(
         FavoriteMovieCacheService,
         Depends(get_favorite_movie_cache_service),
     ],
-):
+) -> FavoriteMovieResponse:
     return await favorite_movie_cache_service.get_favorite_movie_by_id(
         favorite_movie_id
     )
@@ -39,6 +37,7 @@ async def get_favorite_movie_by_id(
 @router.get(
     "/count/{movie_id}",
     status_code=status.HTTP_200_OK,
+    response_model=int,
     dependencies=[
         Depends(check_rate_limit_not_auth),
     ],
@@ -49,7 +48,7 @@ async def count_favorites_by_movie(
         FavoriteMovieCacheService,
         Depends(get_favorite_movie_cache_service),
     ],
-):
+) -> int:
     return await favorite_movie_cache_service.count_favorites_by_movie(movie_id)
 
 
@@ -71,7 +70,7 @@ async def create_user_favorite_movie(
         FavoriteMovieCacheService,
         Depends(get_favorite_movie_cache_service),
     ],
-):
+) -> FavoriteMovieResponse:
     return await favorite_movie_cache_service.create_user_favorite_movie(
         user_id,
         create_favorite_movie_data,
@@ -92,7 +91,7 @@ async def delete_favorite_movie_by_id(
         FavoriteMovieCacheService,
         Depends(get_favorite_movie_cache_service),
     ],
-):
+) -> None:
     await favorite_movie_cache_service.delete_favorite_movie_by_id(favorite_movie_id)
 
 
@@ -113,5 +112,5 @@ async def delete_user_favorite_movie(
         FavoriteMovieCacheService,
         Depends(get_favorite_movie_cache_service),
     ],
-):
+) -> None:
     await favorite_movie_cache_service.delete_user_favorite_movie(user_id, movie_id)

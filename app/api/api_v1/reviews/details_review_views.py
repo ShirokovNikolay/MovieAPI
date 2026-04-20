@@ -39,7 +39,7 @@ async def get_review(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponse:
     return await review_cache_service.get_review_by_id(review_id)
 
 
@@ -59,7 +59,7 @@ async def update_review(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponse:
     return await review_cache_service.update_review(
         current_user_id,
         review_id,
@@ -83,7 +83,7 @@ async def partial_update_review(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponse:
     return await review_cache_service.partial_update_review(
         current_user_id,
         review_id,
@@ -105,5 +105,5 @@ async def delete_review(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> None:
     await review_cache_service.delete_review(current_user_id, review_id)

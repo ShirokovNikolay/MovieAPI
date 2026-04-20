@@ -5,13 +5,11 @@ from fastapi import APIRouter, status, Depends
 from cache_services import UserCacheService
 from dependencies.auth import get_user_by_access_token
 from dependencies.cache_services import get_user_cache_service
-from dependencies.services import get_user_service
 from schemas.user import (
     UserResponse,
     UserUpdate,
     UserPartialUpdate,
 )
-from services import UserService
 
 router = APIRouter(
     prefix="/me",
@@ -32,7 +30,7 @@ async def get_user_profile(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.get_user_by_id(current_user_id)
 
 
@@ -51,7 +49,7 @@ async def update_user_profile(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.update_user(current_user_id, update_data)
 
 
@@ -70,7 +68,7 @@ async def partial_update_user_profile(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.partial_update_user(current_user_id, update_data)
 
 
@@ -87,5 +85,5 @@ async def delete_user_profile(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> None:
     await user_cache_service.delete_user_by_id(current_user_id)

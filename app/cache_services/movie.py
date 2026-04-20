@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import cast
+
 from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
 
@@ -31,7 +33,7 @@ class MovieCacheService:
             key, MovieResponse
         )
         if cached_movie_response is not None:
-            return cached_movie_response
+            return cast(MovieResponse, cached_movie_response)
 
         movie_response = await self.movie_service.get_movie_by_id(movie_id)
         await self.cache_service_for_movie.set(key, movie_response, ttl=60)
@@ -47,7 +49,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_movies(size, page)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
@@ -69,7 +71,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_movies_by_genre_id(
             genre_id, size, page
@@ -93,7 +95,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.search_movies_by_name(
             name, size, page
@@ -119,7 +121,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_movies_by_rating_range(
             min_rating,
@@ -141,7 +143,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_movies_by_year(year, size, page)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
@@ -165,7 +167,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_movies_by_release_date_range(
             release_date_start,
@@ -182,7 +184,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_top_rated_movies(limit)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
@@ -194,7 +196,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_top_newest_movies(limit)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
@@ -206,7 +208,7 @@ class MovieCacheService:
             key, MovieResponseList
         )
         if cached_movies_response is not None:
-            return cached_movies_response
+            return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_top_oldest_movies(limit)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)

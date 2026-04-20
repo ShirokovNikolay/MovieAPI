@@ -1,4 +1,4 @@
-from typing import Self, Union
+from typing import Self, Union, cast
 
 from redis.asyncio import Redis
 from core.config import settings
@@ -25,17 +25,17 @@ class RedisClient:
         """
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore
         """
         Действия после выхода из асинхронного контекстного менеджера.
         """
         await self._redis.close()
 
     async def get(self, key: str) -> str | None:
-        return await self._redis.get(key)
+        return cast(str | None, await self._redis.get(key))
 
     async def exists(self, key: str) -> bool:
-        return await self._redis.exists(key)
+        return cast(bool, await self._redis.exists(key))
 
     async def set(self, key: str, value: str, expire: int) -> None:
         await self._redis.set(
@@ -55,16 +55,18 @@ class RedisClient:
         await self._redis.expire(key, ttl)
 
     async def get_ttl(self, key: str) -> int | None:
-        return await self._redis.ttl(key)
+        return cast(int | None, await self._redis.ttl(key))
 
     async def incr_by(self, key: str, amount: int = 1) -> int:
-        return await self._redis.incrby(key, amount)
+        return cast(int, await self._redis.incrby(key, amount))
 
     async def zget_all_members(self, key: str) -> list[str]:
-        return await self._redis.zrange(key, 0, -1, withscores=False)
+        return cast(list[str], await self._redis.zrange(key, 0, -1, withscores=False))
 
-    async def zget_all_members_with_scores(self, key: str) -> list[tuple]:
-        return await self._redis.zrange(key, 0, -1, withscores=True)
+    async def zget_all_members_with_scores(self, key: str) -> list[tuple[str, int]]:
+        return cast(
+            list[tuple[str, int]], await self._redis.zrange(key, 0, -1, withscores=True)
+        )
 
     async def zadd(self, key: str, pairs: dict[str, Union[int, float]]) -> None:
         """
@@ -76,7 +78,7 @@ class RedisClient:
         """
         Возвращает количество member в отсортированном множестве по ключу key.
         """
-        return await self._redis.zcard(key)
+        return cast(int, await self._redis.zcard(key))
 
     async def zrem(self, key: str, *values: str) -> None:
         await self._redis.zrem(key, *values)
@@ -84,4 +86,4 @@ class RedisClient:
     async def zremrangebyscore(
         self, key: str, min_value: float, max_value: float
     ) -> int:
-        return await self._redis.zremrangebyscore(key, min_value, max_value)
+        return cast(int, await self._redis.zremrangebyscore(key, min_value, max_value))

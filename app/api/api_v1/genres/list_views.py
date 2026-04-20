@@ -26,7 +26,7 @@ async def get_genres(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> GenreResponseList:
     return await genre_cache_service.get_all_genres(size, page)
 
 
@@ -46,7 +46,7 @@ async def search_genres_by_name(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> GenreResponseList:
     return await genre_cache_service.search_genres_by_name(genre_name, size, page)
 
 
@@ -65,5 +65,5 @@ async def create_genre(
         GenreCacheService,
         Depends(get_genre_cache_service),
     ],
-):
+) -> GenreResponse:
     return await genre_cache_service.create_genre(create_genre_data)

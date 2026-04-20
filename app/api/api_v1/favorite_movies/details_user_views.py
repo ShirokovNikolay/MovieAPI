@@ -35,7 +35,7 @@ async def get_current_user_favorite_movies(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> FavoriteMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
         user_id, size, page
     )
@@ -57,7 +57,7 @@ async def get_user_favorite_movies(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> FavoriteMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
         user_id,
         size,

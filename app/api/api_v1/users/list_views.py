@@ -28,7 +28,7 @@ async def get_users(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> UserResponseList:
     return await user_cache_service.get_all_users(size, page)
 
 
@@ -43,5 +43,5 @@ async def create_user(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.create_user(create_user_data)

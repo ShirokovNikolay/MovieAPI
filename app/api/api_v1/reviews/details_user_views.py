@@ -37,7 +37,7 @@ async def get_user_reviews(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> ReviewResponseList:
     return await review_cache_service.get_user_reviews(user_id, size, page)
 
 
@@ -53,5 +53,5 @@ async def get_user_review_about_movie(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponse:
     return await review_cache_service.get_user_review_about_movie(user_id, movie_id)

@@ -27,7 +27,7 @@ async def get_genre(
         GenreCacheService,
         Depends(get_genre_cache_service),
     ],
-):
+) -> GenreResponse:
     return await genre_cache_service.get_genre_by_id(genre_id)
 
 
@@ -47,7 +47,7 @@ async def update_genre(
         GenreCacheService,
         Depends(get_genre_cache_service),
     ],
-):
+) -> GenreResponse:
     return await genre_cache_service.update_genre(genre_id, update_genre_data)
 
 
@@ -67,7 +67,7 @@ async def partial_update_genre(
         GenreCacheService,
         Depends(get_genre_cache_service),
     ],
-):
+) -> GenreResponse:
     return await genre_cache_service.partial_update_genre(
         genre_id, partial_update_genre_data
     )
@@ -87,5 +87,5 @@ async def delete_genre(
         GenreCacheService,
         Depends(get_genre_cache_service),
     ],
-):
+) -> None:
     return await genre_cache_service.delete_genre_by_id(genre_id)

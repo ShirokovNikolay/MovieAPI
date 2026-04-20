@@ -25,6 +25,9 @@ dev = [
 
 [tool.mypy]
 strict = true
+exclude = [
+    "alembic",
+]
 plugins = [
     "pydantic.mypy"
 ]

@@ -1,4 +1,4 @@
-from typing import Annotated, cast
+from typing import Annotated, cast, AsyncGenerator, Callable, Awaitable
 
 from fastapi import Depends
 from starlette.requests import Request
@@ -9,14 +9,16 @@ from core.redis.rate_limiter import RateLimiter
 from core.redis.client import RedisClient
 
 
-def rate_limit_dependency_factory(max_requests: int, time_period: int):
+def rate_limit_dependency_factory(
+    max_requests: int, time_period: int
+) -> Callable[[Request, RateLimiter], Awaitable[None]]:
     async def dependency(
         request: Request,
         rate_limiter: Annotated[
             RateLimiter,
             Depends(get_rate_limiter),
         ],
-    ):
+    ) -> None:
         assert request.client is not None
         ip_address: str = request.client.host
         if await rate_limiter.is_limited(
@@ -37,7 +39,7 @@ async def get_rate_limiter(
         RedisClient,
         Depends(get_redis_client_for_rate_limiter),
     ],
-):
+) -> AsyncGenerator[RateLimiter, None]:
     try:
         rate_limiter = RateLimiter(redis_client)
         yield rate_limiter

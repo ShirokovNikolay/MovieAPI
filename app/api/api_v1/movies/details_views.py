@@ -7,7 +7,6 @@ from fastapi.responses import RedirectResponse
 from cache_services import MovieCacheService
 from dependencies.cache_services import get_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
-from dependencies.services import get_movie_service
 from dependencies.auth import (
     get_user_by_access_token,
     get_admin_by_access_token,
@@ -18,7 +17,6 @@ from schemas.movie import (
     MoviePartialUpdate,
 )
 from schemas.watch_history import WatchHistoryCreate
-from services import MovieService
 
 router = APIRouter(
     prefix="/{movie_id}",
@@ -40,7 +38,7 @@ async def watch_movie(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-):
+) -> RedirectResponse:
     movie = await movie_cache_service.watch_movie(user_id, create_watch_history_data)
     return RedirectResponse(url=movie.source_url)
 
@@ -77,7 +75,7 @@ async def update_movie(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-):
+) -> MovieResponse:
     return await movie_cache_service.update_movie(movie_id, update_movie_data)
 
 
@@ -97,7 +95,7 @@ async def partial_update_movie(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-):
+) -> MovieResponse:
     return await movie_cache_service.partial_update_movie(movie_id, update_movie_data)
 
 
@@ -115,5 +113,5 @@ async def delete_movie(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-):
+) -> None:
     await movie_cache_service.delete_movie_by_id(movie_id)

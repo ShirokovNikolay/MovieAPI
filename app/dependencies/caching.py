@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Callable, AsyncGenerator
 
 from fastapi import Depends
 
@@ -13,13 +13,18 @@ from dependencies.redis_client import (
 )
 
 
-def cache_service_factory(redis_dependency):
+def cache_service_factory(
+    redis_dependency: Callable[[], AsyncGenerator[RedisClient, None]],
+) -> Callable[
+    [RedisClient],
+    AsyncGenerator[CacheService, None],
+]:
     async def dependency(
         redis: Annotated[
             RedisClient,
             Depends(redis_dependency),
         ],
-    ):
+    ) -> AsyncGenerator[CacheService, None]:
         try:
             cache_service = CacheService(redis)
             yield cache_service

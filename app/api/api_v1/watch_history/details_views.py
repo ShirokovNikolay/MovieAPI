@@ -29,7 +29,7 @@ async def get_watch_history_by_id(
         WatchHistoryCacheService,
         Depends(get_watch_history_cache_service),
     ],
-):
+) -> WatchHistoryResponse:
     return await watch_history_cache_service.get_watch_history_by_id(watch_history_id)
 
 
@@ -43,5 +43,5 @@ async def delete_watch_history_by_id(
         WatchHistoryCacheService,
         Depends(get_watch_history_cache_service),
     ],
-):
+) -> None:
     await watch_history_cache_service.delete_watch_history_by_id(watch_history_id)

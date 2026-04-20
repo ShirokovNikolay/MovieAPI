@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,7 +10,7 @@ from services.favorite_movie import FavoriteMovieService
 from services.watch_history import WatchHistoryService
 
 
-async def get_db():
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as db:
         yield db
 
@@ -20,7 +20,7 @@ async def get_genre_service(
         AsyncSession,
         Depends(get_db),
     ],
-):
+) -> AsyncGenerator[GenreService, None]:
     try:
         genre_service = GenreService(session)
         yield genre_service
@@ -35,7 +35,7 @@ async def get_movie_service(
         AsyncSession,
         Depends(get_db),
     ],
-):
+) -> AsyncGenerator[MovieService, None]:
     try:
         movie_service = MovieService(session)
         yield movie_service
@@ -50,7 +50,7 @@ async def get_review_service(
         AsyncSession,
         Depends(get_db),
     ],
-):
+) -> AsyncGenerator[ReviewService, None]:
     try:
         review_service = ReviewService(session)
         yield review_service
@@ -65,7 +65,7 @@ async def get_user_service(
         AsyncSession,
         Depends(get_db),
     ],
-):
+) -> AsyncGenerator[UserService, None]:
     try:
         user_service = UserService(session)
         yield user_service
@@ -80,7 +80,7 @@ async def get_favorite_movie_service(
         AsyncSession,
         Depends(get_db),
     ],
-):
+) -> AsyncGenerator[FavoriteMovieService, None]:
     try:
         favorite_movie_service = FavoriteMovieService(session)
         yield favorite_movie_service
@@ -95,7 +95,7 @@ async def get_watch_history_service(
         AsyncSession,
         Depends(get_db),
     ],
-):
+) -> AsyncGenerator[WatchHistoryService, None]:
     try:
         watch_history_service = WatchHistoryService(session)
         yield watch_history_service

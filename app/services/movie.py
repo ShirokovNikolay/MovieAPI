@@ -258,7 +258,9 @@ class MovieService:
                 cast(int, update_movie_data.genre_id)
             )
         ):
-            raise GenreIdNotFoundError(update_movie_data.genre_id)
+            raise GenreIdNotFoundError(
+                cast(int, update_movie_data.genre_id),
+            )
 
         if (
             "name" in update_movie_data.model_fields_set
