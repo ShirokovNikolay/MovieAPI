@@ -15,7 +15,7 @@ class GenreIdNotFoundError(GenreNotFoundError):
     Класс для ошибок, связанных с ненайденным id жанра фильма.
     """
 
-    def __init__(self, genre_id):
+    def __init__(self, genre_id: int):
         self.genre_id = genre_id
         detail = f"Genre with genre id = {genre_id} not found."
         super().__init__(detail)

@@ -59,7 +59,7 @@ class InvalidPasswordError(AuthenticationError):
     Класс для ошибок, связанных с неправильным паролем.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Invalid password.")
 
 
@@ -68,5 +68,5 @@ class PermissionDeniedError(ForbiddenError):
     Класс для ошибок, связанных с нехваткой прав доступа.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("You do not have authorization to access this source.")

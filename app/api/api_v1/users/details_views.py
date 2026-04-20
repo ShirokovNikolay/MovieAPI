@@ -28,7 +28,7 @@ async def get_user_by_id(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.get_user_by_id(user_id)
 
 
@@ -44,7 +44,7 @@ async def update_user(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.update_user(user_id, update_data)
 
 
@@ -60,7 +60,7 @@ async def partial_update_user(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.partial_update_user(user_id, update_data)
 
 
@@ -74,5 +74,5 @@ async def delete_user_by_id(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> None:
     await user_cache_service.delete_user_by_id(user_id)

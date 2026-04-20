@@ -181,7 +181,7 @@ class MovieRepository:
 
     async def update_movie(
         self,
-        movie_id,
+        movie_id: int,
         update_movie_data: MovieUpdate,
     ) -> Movie | None:
         movie = await self.get_movie_by_id(movie_id)
@@ -197,7 +197,7 @@ class MovieRepository:
 
     async def partial_update_movie(
         self,
-        movie_id,
+        movie_id: int,
         update_movie_data: MoviePartialUpdate,
     ) -> Movie | None:
         movie = await self.get_movie_by_id(movie_id)

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import cast
 
 from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
@@ -29,7 +30,7 @@ class WatchHistoryCacheService:
             key, WatchHistoryResponse
         )
         if cached_watch_history_response is not None:
-            return cached_watch_history_response
+            return cast(WatchHistoryResponse, cached_watch_history_response)
 
         watch_history_response = (
             await self.watch_history_service.get_watch_history_by_id(watch_history_id)
@@ -54,7 +55,7 @@ class WatchHistoryCacheService:
             WatchHistoryResponseList,
         )
         if cached_watch_history_list_response is not None:
-            return cached_watch_history_list_response
+            return cast(WatchHistoryResponseList, cached_watch_history_list_response)
 
         watch_history_list_response = (
             await self.watch_history_service.get_watch_history_list(user_id, size, page)
@@ -83,7 +84,7 @@ class WatchHistoryCacheService:
             WatchHistoryResponseList,
         )
         if cached_watch_history_list_response is not None:
-            return cached_watch_history_list_response
+            return cast(WatchHistoryResponseList, cached_watch_history_list_response)
 
         watch_history_list_response = (
             await self.watch_history_service.get_watch_history_by_date_range(
@@ -101,8 +102,7 @@ class WatchHistoryCacheService:
         key = create_cache_key("watch_history", user_id=user_id)
         cached_watch_history_response = await self.cache_service.get(key)
         if cached_watch_history_response is not None:
-            return cached_watch_history_response
-
+            return cast(int, cached_watch_history_response)
         watch_history_response = (
             await self.watch_history_service.count_user_watch_history(user_id)
         )

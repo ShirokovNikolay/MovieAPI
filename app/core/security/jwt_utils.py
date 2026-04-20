@@ -1,4 +1,5 @@
 from datetime import datetime, timezone, timedelta
+from typing import Any
 
 import jwt
 
@@ -8,7 +9,7 @@ from schemas.user import UserResponse
 
 
 def encode_jwt(
-    payload: dict,
+    payload: dict[str, Any],
     secret_key: str = settings.auth_jwt.secret_key,
     algorithm: str = settings.auth_jwt.algorithm,
     expires_minutes: int = settings.auth_jwt.access_token_expire_minutes,
@@ -28,10 +29,10 @@ def encode_jwt(
 
 
 def decode_jwt(
-    token,
+    token: str,
     secret_key: str = settings.auth_jwt.secret_key,
     algorithm: str = settings.auth_jwt.algorithm,
-) -> dict:
+) -> dict[str, Any]:
     return jwt.decode(
         token,
         secret_key,
@@ -61,7 +62,7 @@ def create_refresh_token(user: UserResponse) -> str:
     )
 
 
-def create_user_payload_for_access_token(user: UserResponse) -> dict:
+def create_user_payload_for_access_token(user: UserResponse) -> dict[str, str]:
     payload = {
         "sub": str(user.id),
         "login": user.login,
@@ -70,7 +71,7 @@ def create_user_payload_for_access_token(user: UserResponse) -> dict:
     return payload
 
 
-def create_user_payload_for_refresh_token(user: UserResponse) -> dict:
+def create_user_payload_for_refresh_token(user: UserResponse) -> dict[str, str]:
     payload = {
         "sub": str(user.id),
     }

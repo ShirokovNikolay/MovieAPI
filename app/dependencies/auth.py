@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import Depends
 
@@ -16,7 +16,7 @@ def get_token_payload(
         str,
         Depends(settings.oauth2_scheme),
     ],
-) -> dict:
+) -> dict[str, str | int]:
     payload = decode_jwt(token=token)
     payload["sub"] = int(payload["sub"])
     return payload
@@ -24,7 +24,7 @@ def get_token_payload(
 
 def get_user_by_access_token(
     payload: Annotated[
-        dict,
+        dict[str, str | int],
         Depends(get_token_payload),
     ],
 ) -> int:
@@ -32,13 +32,13 @@ def get_user_by_access_token(
         payload=payload,
         target_token_type=ACCESS_TOKEN_TYPE,
     )
-    user_id: int = payload["sub"]
+    user_id: int = cast(int, payload["sub"])
     return user_id
 
 
 def get_user_by_refresh_token(
     payload: Annotated[
-        dict,
+        dict[str, str | int],
         Depends(get_token_payload),
     ],
 ) -> int:
@@ -46,7 +46,7 @@ def get_user_by_refresh_token(
         payload=payload,
         target_token_type=REFRESH_TOKEN_TYPE,
     )
-    user_id: int = payload["sub"]
+    user_id: int = cast(int, payload["sub"])
     return user_id
 
 

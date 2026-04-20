@@ -39,7 +39,7 @@ async def get_review_list(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> ReviewResponseList:
     return await review_cache_service.get_reviews(size, page)
 
 
@@ -58,5 +58,5 @@ async def create_review(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponse:
     return await review_cache_service.create_review(current_user_id, create_review_data)

@@ -6,9 +6,7 @@ from fastapi import status, Depends
 from cache_services import UserCacheService
 from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_user_cache_service
-from dependencies.services import get_user_service
 from schemas.user import UserResponse
-from services import UserService
 
 router = APIRouter(
     prefix="/{login}",
@@ -29,7 +27,7 @@ async def get_user_by_login(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> UserResponse:
     return await user_cache_service.get_user_by_login(login)
 
 
@@ -43,5 +41,5 @@ async def delete_user_by_login(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-):
+) -> None:
     await user_cache_service.delete_user_by_login(login)

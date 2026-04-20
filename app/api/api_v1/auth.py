@@ -39,7 +39,7 @@ async def register_user(
         UserService,
         Depends(get_user_service),
     ],
-):
+) -> UserResponse:
     return await user_service.create_user(create_user_data)
 
 
@@ -54,7 +54,7 @@ async def login_user(
         UserService,
         Depends(get_user_service),
     ],
-):
+) -> TokenInfo:
     login_data = UserLogin(
         login=oauth2_form.username,
         password=oauth2_form.password,
@@ -84,7 +84,7 @@ async def refresh_access_token(
         UserService,
         Depends(get_user_service),
     ],
-):
+) -> TokenInfo:
     user = await user_service.get_user_by_id(user_id)
     access_token = create_access_token(user)
     return TokenInfo(access_token=access_token)

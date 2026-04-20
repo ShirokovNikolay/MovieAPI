@@ -11,7 +11,7 @@ router = APIRouter(
 def read_root(
     request: Request,
     name: str = "Nikolay",
-):
+) -> dict[str, str]:
     docs_url = request.url.replace(
         path="/docs",
         query="",
@@ -23,5 +23,5 @@ def read_root(
 
 
 @router.get("/health")
-def check_health():
+def check_health() -> dict[str, str]:
     return {"status": "ok"}

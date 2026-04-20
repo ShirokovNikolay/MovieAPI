@@ -1,3 +1,5 @@
+from typing import cast
+
 from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
 from schemas.favorite_movie import (
@@ -33,7 +35,7 @@ class FavoriteMovieCacheService:
             key, FavoriteMovieResponseList
         )
         if cached_favorite_movies_response is not None:
-            return cached_favorite_movies_response
+            return cast(FavoriteMovieResponseList, cached_favorite_movies_response)
 
         favorite_movies_response = (
             await self.favorite_movie_service.get_favorite_movies_by_user_id(
@@ -59,7 +61,7 @@ class FavoriteMovieCacheService:
             key, FavoriteMovieResponse
         )
         if cached_favorite_movie_response is not None:
-            return cached_favorite_movie_response
+            return cast(FavoriteMovieResponse, cached_favorite_movie_response)
 
         favorite_movie_response = (
             await self.favorite_movie_service.get_favorite_movie_by_id(
@@ -73,7 +75,7 @@ class FavoriteMovieCacheService:
         key = create_cache_key("favorite movie:count", movie_id=movie_id)
         cached_favorite_movie_response = await self.cache_service.get(key)
         if cached_favorite_movie_response is not None:
-            return cached_favorite_movie_response
+            return cast(int, cached_favorite_movie_response)
 
         favorite_movie_response = (
             await self.favorite_movie_service.count_favorites_by_movie(movie_id)

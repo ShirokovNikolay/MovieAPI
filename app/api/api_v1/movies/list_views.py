@@ -28,7 +28,7 @@ async def get_movies(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> MovieResponseList:
     return await movie_cache_service.get_movies(size, page)
 
 
@@ -48,7 +48,7 @@ async def search_movies_by_name(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> MovieResponseList:
     return await movie_cache_service.search_movies_by_name(movie_name, size, page)
 
 
@@ -66,7 +66,7 @@ async def get_movies_by_genre_id(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_genre_id(genre_id, size, page)
 
 
@@ -87,7 +87,7 @@ async def get_movies_by_rating_range(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_rating_range(
         min_rating,
         max_rating,
@@ -111,7 +111,7 @@ async def get_movies_by_release_date_range(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_release_date_range(
         release_date_start,
         release_date_end,
@@ -136,7 +136,7 @@ async def get_movies_by_year(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_year(
         year,
         size,
@@ -213,5 +213,5 @@ async def create_movie(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-):
+) -> MovieResponse:
     return await movie_cache_service.create_movie(create_movie_data)

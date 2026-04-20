@@ -11,7 +11,7 @@ from core.exceptions.base import (
 )
 
 
-def register_exception_handlers(app: FastAPI):
+def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(NotFoundError, not_found_exception_handler)  # type: ignore
     app.add_exception_handler(ConflictError, conflict_exception_handler)  # type: ignore
     app.add_exception_handler(AuthenticationError, authentication_exception_handler)  # type: ignore

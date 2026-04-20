@@ -30,7 +30,7 @@ async def get_movie_reviews(
     ],
     size: int = Query(10, ge=1),
     page: int = Query(1, ge=1),
-):
+) -> ReviewResponseList:
     return await review_cache_service.get_movie_reviews(movie_id, size, page)
 
 
@@ -46,7 +46,7 @@ async def get_top_rating_movie_reviews(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponseList:
     return await review_cache_service.get_top_rating_movie_reviews(movie_id, limit)
 
 
@@ -62,7 +62,7 @@ async def get_top_newest_movie_reviews(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponseList:
     return await review_cache_service.get_top_newest_movie_reviews(movie_id, limit)
 
 
@@ -78,5 +78,5 @@ async def get_top_oldest_movie_reviews(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-):
+) -> ReviewResponseList:
     return await review_cache_service.get_top_oldest_movie_reviews(movie_id, limit)

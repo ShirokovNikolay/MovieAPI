@@ -1,9 +1,9 @@
 from core.database import session_factory
-from schemas.user import UserCreate, UserResponse
+from schemas.user import UserCreate
 from services import UserService
 
 
-async def init_admin():
+async def init_admin() -> None:
     async with session_factory() as session:
         user_service = UserService(session)
         if not await user_service.user_login_exists("admin"):

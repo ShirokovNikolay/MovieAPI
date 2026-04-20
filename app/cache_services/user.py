@@ -1,3 +1,5 @@
+from typing import cast
+
 from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
 from schemas.user import (
@@ -24,7 +26,7 @@ class UserCacheService:
         key = create_cache_key("user", user_id=user_id)
         cached_user_response = await self.cache_service.get(key, UserResponse)
         if cached_user_response is not None:
-            return cached_user_response
+            return cast(UserResponse, cached_user_response)
 
         user_response = await self.user_service.get_user_by_id(user_id)
         await self.cache_service.set(key, user_response)
@@ -34,7 +36,7 @@ class UserCacheService:
         key = create_cache_key("user", login=login)
         cached_user_response = await self.cache_service.get(key, UserResponse)
         if cached_user_response is not None:
-            return cached_user_response
+            return cast(UserResponse, cached_user_response)
 
         user_response = await self.user_service.get_user_by_login(login)
         await self.cache_service.set(key, user_response)
@@ -44,7 +46,7 @@ class UserCacheService:
         key = create_cache_key("users", size=size, page=page)
         cached_users_response = await self.cache_service.get(key, UserResponseList)
         if cached_users_response is not None:
-            return cached_users_response
+            return cast(UserResponseList, cached_users_response)
 
         users_response = await self.user_service.get_all_users(size, page)
         await self.cache_service.set(key, users_response)
@@ -101,7 +103,7 @@ class UserCacheService:
         )
         cached_user_response = await self.cache_service.get(key, UserResponse)
         if cached_user_response is not None:
-            return cached_user_response
+            return cast(UserResponse, cached_user_response)
 
         user_response = await self.user_service.authenticate_user(login_data)
         await self.cache_service.set(key, user_response)
