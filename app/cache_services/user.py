@@ -18,7 +18,7 @@ class UserCacheService:
         self,
         user_service: UserService,
         cache_service: CacheService,
-    ):
+    ) -> None:
         self.user_service = user_service
         self.cache_service = cache_service
 
@@ -76,7 +76,8 @@ class UserCacheService:
         update_data: UserPartialUpdate,
     ) -> UserResponse:
         user_response = await self.user_service.partial_update_user(
-            user_id, update_data,
+            user_id,
+            update_data,
         )
         key = create_cache_key("user")
         pattern = key + "*"

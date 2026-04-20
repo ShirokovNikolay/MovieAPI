@@ -72,7 +72,9 @@ class ReviewService:
         )
 
     async def get_user_review_about_movie(
-        self, user_id: int, movie_id: int,
+        self,
+        user_id: int,
+        movie_id: int,
     ) -> ReviewResponse:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
@@ -81,7 +83,8 @@ class ReviewService:
             raise MovieIdNotFoundError(movie_id)
 
         review = await self.review_repository.get_user_review_about_movie(
-            user_id, movie_id,
+            user_id,
+            movie_id,
         )
         if review is None:
             raise ReviewNotFoundByUserAndMovieError(user_id, movie_id)
@@ -122,7 +125,8 @@ class ReviewService:
         reviews = [
             ReviewResponse.model_validate(review)
             for review in await self.review_repository.get_top_rating_movie_reviews(
-                movie_id, limit,
+                movie_id,
+                limit,
             )
         ]
         return ReviewResponseList(review_list=reviews, size=limit)
@@ -138,7 +142,8 @@ class ReviewService:
         reviews = [
             ReviewResponse.model_validate(review)
             for review in await self.review_repository.get_top_newest_movie_reviews(
-                movie_id, limit,
+                movie_id,
+                limit,
             )
         ]
         return ReviewResponseList(review_list=reviews, size=limit)
@@ -154,7 +159,8 @@ class ReviewService:
         reviews = [
             ReviewResponse.model_validate(review)
             for review in await self.review_repository.get_top_oldest_movie_reviews(
-                movie_id, limit,
+                movie_id,
+                limit,
             )
         ]
         return ReviewResponseList(review_list=reviews, size=limit)
@@ -171,10 +177,12 @@ class ReviewService:
             raise MovieIdNotFoundError(create_review_data.movie_id)
 
         if await self.review_repository.review_exists(
-            create_review_data.movie_id, user_id,
+            create_review_data.movie_id,
+            user_id,
         ):
             raise ReviewAlreadyExistsByUserAndMovieError(
-                create_review_data.movie_id, user_id,
+                create_review_data.movie_id,
+                user_id,
             )
 
         review = await self.review_repository.create_review(user_id, create_review_data)
@@ -191,10 +199,11 @@ class ReviewService:
 
         review_owner = await self.get_review_owner(review_id)
         if review_owner.id != current_user_id:
-            raise PermissionDeniedError()
+            raise PermissionDeniedError
 
         updated_review = await self.review_repository.update_review(
-            review_id, update_review_data,
+            review_id,
+            update_review_data,
         )
         return ReviewResponse.model_validate(updated_review)
 
@@ -209,10 +218,11 @@ class ReviewService:
 
         review_owner = await self.get_review_owner(review_id)
         if review_owner.id != current_user_id:
-            raise PermissionDeniedError()
+            raise PermissionDeniedError
 
         updated_review = await self.review_repository.partial_update_review(
-            review_id, update_review_data,
+            review_id,
+            update_review_data,
         )
         return ReviewResponse.model_validate(updated_review)
 
@@ -231,7 +241,7 @@ class ReviewService:
             and await self.user_repository.get_user_role(current_user_id)
             != UserRole.admin.value
         ):
-            raise PermissionDeniedError()
+            raise PermissionDeniedError
 
         await self.review_repository.delete_review(review_id)
 

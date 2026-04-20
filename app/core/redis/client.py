@@ -12,7 +12,7 @@ class RedisClient:
         port: int = settings.redis.connection.port,
         db: int = settings.redis.db.rate_limiter,
         decode_responses: bool = True,
-    ):
+    ) -> None:
         self._redis = Redis(
             host=host,
             port=port,
@@ -26,7 +26,7 @@ class RedisClient:
         """
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore[no-untyped-def] # noqa: ANN001
         """
         Действия после выхода из асинхронного контекстного менеджера.
         """
@@ -66,12 +66,19 @@ class RedisClient:
 
     async def zget_all_members_with_scores(self, key: str) -> list[tuple[str, int]]:
         return cast(
-            list[tuple[str, int]], await self._redis.zrange(key, 0, -1, withscores=True),
+            list[tuple[str, int]],
+            await self._redis.zrange(
+                key,
+                0,
+                -1,
+                withscores=True,
+            ),
         )
 
     async def zadd(self, key: str, pairs: dict[str, int | float]) -> None:
         """
-        Параметр pairs - словарь, в котором содержатся пары ключ - значение вида member - score.
+        Параметр pairs - словарь, в котором содержатся
+        пары ключ - значение вида member - score.
         """
         await self._redis.zadd(key, pairs)
 
@@ -85,6 +92,9 @@ class RedisClient:
         await self._redis.zrem(key, *values)
 
     async def zremrangebyscore(
-        self, key: str, min_value: float, max_value: float,
+        self,
+        key: str,
+        min_value: float,
+        max_value: float,
     ) -> int:
         return cast(int, await self._redis.zremrangebyscore(key, min_value, max_value))

@@ -7,6 +7,7 @@ from fastapi import (
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
+from core.constants import BEARER_TOKEN_TYPE
 from core.security.jwt_utils import (
     create_access_token,
     create_refresh_token,
@@ -64,7 +65,7 @@ async def login_user(
     return TokenInfo(
         access_token=access_token,
         refresh_token=refresh_token,
-        token_type="Bearer",
+        token_type=BEARER_TOKEN_TYPE,
     )
 
 

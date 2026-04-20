@@ -11,15 +11,15 @@ from core.exceptions.base import (
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    app.add_exception_handler(NotFoundError, not_found_exception_handler)  # type: ignore
-    app.add_exception_handler(ConflictError, conflict_exception_handler)  # type: ignore
-    app.add_exception_handler(AuthenticationError, authentication_exception_handler)  # type: ignore
-    app.add_exception_handler(ForbiddenError, forbidden_exception_handler)  # type: ignore
-    app.add_exception_handler(TooManyRequestsError, too_many_requests_exception_handler)  # type: ignore
+    app.add_exception_handler(NotFoundError, not_found_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(ConflictError, conflict_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(AuthenticationError, authentication_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(ForbiddenError, forbidden_exception_handler)  # type: ignore[arg-type]
+    app.add_exception_handler(TooManyRequestsError, too_many_requests_exception_handler)  # type: ignore[arg-type]
 
 
 def not_found_exception_handler(
-    request: Request,
+    request: Request,  # noqa: ARG001
     exception: NotFoundError,
 ) -> JSONResponse:
     return JSONResponse(
@@ -29,7 +29,7 @@ def not_found_exception_handler(
 
 
 def conflict_exception_handler(
-    request: Request,
+    request: Request,  # noqa: ARG001
     exception: ConflictError,
 ) -> JSONResponse:
     return JSONResponse(
@@ -39,7 +39,7 @@ def conflict_exception_handler(
 
 
 def authentication_exception_handler(
-    request: Request,
+    request: Request,  # noqa: ARG001
     exception: AuthenticationError,
 ) -> JSONResponse:
     return JSONResponse(
@@ -49,7 +49,7 @@ def authentication_exception_handler(
 
 
 def forbidden_exception_handler(
-    request: Request,
+    request: Request,  # noqa: ARG001
     exception: ForbiddenError,
 ) -> JSONResponse:
     return JSONResponse(
@@ -59,7 +59,7 @@ def forbidden_exception_handler(
 
 
 def too_many_requests_exception_handler(
-    request: Request,
+    request: Request,  # noqa: ARG001
     exception: TooManyRequestsError,
 ) -> JSONResponse:
     return JSONResponse(

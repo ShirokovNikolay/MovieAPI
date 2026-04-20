@@ -125,7 +125,8 @@ class UserService:
         if update_data.password is not None:
             update_data.password = hash_password(update_data.password)
         updated_user = await self.user_repository.partial_update_user(
-            user_id, update_data,
+            user_id,
+            update_data,
         )
         return UserResponse.model_validate(updated_user)
 
@@ -143,7 +144,7 @@ class UserService:
             raise UserLoginNotFoundError(login_data.login)
 
         if not verify_password(login_data.password, user.encrypted_password):
-            raise InvalidPasswordError()
+            raise InvalidPasswordError
 
         return UserResponse.model_validate(user)
 

@@ -24,8 +24,14 @@ async def get_users(
         UserCacheService,
         Depends(get_user_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> UserResponseList:
     return await user_cache_service.get_all_users(size, page)
 

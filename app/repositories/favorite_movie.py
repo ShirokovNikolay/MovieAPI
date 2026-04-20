@@ -9,7 +9,7 @@ from schemas.favorite_movie import FavoriteMovieCreate
 
 
 class FavoriteMovieRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def get_favorite_movies_by_user_id(
@@ -38,7 +38,8 @@ class FavoriteMovieRepository:
         return list(result.scalars().all())
 
     async def get_favorite_movie_by_id(
-        self, favorite_movie_id: int,
+        self,
+        favorite_movie_id: int,
     ) -> FavoriteMovie | None:
         stmt = select(FavoriteMovie).where(FavoriteMovie.id == favorite_movie_id)
         result = await self.session.execute(stmt)

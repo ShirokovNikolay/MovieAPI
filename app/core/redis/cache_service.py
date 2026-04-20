@@ -4,7 +4,7 @@ from core.redis.client import RedisClient
 
 
 class CacheService:
-    def __init__(self, redis: RedisClient):
+    def __init__(self, redis: RedisClient) -> None:
         self.redis = redis
 
     async def get(self, key: str, schema: Any = None) -> Any:

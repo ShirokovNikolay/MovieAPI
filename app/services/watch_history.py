@@ -14,12 +14,13 @@ from schemas.watch_history import (
 
 
 class WatchHistoryService:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         self.user_repository = UserRepository(session)
         self.watch_history_repository = WatchHistoryRepository(session)
 
     async def get_watch_history_by_id(
-        self, watch_history_id: int,
+        self,
+        watch_history_id: int,
     ) -> WatchHistoryResponse:
         watch_history = await self.watch_history_repository.get_watch_history_by_id(
             watch_history_id,
@@ -39,12 +40,17 @@ class WatchHistoryService:
         size: int = 10,
         page: int = 1,
     ) -> WatchHistoryResponseList:
+        watch_history_models = (
+            await self.watch_history_repository.get_watch_history_list(
+                user_id,
+                size,
+                page,
+            )
+        )
         if await self.user_repository.user_id_exists(user_id):
             watch_history_list = [
                 WatchHistoryResponse.model_validate(watch_history)
-                for watch_history in await self.watch_history_repository.get_watch_history_list(
-                    user_id, size, page,
-                )
+                for watch_history in watch_history_models
             ]
             return WatchHistoryResponseList(
                 watch_history_list=watch_history_list,
@@ -62,11 +68,18 @@ class WatchHistoryService:
         page: int = 1,
     ) -> WatchHistoryResponseList:
         if await self.user_repository.user_id_exists(user_id):
+            watch_history_models = (
+                await self.watch_history_repository.get_watch_history_by_date_range(
+                    user_id,
+                    start_date,
+                    end_date,
+                    size,
+                    page,
+                )
+            )
             watch_history_list = [
                 WatchHistoryResponse.model_validate(watch_history)
-                for watch_history in await self.watch_history_repository.get_watch_history_by_date_range(
-                    user_id, start_date, end_date, size, page,
-                )
+                for watch_history in watch_history_models
             ]
             return WatchHistoryResponseList(
                 watch_history_list=watch_history_list,

@@ -10,7 +10,7 @@ from schemas.watch_history import WatchHistoryCreate
 
 
 class WatchHistoryRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def get_watch_history_by_id(
