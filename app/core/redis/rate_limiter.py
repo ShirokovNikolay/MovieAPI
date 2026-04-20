@@ -1,5 +1,5 @@
-import time
 import random
+import time
 
 from core.redis.client import RedisClient
 

@@ -1,8 +1,9 @@
 __all__ = ("router",)
 
 from fastapi import APIRouter
-from .list_views import router as list_views_router
+
 from .details_user_views import router as details_user_router
+from .list_views import router as list_views_router
 
 router = APIRouter(
     prefix="/favorite-movies",

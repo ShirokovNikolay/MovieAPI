@@ -1,13 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from cache_services import UserCacheService
 from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_user_cache_service
-from schemas.user import UserResponseList, UserCreate, UserResponse
-from services import UserService
-from dependencies.services import get_user_service
+from schemas.user import UserCreate, UserResponse, UserResponseList
 
 router = APIRouter(
     dependencies=[

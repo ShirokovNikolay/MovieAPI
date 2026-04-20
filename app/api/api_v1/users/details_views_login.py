@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter
-from fastapi import status, Depends
+from fastapi import APIRouter, Depends, status
 
 from cache_services import UserCacheService
 from dependencies.auth import get_admin_by_access_token

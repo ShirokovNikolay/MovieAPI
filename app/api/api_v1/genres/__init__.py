@@ -1,7 +1,8 @@
 __all__ = ("router",)
 from fastapi import APIRouter
-from .list_views import router as list_genres_router
+
 from .details_views import router as details_genres_router
+from .list_views import router as list_genres_router
 
 router = APIRouter(
     tags=["Genres"],

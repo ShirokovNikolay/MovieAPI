@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import cast
 
-from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
+from core.security.cache_utils import create_cache_key
 from schemas.watch_history import (
     WatchHistoryResponse,
     WatchHistoryResponseList,
@@ -20,14 +20,14 @@ class WatchHistoryCacheService:
         self.cache_service = cache_service
 
     async def get_watch_history_by_id(
-        self, watch_history_id: int
+        self, watch_history_id: int,
     ) -> WatchHistoryResponse:
         key = create_cache_key(
             "watch_history",
             watch_history_id=watch_history_id,
         )
         cached_watch_history_response = await self.cache_service.get(
-            key, WatchHistoryResponse
+            key, WatchHistoryResponse,
         )
         if cached_watch_history_response is not None:
             return cast(WatchHistoryResponse, cached_watch_history_response)

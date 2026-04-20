@@ -1,16 +1,14 @@
 from typing import cast
 
-from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
-
+from core.security.cache_utils import create_cache_key
 from schemas.genre import (
     GenreCreate,
-    GenreUpdate,
-    GenreResponse,
     GenrePartialUpdate,
+    GenreResponse,
     GenreResponseList,
+    GenreUpdate,
 )
-
 from services import GenreService
 
 
@@ -83,7 +81,7 @@ class GenreCacheService:
         return genre_response
 
     async def update_genre(
-        self, genre_id: int, update_data: GenreUpdate
+        self, genre_id: int, update_data: GenreUpdate,
     ) -> GenreResponse:
         genre_response = await self.genre_service.update_genre(genre_id, update_data)
         key = create_cache_key("genre")
@@ -92,10 +90,10 @@ class GenreCacheService:
         return genre_response
 
     async def partial_update_genre(
-        self, genre_id: int, update_data: GenrePartialUpdate
+        self, genre_id: int, update_data: GenrePartialUpdate,
     ) -> GenreResponse:
         genre_response = await self.genre_service.partial_update_genre(
-            genre_id, update_data
+            genre_id, update_data,
         )
         key = create_cache_key("genre")
         pattern = key + "*"

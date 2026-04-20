@@ -1,18 +1,16 @@
 from datetime import datetime
 from typing import cast
 
-from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
-
+from core.security.cache_utils import create_cache_key
 from schemas.movie import (
+    MovieCreate,
+    MoviePartialUpdate,
     MovieResponse,
     MovieResponseList,
-    MovieCreate,
     MovieUpdate,
-    MoviePartialUpdate,
 )
 from schemas.watch_history import WatchHistoryCreate
-
 from services import MovieService
 
 
@@ -30,7 +28,7 @@ class MovieCacheService:
     async def get_movie_by_id(self, movie_id: int) -> MovieResponse:
         key = create_cache_key("movie", movie_id=movie_id)
         cached_movie_response = await self.cache_service_for_movie.get(
-            key, MovieResponse
+            key, MovieResponse,
         )
         if cached_movie_response is not None:
             return cast(MovieResponse, cached_movie_response)
@@ -46,7 +44,7 @@ class MovieCacheService:
     ) -> MovieResponseList:
         key = create_cache_key("movies", size=size, page=page)
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
@@ -68,13 +66,13 @@ class MovieCacheService:
             page=page,
         )
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.get_movies_by_genre_id(
-            genre_id, size, page
+            genre_id, size, page,
         )
         await self.cache_service_for_movie.set(key, movies_response, ttl=1800)
         return movies_response
@@ -92,13 +90,13 @@ class MovieCacheService:
             page=page,
         )
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
 
         movies_response = await self.movie_service.search_movies_by_name(
-            name, size, page
+            name, size, page,
         )
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
@@ -118,7 +116,7 @@ class MovieCacheService:
             page=page,
         )
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
@@ -140,7 +138,7 @@ class MovieCacheService:
     ) -> MovieResponseList:
         key = create_cache_key("movies", year=year, size=size, page=page)
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
@@ -164,7 +162,7 @@ class MovieCacheService:
             page=page,
         )
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
@@ -181,7 +179,7 @@ class MovieCacheService:
     async def get_top_rated_movies(self, limit: int) -> MovieResponseList:
         key = create_cache_key("movies:top-rated", limit=limit)
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
@@ -193,7 +191,7 @@ class MovieCacheService:
     async def get_top_newest_movies(self, limit: int) -> MovieResponseList:
         key = create_cache_key("movies:top-newest", limit=limit)
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
@@ -205,7 +203,7 @@ class MovieCacheService:
     async def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
         key = create_cache_key("movies:top-oldest", limit=limit)
         cached_movies_response = await self.cache_service_for_movie.get(
-            key, MovieResponseList
+            key, MovieResponseList,
         )
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
@@ -220,7 +218,7 @@ class MovieCacheService:
         create_watch_history_data: WatchHistoryCreate,
     ) -> MovieResponse:
         movie_response = await self.movie_service.watch_movie(
-            user_id, create_watch_history_data
+            user_id, create_watch_history_data,
         )
         key = create_cache_key("watch_history")
         pattern = key + "*"
@@ -240,7 +238,7 @@ class MovieCacheService:
         update_movie_data: MovieUpdate,
     ) -> MovieResponse:
         movie_response = await self.movie_service.update_movie(
-            movie_id, update_movie_data
+            movie_id, update_movie_data,
         )
         key = create_cache_key("movie")
         pattern = key + "*"
@@ -253,7 +251,7 @@ class MovieCacheService:
         update_movie_data: MoviePartialUpdate,
     ) -> MovieResponse:
         movie_response = await self.movie_service.partial_update_movie(
-            movie_id, update_movie_data
+            movie_id, update_movie_data,
         )
         key = create_cache_key("movie")
         pattern = key + "*"

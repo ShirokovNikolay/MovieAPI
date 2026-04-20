@@ -2,23 +2,22 @@ from typing import Annotated
 
 from fastapi import (
     APIRouter,
-    status,
     Depends,
+    status,
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
-from dependencies.auth import get_user_by_refresh_token
-from dependencies.rate_limiter import check_rate_limit_auth
-from dependencies.services import get_user_service
-from schemas.token import TokenInfo
-from schemas.user import (
-    UserResponse,
-    UserCreate,
-    UserLogin,
-)
 from core.security.jwt_utils import (
     create_access_token,
     create_refresh_token,
+)
+from dependencies.auth import get_user_by_refresh_token
+from dependencies.services import get_user_service
+from schemas.token import TokenInfo
+from schemas.user import (
+    UserCreate,
+    UserLogin,
+    UserResponse,
 )
 from services import UserService
 

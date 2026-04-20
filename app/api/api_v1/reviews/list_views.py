@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from cache_services import ReviewCacheService
 from dependencies.auth import (
@@ -9,18 +9,16 @@ from dependencies.auth import (
 )
 from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
-from dependencies.services import get_review_service
 from schemas.review import (
-    ReviewResponse,
     ReviewCreate,
+    ReviewResponse,
     ReviewResponseList,
 )
-from services import ReviewService
 
 router = APIRouter(
     dependencies=[
         Depends(check_rate_limit_auth),
-    ]
+    ],
 )
 
 

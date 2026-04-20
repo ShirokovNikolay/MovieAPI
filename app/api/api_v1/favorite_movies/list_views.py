@@ -7,8 +7,8 @@ from dependencies.auth import get_admin_by_access_token, get_user_by_access_toke
 from dependencies.cache_services import get_favorite_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.favorite_movie import (
-    FavoriteMovieResponse,
     FavoriteMovieCreate,
+    FavoriteMovieResponse,
 )
 
 router = APIRouter()
@@ -30,7 +30,7 @@ async def get_favorite_movie_by_id(
     ],
 ) -> FavoriteMovieResponse:
     return await favorite_movie_cache_service.get_favorite_movie_by_id(
-        favorite_movie_id
+        favorite_movie_id,
     )
 
 

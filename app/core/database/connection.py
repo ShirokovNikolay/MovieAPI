@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import (
-    create_async_engine,
     async_sessionmaker,
+    create_async_engine,
 )
-from sqlalchemy.orm import declarative_base, DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase
 
 from core.config import settings
 

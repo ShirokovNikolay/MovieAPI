@@ -1,15 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, func, Enum
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy import Enum, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.constants import UserRole
 from core.database.connection import Base
 
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from models import Review, FavoriteMovie, WatchHistory
+    from models import FavoriteMovie, Review, WatchHistory
 
 
 class User(Base):

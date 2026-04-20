@@ -1,12 +1,11 @@
-from fastapi import FastAPI
-from fastapi import Request, status
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from core.exceptions.base import (
-    NotFoundError,
+    AuthenticationError,
     ConflictError,
     ForbiddenError,
-    AuthenticationError,
+    NotFoundError,
     TooManyRequestsError,
 )
 

@@ -1,20 +1,19 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
-from fastapi import status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import RedirectResponse
 
 from cache_services import MovieCacheService
+from dependencies.auth import (
+    get_admin_by_access_token,
+    get_user_by_access_token,
+)
 from dependencies.cache_services import get_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
-from dependencies.auth import (
-    get_user_by_access_token,
-    get_admin_by_access_token,
-)
 from schemas.movie import (
+    MoviePartialUpdate,
     MovieResponse,
     MovieUpdate,
-    MoviePartialUpdate,
 )
 from schemas.watch_history import WatchHistoryCreate
 

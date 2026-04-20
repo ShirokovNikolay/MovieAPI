@@ -1,10 +1,11 @@
 __all__ = ("router",)
 
 from fastapi import APIRouter
-from .list_views import router as list_reviews_router
+
 from .details_movie_views import router as details_movie_router
-from .details_user_views import router as details_user_router
 from .details_review_views import router as details_review_router
+from .details_user_views import router as details_user_router
+from .list_views import router as list_reviews_router
 
 router = APIRouter(
     tags=["Reviews"],

@@ -7,9 +7,9 @@ from core.exceptions.watch_history import WatchHistoryIdNotFoundError
 from repositories import UserRepository
 from repositories.watch_history import WatchHistoryRepository
 from schemas.watch_history import (
+    WatchHistoryCreate,
     WatchHistoryResponse,
     WatchHistoryResponseList,
-    WatchHistoryCreate,
 )
 
 
@@ -19,10 +19,10 @@ class WatchHistoryService:
         self.watch_history_repository = WatchHistoryRepository(session)
 
     async def get_watch_history_by_id(
-        self, watch_history_id: int
+        self, watch_history_id: int,
     ) -> WatchHistoryResponse:
         watch_history = await self.watch_history_repository.get_watch_history_by_id(
-            watch_history_id
+            watch_history_id,
         )
         if watch_history is not None:
             return WatchHistoryResponse.model_validate(watch_history)
@@ -30,7 +30,7 @@ class WatchHistoryService:
 
     async def watch_history_exists(self, watch_history_id: int) -> bool:
         return await self.watch_history_repository.watch_history_exists(
-            watch_history_id
+            watch_history_id,
         )
 
     async def get_watch_history_list(
@@ -43,7 +43,7 @@ class WatchHistoryService:
             watch_history_list = [
                 WatchHistoryResponse.model_validate(watch_history)
                 for watch_history in await self.watch_history_repository.get_watch_history_list(
-                    user_id, size, page
+                    user_id, size, page,
                 )
             ]
             return WatchHistoryResponseList(
@@ -65,7 +65,7 @@ class WatchHistoryService:
             watch_history_list = [
                 WatchHistoryResponse.model_validate(watch_history)
                 for watch_history in await self.watch_history_repository.get_watch_history_by_date_range(
-                    user_id, start_date, end_date, size, page
+                    user_id, start_date, end_date, size, page,
                 )
             ]
             return WatchHistoryResponseList(
@@ -97,7 +97,7 @@ class WatchHistoryService:
 
     async def delete_watch_history_by_id(self, watch_history_id: int) -> None:
         if not await self.watch_history_repository.delete_watch_history_by_id(
-            watch_history_id
+            watch_history_id,
         ):
             raise WatchHistoryIdNotFoundError(watch_history_id)
 

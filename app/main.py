@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 
-from core.config import settings
 from api import router as api_router
-from api.main_views import router as main_router
-from lifespan import lifespan
 from api.exception_handlers import register_exception_handlers
-
+from api.main_views import router as main_router
+from core.config import settings
+from lifespan import lifespan
 
 app = FastAPI(
     title="Movie API",

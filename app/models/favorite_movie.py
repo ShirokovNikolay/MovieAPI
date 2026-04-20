@@ -5,10 +5,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database.connection import Base
 
-
 if TYPE_CHECKING:
-    from models import User
-    from models import Movie
+    from models import Movie, User
 
 
 class FavoriteMovie(Base):

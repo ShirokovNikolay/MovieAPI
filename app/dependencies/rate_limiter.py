@@ -1,16 +1,17 @@
-from typing import Annotated, cast, AsyncGenerator, Callable, Awaitable
+from collections.abc import AsyncGenerator, Awaitable, Callable
+from typing import Annotated
 
 from fastapi import Depends
 from starlette.requests import Request
 
 from core.exceptions.base import TooManyRequestsError
-from dependencies.redis_client import get_redis_client_for_rate_limiter
-from core.redis.rate_limiter import RateLimiter
 from core.redis.client import RedisClient
+from core.redis.rate_limiter import RateLimiter
+from dependencies.redis_client import get_redis_client_for_rate_limiter
 
 
 def rate_limit_dependency_factory(
-    max_requests: int, time_period: int
+    max_requests: int, time_period: int,
 ) -> Callable[[Request, RateLimiter], Awaitable[None]]:
     async def dependency(
         request: Request,
@@ -39,7 +40,7 @@ async def get_rate_limiter(
         RedisClient,
         Depends(get_redis_client_for_rate_limiter),
     ],
-) -> AsyncGenerator[RateLimiter, None]:
+) -> AsyncGenerator[RateLimiter]:
     try:
         rate_limiter = RateLimiter(redis_client)
         yield rate_limiter

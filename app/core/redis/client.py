@@ -1,6 +1,7 @@
-from typing import Self, Union, cast
+from typing import Self, cast
 
 from redis.asyncio import Redis
+
 from core.config import settings
 
 
@@ -65,10 +66,10 @@ class RedisClient:
 
     async def zget_all_members_with_scores(self, key: str) -> list[tuple[str, int]]:
         return cast(
-            list[tuple[str, int]], await self._redis.zrange(key, 0, -1, withscores=True)
+            list[tuple[str, int]], await self._redis.zrange(key, 0, -1, withscores=True),
         )
 
-    async def zadd(self, key: str, pairs: dict[str, Union[int, float]]) -> None:
+    async def zadd(self, key: str, pairs: dict[str, int | float]) -> None:
         """
         Параметр pairs - словарь, в котором содержатся пары ключ - значение вида member - score.
         """
@@ -84,6 +85,6 @@ class RedisClient:
         await self._redis.zrem(key, *values)
 
     async def zremrangebyscore(
-        self, key: str, min_value: float, max_value: float
+        self, key: str, min_value: float, max_value: float,
     ) -> int:
         return cast(int, await self._redis.zremrangebyscore(key, min_value, max_value))

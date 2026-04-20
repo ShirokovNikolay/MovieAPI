@@ -1,10 +1,11 @@
 from datetime import datetime
 
+from sqlalchemy import and_, delete, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from sqlalchemy import select, delete, and_, func, desc
-from models import Movie, Genre
-from schemas.movie import MovieCreate, MovieUpdate, MoviePartialUpdate
+
+from models import Movie
+from schemas.movie import MovieCreate, MoviePartialUpdate, MovieUpdate
 
 
 class MovieRepository:
@@ -133,7 +134,7 @@ class MovieRepository:
                 and_(
                     release_date_start <= Movie.release_date,
                     Movie.release_date <= release_date_end,
-                )
+                ),
             )
             .limit(size)
             .offset(size * (page - 1))

@@ -1,10 +1,10 @@
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
 
 from core.config import settings
-from core.constants import TOKEN_TYPE, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
+from core.constants import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, TOKEN_TYPE
 from schemas.user import UserResponse
 
 
@@ -15,7 +15,7 @@ def encode_jwt(
     expires_minutes: int = settings.auth_jwt.access_token_expire_minutes,
 ) -> str:
     to_encode = payload.copy()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + timedelta(minutes=expires_minutes)
     to_encode.update(
         iat=now,

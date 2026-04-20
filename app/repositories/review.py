@@ -1,9 +1,7 @@
-from sqlalchemy import and_, desc
+from sqlalchemy import and_, delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload, selectinload
 
-from sqlalchemy.orm import joinedload
-from sqlalchemy import select, delete
-from sqlalchemy.orm import selectinload
 from models import Review, User
 from schemas.review import ReviewCreate, ReviewPartialUpdate, ReviewUpdate
 
@@ -36,10 +34,10 @@ class ReviewRepository:
         return result.scalars().first()
 
     async def get_review_by_user_id_and_movie_id(
-        self, user_id: int, movie_id: int
+        self, user_id: int, movie_id: int,
     ) -> Review | None:
         stmt = select(Review).where(
-            and_(Review.user_id == user_id, Review.movie_id == movie_id)
+            and_(Review.user_id == user_id, Review.movie_id == movie_id),
         )
         result = await self.session.execute(stmt)
         return result.scalars().first()
@@ -73,7 +71,7 @@ class ReviewRepository:
         return list(result.scalars().all())
 
     async def get_user_review_about_movie(
-        self, user_id: int, movie_id: int
+        self, user_id: int, movie_id: int,
     ) -> Review | None:
         stmt = (
             select(Review)
@@ -85,7 +83,7 @@ class ReviewRepository:
                 and_(
                     Review.user_id == user_id,
                     Review.movie_id == movie_id,
-                )
+                ),
             )
         )
         result = await self.session.execute(stmt)
@@ -131,7 +129,7 @@ class ReviewRepository:
         return list(result.scalars().all())
 
     async def get_top_newest_movie_reviews(
-        self, movie_id: int, limit: int
+        self, movie_id: int, limit: int,
     ) -> list[Review]:
         stmt = (
             select(Review)
@@ -147,7 +145,7 @@ class ReviewRepository:
         return list(result.scalars().all())
 
     async def get_top_oldest_movie_reviews(
-        self, movie_id: int, limit: int
+        self, movie_id: int, limit: int,
     ) -> list[Review]:
         stmt = (
             select(Review)

@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, status
 from typing import Annotated
+
+from fastapi import APIRouter, Depends, status
 
 from cache_services import GenreCacheService
 from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_genre_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
-from schemas.genre import GenreResponse, GenreUpdate, GenrePartialUpdate
-from services import GenreService
+from schemas.genre import GenrePartialUpdate, GenreResponse, GenreUpdate
 
 router = APIRouter(
     prefix="/{genre_id}",
@@ -69,7 +69,7 @@ async def partial_update_genre(
     ],
 ) -> GenreResponse:
     return await genre_cache_service.partial_update_genre(
-        genre_id, partial_update_genre_data
+        genre_id, partial_update_genre_data,
     )
 
 

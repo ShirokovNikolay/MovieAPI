@@ -1,18 +1,18 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions.favorite_movie import (
+    FavoriteMovieAlreadyExistsByUserAndMovieError,
     FavoriteMovieIdNotFoundError,
     FavoriteMovieNotFoundByUserAndMovieError,
-    FavoriteMovieAlreadyExistsByUserAndMovieError,
 )
 from core.exceptions.movie import MovieIdNotFoundError
 from core.exceptions.user import UserIdNotFoundError
-from repositories import UserRepository, MovieRepository
+from repositories import MovieRepository, UserRepository
 from repositories.favorite_movie import FavoriteMovieRepository
 from schemas.favorite_movie import (
-    FavoriteMovieResponseList,
-    FavoriteMovieResponse,
     FavoriteMovieCreate,
+    FavoriteMovieResponse,
+    FavoriteMovieResponseList,
 )
 
 
@@ -32,7 +32,7 @@ class FavoriteMovieService:
             favorite_movies = [
                 FavoriteMovieResponse.model_validate(favorite_movie)
                 for favorite_movie in await self.favorite_movie_repository.get_favorite_movies_by_user_id(
-                    user_id, size, page
+                    user_id, size, page,
                 )
             ]
             return FavoriteMovieResponseList(
@@ -57,7 +57,7 @@ class FavoriteMovieService:
     async def favorite_movie_exists(self, user_id: int, movie_id: int) -> bool:
         return (
             await self.favorite_movie_repository.get_user_favorite_movie(
-                user_id, movie_id
+                user_id, movie_id,
             )
             is not None
         )
@@ -65,7 +65,7 @@ class FavoriteMovieService:
     async def favorite_movie_exists_by_id(self, favorite_movie_id: int) -> bool:
         return (
             await self.favorite_movie_repository.get_favorite_movie_by_id(
-                favorite_movie_id
+                favorite_movie_id,
             )
             is not None
         )
@@ -73,7 +73,7 @@ class FavoriteMovieService:
     async def count_favorites_by_movie(self, movie_id: int) -> int:
         if await self.movie_repository.movie_id_exists(movie_id):
             return await self.favorite_movie_repository.count_favorites_by_movie(
-                movie_id
+                movie_id,
             )
         raise MovieIdNotFoundError(movie_id)
 
@@ -86,15 +86,15 @@ class FavoriteMovieService:
             raise UserIdNotFoundError(user_id)
 
         if not await self.movie_repository.movie_id_exists(
-            create_favorite_movie_data.movie_id
+            create_favorite_movie_data.movie_id,
         ):
             raise MovieIdNotFoundError(create_favorite_movie_data.movie_id)
 
         if await self.favorite_movie_repository.favorite_movie_exists(
-            user_id, create_favorite_movie_data.movie_id
+            user_id, create_favorite_movie_data.movie_id,
         ):
             raise FavoriteMovieAlreadyExistsByUserAndMovieError(
-                user_id, create_favorite_movie_data.movie_id
+                user_id, create_favorite_movie_data.movie_id,
             )
         favorite_movie = (
             await self.favorite_movie_repository.create_user_favorite_movie(
@@ -106,7 +106,7 @@ class FavoriteMovieService:
 
     async def delete_favorite_movie_by_id(self, favorite_movie_id: int) -> None:
         if not await self.favorite_movie_repository.delete_favorite_movie_by_id(
-            favorite_movie_id
+            favorite_movie_id,
         ):
             raise FavoriteMovieIdNotFoundError(favorite_movie_id)
 
@@ -116,6 +116,6 @@ class FavoriteMovieService:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
         if not await self.favorite_movie_repository.delete_user_favorite_movie(
-            user_id, movie_id
+            user_id, movie_id,
         ):
             raise FavoriteMovieNotFoundByUserAndMovieError(user_id, movie_id)
