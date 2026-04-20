@@ -238,7 +238,8 @@ class MovieService:
             raise MovieNameAlreadyExistsError(update_movie_data.name)
 
         updated_movie = await self.movie_repository.update_movie(
-            movie_id, update_movie_data,
+            movie_id,
+            update_movie_data,
         )
         return MovieResponse.model_validate(updated_movie)
 
@@ -271,7 +272,8 @@ class MovieService:
             raise MovieNameAlreadyExistsError(cast(str, update_movie_data.name))
 
         updated_movie = await self.movie_repository.partial_update_movie(
-            movie_id, update_movie_data,
+            movie_id,
+            update_movie_data,
         )
         return MovieResponse.model_validate(updated_movie)
 

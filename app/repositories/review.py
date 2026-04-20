@@ -34,7 +34,9 @@ class ReviewRepository:
         return result.scalars().first()
 
     async def get_review_by_user_id_and_movie_id(
-        self, user_id: int, movie_id: int,
+        self,
+        user_id: int,
+        movie_id: int,
     ) -> Review | None:
         stmt = select(Review).where(
             and_(Review.user_id == user_id, Review.movie_id == movie_id),
@@ -71,7 +73,9 @@ class ReviewRepository:
         return list(result.scalars().all())
 
     async def get_user_review_about_movie(
-        self, user_id: int, movie_id: int,
+        self,
+        user_id: int,
+        movie_id: int,
     ) -> Review | None:
         stmt = (
             select(Review)
@@ -129,7 +133,9 @@ class ReviewRepository:
         return list(result.scalars().all())
 
     async def get_top_newest_movie_reviews(
-        self, movie_id: int, limit: int,
+        self,
+        movie_id: int,
+        limit: int,
     ) -> list[Review]:
         stmt = (
             select(Review)
@@ -145,7 +151,9 @@ class ReviewRepository:
         return list(result.scalars().all())
 
     async def get_top_oldest_movie_reviews(
-        self, movie_id: int, limit: int,
+        self,
+        movie_id: int,
+        limit: int,
     ) -> list[Review]:
         stmt = (
             select(Review)

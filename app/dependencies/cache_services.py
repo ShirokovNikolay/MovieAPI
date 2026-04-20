@@ -96,7 +96,8 @@ async def get_favorite_movie_cache_service(
 ) -> AsyncGenerator[FavoriteMovieCacheService]:
     try:
         favorite_movie_cache_service = FavoriteMovieCacheService(
-            favorite_movie_service, cache_service,
+            favorite_movie_service,
+            cache_service,
         )
         yield favorite_movie_cache_service
     finally:
@@ -136,7 +137,8 @@ async def get_watch_history_cache_service(
 ) -> AsyncGenerator[WatchHistoryCacheService]:
     try:
         watch_history_cache_service = WatchHistoryCacheService(
-            watch_history_service, cache_service,
+            watch_history_service,
+            cache_service,
         )
         yield watch_history_cache_service
     finally:

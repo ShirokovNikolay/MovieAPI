@@ -69,7 +69,8 @@ async def partial_update_genre(
     ],
 ) -> GenreResponse:
     return await genre_cache_service.partial_update_genre(
-        genre_id, partial_update_genre_data,
+        genre_id,
+        partial_update_genre_data,
     )
 
 
