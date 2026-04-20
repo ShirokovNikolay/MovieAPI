@@ -148,10 +148,10 @@ ignore = [
     "RUF002", # ambiguous-unicode-character-docstring (RUF002)
     "RUF003", # ambiguous-unicode-character-comment (RUF003)
     "TC006", # runtime-cast-value (TC006)
-    "FAST001",
-    "ANN401",
-    "RET504",
-    "PLR0913",
+    "FAST001", # fast-api-redundant-response-model (FAST001)
+    "ANN401", # any-type (ANN401)
+    "RET504", # unnecessary-assign (RET504)
+    "PLR0913", # too-many-arguments (PLR0913)
 ]
 
 [tool.ruff.lint.per-file-ignores]
