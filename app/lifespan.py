@@ -7,7 +7,7 @@ from core.database.init_db import init_admin
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001
     """
     Действия до старта приложения.
     """

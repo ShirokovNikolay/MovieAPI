@@ -9,7 +9,7 @@ from schemas.movie import MovieCreate, MoviePartialUpdate, MovieUpdate
 
 
 class MovieRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def get_movie_by_id(self, movie_id: int) -> Movie | None:

@@ -35,8 +35,14 @@ async def get_review_list(
         ReviewCacheService,
         Depends(get_review_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> ReviewResponseList:
     return await review_cache_service.get_reviews(size, page)
 

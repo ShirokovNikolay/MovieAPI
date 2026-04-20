@@ -17,7 +17,7 @@ class GenreCacheService:
         self,
         genre_service: GenreService,
         cache_service: CacheService,
-    ):
+    ) -> None:
         self.genre_service = genre_service
         self.cache_service = cache_service
 
@@ -81,7 +81,9 @@ class GenreCacheService:
         return genre_response
 
     async def update_genre(
-        self, genre_id: int, update_data: GenreUpdate,
+        self,
+        genre_id: int,
+        update_data: GenreUpdate,
     ) -> GenreResponse:
         genre_response = await self.genre_service.update_genre(genre_id, update_data)
         key = create_cache_key("genre")
@@ -90,10 +92,13 @@ class GenreCacheService:
         return genre_response
 
     async def partial_update_genre(
-        self, genre_id: int, update_data: GenrePartialUpdate,
+        self,
+        genre_id: int,
+        update_data: GenrePartialUpdate,
     ) -> GenreResponse:
         genre_response = await self.genre_service.partial_update_genre(
-            genre_id, update_data,
+            genre_id,
+            update_data,
         )
         key = create_cache_key("genre")
         pattern = key + "*"

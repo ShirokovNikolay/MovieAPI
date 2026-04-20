@@ -11,7 +11,8 @@ from dependencies.redis_client import get_redis_client_for_rate_limiter
 
 
 def rate_limit_dependency_factory(
-    max_requests: int, time_period: int,
+    max_requests: int,
+    time_period: int,
 ) -> Callable[[Request, RateLimiter], Awaitable[None]]:
     async def dependency(
         request: Request,
@@ -28,8 +29,9 @@ def rate_limit_dependency_factory(
             max_requests,
             time_period,
         ):
+            detail: str = "Too many requests to this source. Wait a little while."
             raise TooManyRequestsError(
-                "Too many requests to this source. Wait a little while.",
+                detail,
             )
 
     return dependency

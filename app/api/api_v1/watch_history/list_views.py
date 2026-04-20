@@ -27,8 +27,14 @@ async def get_watch_history_list(
         WatchHistoryCacheService,
         Depends(get_watch_history_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> WatchHistoryResponseList:
     return await watch_history_cache_service.get_watch_history_list(user_id, size, page)
 
@@ -49,8 +55,14 @@ async def get_watch_history_by_date_range(
         WatchHistoryCacheService,
         Depends(get_watch_history_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> WatchHistoryResponseList:
     return await watch_history_cache_service.get_watch_history_by_date_range(
         user_id,

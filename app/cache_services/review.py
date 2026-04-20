@@ -17,7 +17,7 @@ class ReviewCacheService:
         self,
         review_service: ReviewService,
         cache_service: CacheService,
-    ):
+    ) -> None:
         self.review_service = review_service
         self.cache_service = cache_service
 
@@ -70,7 +70,9 @@ class ReviewCacheService:
             return cast(ReviewResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_user_reviews(
-            user_id, size, page,
+            user_id,
+            size,
+            page,
         )
         await self.cache_service.set(
             key,
@@ -80,7 +82,9 @@ class ReviewCacheService:
         return reviews_response
 
     async def get_user_review_about_movie(
-        self, user_id: int, movie_id: int,
+        self,
+        user_id: int,
+        movie_id: int,
     ) -> ReviewResponse:
         key = create_cache_key(
             "review",
@@ -92,7 +96,8 @@ class ReviewCacheService:
             return cast(ReviewResponse, cached_review_response)
 
         review_response = await self.review_service.get_user_review_about_movie(
-            user_id, movie_id,
+            user_id,
+            movie_id,
         )
         await self.cache_service.set(
             key,
@@ -118,7 +123,9 @@ class ReviewCacheService:
             return cast(ReviewResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_movie_reviews(
-            movie_id, size, page,
+            movie_id,
+            size,
+            page,
         )
         await self.cache_service.set(
             key,
@@ -142,7 +149,8 @@ class ReviewCacheService:
             return cast(ReviewResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_top_rating_movie_reviews(
-            movie_id, limit,
+            movie_id,
+            limit,
         )
         await self.cache_service.set(
             key,
@@ -187,7 +195,8 @@ class ReviewCacheService:
             limit=limit,
         )
         cached_reviews_response = cast(
-            ReviewResponseList, await self.cache_service.get(key, ReviewResponseList),
+            ReviewResponseList,
+            await self.cache_service.get(key, ReviewResponseList),
         )
         if cached_reviews_response is not None:
             return cached_reviews_response
@@ -209,7 +218,8 @@ class ReviewCacheService:
         create_review_data: ReviewCreate,
     ) -> ReviewResponse:
         review_response = await self.review_service.create_review(
-            user_id, create_review_data,
+            user_id,
+            create_review_data,
         )
         key = create_cache_key("review")
         pattern = key + "*"

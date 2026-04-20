@@ -31,11 +31,19 @@ async def get_current_user_favorite_movies(
         FavoriteMovieCacheService,
         Depends(get_favorite_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> FavoriteMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
-        user_id, size, page,
+        user_id,
+        size,
+        page,
     )
 
 
@@ -53,8 +61,14 @@ async def get_user_favorite_movies(
         FavoriteMovieCacheService,
         Depends(get_favorite_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> FavoriteMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
         user_id,

@@ -15,19 +15,21 @@ class WatchHistoryCacheService:
         self,
         watch_history_service: WatchHistoryService,
         cache_service: CacheService,
-    ):
+    ) -> None:
         self.watch_history_service = watch_history_service
         self.cache_service = cache_service
 
     async def get_watch_history_by_id(
-        self, watch_history_id: int,
+        self,
+        watch_history_id: int,
     ) -> WatchHistoryResponse:
         key = create_cache_key(
             "watch_history",
             watch_history_id=watch_history_id,
         )
         cached_watch_history_response = await self.cache_service.get(
-            key, WatchHistoryResponse,
+            key,
+            WatchHistoryResponse,
         )
         if cached_watch_history_response is not None:
             return cast(WatchHistoryResponse, cached_watch_history_response)

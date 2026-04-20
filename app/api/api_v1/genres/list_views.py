@@ -24,8 +24,14 @@ async def get_genres(
         GenreCacheService,
         Depends(get_genre_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> GenreResponseList:
     return await genre_cache_service.get_all_genres(size, page)
 
@@ -44,8 +50,14 @@ async def search_genres_by_name(
         GenreCacheService,
         Depends(get_genre_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> GenreResponseList:
     return await genre_cache_service.search_genres_by_name(genre_name, size, page)
 

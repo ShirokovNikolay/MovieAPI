@@ -63,4 +63,4 @@ async def get_admin_by_access_token(
     if await user_service.is_admin(user_id):
         return user_id
 
-    raise PermissionDeniedError()
+    raise PermissionDeniedError

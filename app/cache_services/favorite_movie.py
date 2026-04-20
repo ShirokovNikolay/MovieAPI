@@ -15,7 +15,7 @@ class FavoriteMovieCacheService:
         self,
         favorite_movie_service: FavoriteMovieService,
         cache_service: CacheService,
-    ):
+    ) -> None:
         self.favorite_movie_service = favorite_movie_service
         self.cache_service = cache_service
 
@@ -32,7 +32,8 @@ class FavoriteMovieCacheService:
             page=page,
         )
         cached_favorite_movies_response = await self.cache_service.get(
-            key, FavoriteMovieResponseList,
+            key,
+            FavoriteMovieResponseList,
         )
         if cached_favorite_movies_response is not None:
             return cast(FavoriteMovieResponseList, cached_favorite_movies_response)
@@ -58,7 +59,8 @@ class FavoriteMovieCacheService:
     ) -> FavoriteMovieResponse:
         key = create_cache_key("favorite movie", favorite_movie_id=favorite_movie_id)
         cached_favorite_movie_response = await self.cache_service.get(
-            key, FavoriteMovieResponse,
+            key,
+            FavoriteMovieResponse,
         )
         if cached_favorite_movie_response is not None:
             return cast(FavoriteMovieResponse, cached_favorite_movie_response)

@@ -23,8 +23,14 @@ async def get_movies(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies(size, page)
 
@@ -43,8 +49,14 @@ async def search_movies_by_name(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.search_movies_by_name(movie_name, size, page)
 
@@ -61,8 +73,14 @@ async def get_movies_by_genre_id(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_genre_id(genre_id, size, page)
 
@@ -82,8 +100,14 @@ async def get_movies_by_rating_range(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_rating_range(
         min_rating,
@@ -106,8 +130,14 @@ async def get_movies_by_release_date_range(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_release_date_range(
         release_date_start,
@@ -131,8 +161,14 @@ async def get_movies_by_year(
         MovieCacheService,
         Depends(get_movie_cache_service),
     ],
-    size: int = Query(10, ge=1),
-    page: int = Query(1, ge=1),
+    size: Annotated[
+        int,
+        Query(ge=1),
+    ] = 10,
+    page: Annotated[
+        int,
+        Query(ge=1),
+    ] = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_year(
         year,

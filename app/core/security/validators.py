@@ -6,7 +6,9 @@ def validate_token_payload(
     target_token_type: str,
 ) -> None:
     if payload[TOKEN_TYPE] != target_token_type:
-        raise TypeError("Invalid token type in payload")
+        type_error_detail: str = "Invalid token type in payload"
+        raise TypeError(type_error_detail)
 
     if "sub" not in payload:
-        raise KeyError("Missing parameter 'sub' in token payload")
+        key_error_detail: str = "Missing parameter 'sub' in token payload"
+        raise KeyError(key_error_detail)

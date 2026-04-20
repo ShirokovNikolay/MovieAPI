@@ -12,7 +12,7 @@ async def init_admin() -> None:
                 name="admin",
                 login="admin",
                 email="admin@admin.gmail.ru",
-                password="admin",
+                password="admin",  # noqa: S106
             )
             await user_service.create_user(create_user_data)
             admin = await user_service.get_user_by_login("admin")
