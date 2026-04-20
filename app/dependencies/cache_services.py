@@ -1,39 +1,40 @@
-from typing import Annotated, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
 from fastapi import Depends
 
 from cache_services import (
+    FavoriteMovieCacheService,
     GenreCacheService,
     MovieCacheService,
-    FavoriteMovieCacheService,
     ReviewCacheService,
     UserCacheService,
 )
 from cache_services.watch_history import WatchHistoryCacheService
+from core.redis.cache_service import CacheService
 from dependencies.caching import (
+    get_cache_service_for_favorite_movies,
     get_cache_service_for_genres,
     get_cache_service_for_movies,
-    get_cache_service_for_favorite_movies,
-    get_cache_service_for_watch_history,
     get_cache_service_for_reviews,
     get_cache_service_for_users,
+    get_cache_service_for_watch_history,
 )
 from dependencies.services import (
+    get_favorite_movie_service,
     get_genre_service,
     get_movie_service,
-    get_favorite_movie_service,
-    get_watch_history_service,
     get_review_service,
     get_user_service,
+    get_watch_history_service,
 )
-from core.redis.cache_service import CacheService
 from services import (
+    FavoriteMovieService,
     GenreService,
     MovieService,
-    FavoriteMovieService,
-    WatchHistoryService,
     ReviewService,
     UserService,
+    WatchHistoryService,
 )
 
 
@@ -46,7 +47,7 @@ async def get_genre_cache_service(
         CacheService,
         Depends(get_cache_service_for_genres),
     ],
-) -> AsyncGenerator[GenreCacheService, None]:
+) -> AsyncGenerator[GenreCacheService]:
     try:
         genre_cache_service = GenreCacheService(genre_service, cache_service)
         yield genre_cache_service
@@ -69,7 +70,7 @@ async def get_movie_cache_service(
         CacheService,
         Depends(get_cache_service_for_watch_history),
     ],
-) -> AsyncGenerator[MovieCacheService, None]:
+) -> AsyncGenerator[MovieCacheService]:
     try:
         movie_cache_service = MovieCacheService(
             movie_service,
@@ -92,10 +93,10 @@ async def get_favorite_movie_cache_service(
         CacheService,
         Depends(get_cache_service_for_favorite_movies),
     ],
-) -> AsyncGenerator[FavoriteMovieCacheService, None]:
+) -> AsyncGenerator[FavoriteMovieCacheService]:
     try:
         favorite_movie_cache_service = FavoriteMovieCacheService(
-            favorite_movie_service, cache_service
+            favorite_movie_service, cache_service,
         )
         yield favorite_movie_cache_service
     finally:
@@ -113,7 +114,7 @@ async def get_review_cache_service(
         CacheService,
         Depends(get_cache_service_for_reviews),
     ],
-) -> AsyncGenerator[ReviewCacheService, None]:
+) -> AsyncGenerator[ReviewCacheService]:
     try:
         review_cache_service = ReviewCacheService(review_service, cache_service)
         yield review_cache_service
@@ -132,10 +133,10 @@ async def get_watch_history_cache_service(
         CacheService,
         Depends(get_cache_service_for_watch_history),
     ],
-) -> AsyncGenerator[WatchHistoryCacheService, None]:
+) -> AsyncGenerator[WatchHistoryCacheService]:
     try:
         watch_history_cache_service = WatchHistoryCacheService(
-            watch_history_service, cache_service
+            watch_history_service, cache_service,
         )
         yield watch_history_cache_service
     finally:
@@ -153,7 +154,7 @@ async def get_user_cache_service(
         CacheService,
         Depends(get_cache_service_for_users),
     ],
-) -> AsyncGenerator[UserCacheService, None]:
+) -> AsyncGenerator[UserCacheService]:
     try:
         user_cache_service = UserCacheService(user_service, cache_service)
         yield user_cache_service

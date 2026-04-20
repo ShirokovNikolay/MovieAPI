@@ -1,14 +1,12 @@
 from typing import Annotated
 
-from fastapi import Depends, APIRouter
+from fastapi import APIRouter, Depends
 from starlette import status
 
 from cache_services.watch_history import WatchHistoryCacheService
 from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_watch_history_cache_service
-from dependencies.services import get_watch_history_service
 from schemas.watch_history import WatchHistoryResponse
-from services.watch_history import WatchHistoryService
 
 router = APIRouter(
     prefix="/{watch_history_id}",

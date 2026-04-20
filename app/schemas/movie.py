@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated, ClassVar
 
 from annotated_types import Len, MaxLen
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 NameString = Annotated[
     str,

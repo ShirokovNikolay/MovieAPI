@@ -1,9 +1,8 @@
+from datetime import datetime
 from typing import Annotated, ClassVar
 
 from annotated_types import MaxLen
-from pydantic import BaseModel, Field, ConfigDict
-from datetime import datetime
-
+from pydantic import BaseModel, ConfigDict, Field
 
 StringMaxLength400 = Annotated[str, MaxLen(max_length=400)]
 RatingConstarint = Annotated[

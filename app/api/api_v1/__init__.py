@@ -1,11 +1,12 @@
 __all__ = ("router",)
 from fastapi import APIRouter
+
+from .auth import router as auth_router
+from .favorite_movies import router as favorite_movies_router
 from .genres import router as genres_router
 from .movies import router as movies_router
 from .reviews import router as reviews_router
 from .users import router as users_router
-from .auth import router as auth_router
-from .favorite_movies import router as favorite_movies_router
 from .watch_history import router as watch_history_router
 
 router = APIRouter(

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import cast
 
-from sqlalchemy import select, delete, and_, func, desc
+from sqlalchemy import and_, delete, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -61,7 +61,7 @@ class WatchHistoryRepository:
                     WatchHistory.user_id == user_id,
                     start_date <= WatchHistory.watched_at,
                     WatchHistory.watched_at <= end_date,
-                )
+                ),
             )
             .order_by(desc(WatchHistory.watched_at))
             .limit(size)

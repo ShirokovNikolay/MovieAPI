@@ -3,8 +3,9 @@ __all__ = ("router",)
 from fastapi import APIRouter, Depends
 
 from dependencies.rate_limiter import check_rate_limit_auth
-from .list_views import router as list_router
+
 from .details_views import router as details_router
+from .list_views import router as list_router
 
 router = APIRouter(
     prefix="/watch-history",

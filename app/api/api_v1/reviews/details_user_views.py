@@ -2,18 +2,16 @@ from typing import Annotated
 
 from fastapi import (
     APIRouter,
-    status,
     Depends,
     Query,
+    status,
 )
 
 from cache_services import ReviewCacheService
 from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
-from dependencies.services import get_review_service
-from schemas.review import ReviewResponseList, ReviewResponse
-from services import ReviewService
+from schemas.review import ReviewResponse, ReviewResponseList
 
 router = APIRouter(
     prefix="/{user_id}",

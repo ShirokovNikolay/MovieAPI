@@ -1,14 +1,14 @@
 from typing import cast
 
-from core.security.cache_utils import create_cache_key
 from core.redis.cache_service import CacheService
+from core.security.cache_utils import create_cache_key
 from schemas.user import (
+    UserCreate,
+    UserLogin,
+    UserPartialUpdate,
     UserResponse,
     UserResponseList,
-    UserCreate,
     UserUpdate,
-    UserPartialUpdate,
-    UserLogin,
 )
 from services import UserService
 
@@ -76,7 +76,7 @@ class UserCacheService:
         update_data: UserPartialUpdate,
     ) -> UserResponse:
         user_response = await self.user_service.partial_update_user(
-            user_id, update_data
+            user_id, update_data,
         )
         key = create_cache_key("user")
         pattern = key + "*"

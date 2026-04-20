@@ -1,12 +1,12 @@
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
 
 from core.constants import UserRole
 from models import User
 from schemas.user import (
     UserCreate,
-    UserUpdate,
     UserPartialUpdate,
+    UserUpdate,
 )
 
 

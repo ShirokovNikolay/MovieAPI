@@ -1,4 +1,4 @@
-from core.exceptions.base import NotFoundError, ConflictError
+from core.exceptions.base import ConflictError, NotFoundError
 
 
 class GenreNotFoundError(NotFoundError):

@@ -3,23 +3,22 @@ from typing import cast
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import UserRole
+from core.exceptions.auth import InvalidPasswordError
+from core.exceptions.user import (
+    UserEmailAlreadyExistsError,
+    UserIdNotFoundError,
+    UserLoginAlreadyExistsError,
+    UserLoginNotFoundError,
+)
 from core.security.password_utils import hash_password, verify_password
 from repositories import UserRepository
 from schemas.user import (
+    UserCreate,
+    UserLogin,
+    UserPartialUpdate,
     UserResponse,
     UserResponseList,
-    UserCreate,
     UserUpdate,
-    UserPartialUpdate,
-    UserLogin,
-)
-
-from core.exceptions.auth import InvalidPasswordError
-from core.exceptions.user import (
-    UserIdNotFoundError,
-    UserLoginNotFoundError,
-    UserLoginAlreadyExistsError,
-    UserEmailAlreadyExistsError,
 )
 
 
@@ -109,7 +108,7 @@ class UserService:
             "login" in update_data.model_fields_set
             and user.login != update_data.login
             and await self.user_repository.user_login_exists(
-                cast(str, update_data.login)
+                cast(str, update_data.login),
             )
         ):
             raise UserLoginAlreadyExistsError(cast(str, update_data.login))
@@ -118,7 +117,7 @@ class UserService:
             "email" in update_data.model_fields_set
             and user.email != update_data.email
             and await self.user_repository.user_email_exists(
-                cast(str, update_data.email)
+                cast(str, update_data.email),
             )
         ):
             raise UserEmailAlreadyExistsError(cast(str, update_data.email))
@@ -126,7 +125,7 @@ class UserService:
         if update_data.password is not None:
             update_data.password = hash_password(update_data.password)
         updated_user = await self.user_repository.partial_update_user(
-            user_id, update_data
+            user_id, update_data,
         )
         return UserResponse.model_validate(updated_user)
 

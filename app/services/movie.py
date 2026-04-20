@@ -4,20 +4,19 @@ from typing import cast
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions.genre import GenreIdNotFoundError
-from core.exceptions.user import UserIdNotFoundError
-from repositories import MovieRepository, GenreRepository, UserRepository
-from repositories.watch_history import WatchHistoryRepository
-from schemas.movie import (
-    MovieResponse,
-    MovieResponseList,
-    MovieCreate,
-    MovieUpdate,
-    MoviePartialUpdate,
-)
-
 from core.exceptions.movie import (
     MovieIdNotFoundError,
     MovieNameAlreadyExistsError,
+)
+from core.exceptions.user import UserIdNotFoundError
+from repositories import GenreRepository, MovieRepository, UserRepository
+from repositories.watch_history import WatchHistoryRepository
+from schemas.movie import (
+    MovieCreate,
+    MoviePartialUpdate,
+    MovieResponse,
+    MovieResponseList,
+    MovieUpdate,
 )
 from schemas.watch_history import WatchHistoryCreate
 
@@ -46,7 +45,7 @@ class MovieService:
             raise UserIdNotFoundError(user_id)
 
         movie = await self.movie_repository.get_movie_by_id(
-            movie_id=create_watch_history_data.movie_id
+            movie_id=create_watch_history_data.movie_id,
         )
         if movie is None:
             raise MovieIdNotFoundError(create_watch_history_data.movie_id)
@@ -239,7 +238,7 @@ class MovieService:
             raise MovieNameAlreadyExistsError(update_movie_data.name)
 
         updated_movie = await self.movie_repository.update_movie(
-            movie_id, update_movie_data
+            movie_id, update_movie_data,
         )
         return MovieResponse.model_validate(updated_movie)
 
@@ -255,7 +254,7 @@ class MovieService:
         if (
             "genre_id" in update_movie_data.model_fields_set
             and not await self.genre_repository.genre_id_exists(
-                cast(int, update_movie_data.genre_id)
+                cast(int, update_movie_data.genre_id),
             )
         ):
             raise GenreIdNotFoundError(
@@ -266,13 +265,13 @@ class MovieService:
             "name" in update_movie_data.model_fields_set
             and movie.name != update_movie_data.name
             and await self.movie_repository.movie_name_exists(
-                cast(str, update_movie_data.name)
+                cast(str, update_movie_data.name),
             )
         ):
             raise MovieNameAlreadyExistsError(cast(str, update_movie_data.name))
 
         updated_movie = await self.movie_repository.partial_update_movie(
-            movie_id, update_movie_data
+            movie_id, update_movie_data,
         )
         return MovieResponse.model_validate(updated_movie)
 

@@ -2,8 +2,8 @@ __all__ = ("router",)
 
 from fastapi import APIRouter, Depends
 
-from .list_views import router as list_movies_router
 from .details_views import router as details_movies_router
+from .list_views import router as list_movies_router
 
 router = APIRouter(
     tags=["Movies"],

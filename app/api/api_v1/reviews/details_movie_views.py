@@ -1,13 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from cache_services import ReviewCacheService
 from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_not_auth
 from schemas.review import ReviewResponseList
-from services import ReviewService
-from dependencies.services import get_review_service
 
 router = APIRouter(
     prefix="/{movie_id}",

@@ -1,8 +1,8 @@
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
 
 from models import Genre
-from schemas.genre import GenreCreate, GenreUpdate, GenrePartialUpdate
+from schemas.genre import GenreCreate, GenrePartialUpdate, GenreUpdate
 
 
 class GenreRepository:

@@ -1,22 +1,20 @@
+from typing import cast
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from repositories import GenreRepository, MovieRepository
-
-from schemas.genre import (
-    GenreCreate,
-    GenreUpdate,
-    GenreResponse,
-    GenrePartialUpdate,
-    GenreResponseList,
-)
-
 from core.exceptions.genre import (
+    GenreIdAlreadyHasMoviesError,
     GenreIdNotFoundError,
     GenreNameAlreadyExistsError,
-    GenreIdAlreadyHasMoviesError,
 )
-
-from typing import cast
+from repositories import GenreRepository, MovieRepository
+from schemas.genre import (
+    GenreCreate,
+    GenrePartialUpdate,
+    GenreResponse,
+    GenreResponseList,
+    GenreUpdate,
+)
 
 
 class GenreService:
@@ -56,7 +54,7 @@ class GenreService:
         genre_list = [
             GenreResponse.model_validate(genre)
             for genre in await self.genre_repository.search_genres_by_name(
-                name, size, page
+                name, size, page,
             )
         ]
         return GenreResponseList(
@@ -73,7 +71,7 @@ class GenreService:
         return GenreResponse.model_validate(genre)
 
     async def update_genre(
-        self, genre_id: int, update_data: GenreUpdate
+        self, genre_id: int, update_data: GenreUpdate,
     ) -> GenreResponse:
         genre = await self.genre_repository.get_genre_by_id(genre_id)
         if genre is None:
@@ -89,7 +87,7 @@ class GenreService:
         return GenreResponse.model_validate(updated_genre)
 
     async def partial_update_genre(
-        self, genre_id: int, update_data: GenrePartialUpdate
+        self, genre_id: int, update_data: GenrePartialUpdate,
     ) -> GenreResponse:
         genre = await self.genre_repository.get_genre_by_id(genre_id)
         if genre is None:
@@ -99,13 +97,13 @@ class GenreService:
             "name" in update_data.model_fields_set
             and update_data.name != genre.name
             and await self.genre_repository.genre_name_exists(
-                cast(str, update_data.name)
+                cast(str, update_data.name),
             )
         ):
             raise GenreNameAlreadyExistsError(cast(str, update_data.name))
 
         updated_genre = await self.genre_repository.partial_update_genre(
-            genre_id, update_data
+            genre_id, update_data,
         )
         return GenreResponse.model_validate(updated_genre)
 

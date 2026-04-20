@@ -1,12 +1,13 @@
 from datetime import datetime
-
-from sqlalchemy import String, ForeignKey, CheckConstraint, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
+
+from sqlalchemy import CheckConstraint, ForeignKey, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from core.database.connection import Base
 
 if TYPE_CHECKING:
-    from models import User, Movie
+    from models import Movie, User
 
 
 class Review(Base):
@@ -16,7 +17,7 @@ class Review(Base):
         ForeignKey(
             "users.id",
             name="fk_reviews_user_id",
-        )
+        ),
     )
     user: Mapped["User"] = relationship(
         "User",
@@ -26,7 +27,7 @@ class Review(Base):
         ForeignKey(
             "movies.id",
             name="fk_reviews_movie_id",
-        )
+        ),
     )
     movie: Mapped["Movie"] = relationship(
         "Movie",
@@ -37,6 +38,6 @@ class Review(Base):
         CheckConstraint(
             "0 <= rating <= 10",
             name="ck_reviews_rating",
-        )
+        ),
     )
     publication_date: Mapped[datetime] = mapped_column(server_default=func.now())

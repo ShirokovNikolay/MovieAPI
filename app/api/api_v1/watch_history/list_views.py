@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from cache_services.watch_history import WatchHistoryCacheService
 from dependencies.auth import get_user_by_access_token

@@ -1,14 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, Depends, status
 
 from cache_services import UserCacheService
 from dependencies.auth import get_user_by_access_token
 from dependencies.cache_services import get_user_cache_service
 from schemas.user import (
+    UserPartialUpdate,
     UserResponse,
     UserUpdate,
-    UserPartialUpdate,
 )
 
 router = APIRouter(

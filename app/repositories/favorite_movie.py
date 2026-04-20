@@ -1,6 +1,6 @@
 from typing import cast
 
-from sqlalchemy import select, delete, and_, func
+from sqlalchemy import and_, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -38,7 +38,7 @@ class FavoriteMovieRepository:
         return list(result.scalars().all())
 
     async def get_favorite_movie_by_id(
-        self, favorite_movie_id: int
+        self, favorite_movie_id: int,
     ) -> FavoriteMovie | None:
         stmt = select(FavoriteMovie).where(FavoriteMovie.id == favorite_movie_id)
         result = await self.session.execute(stmt)
@@ -77,7 +77,7 @@ class FavoriteMovieRepository:
 
     async def count_favorites_by_movie(self, movie_id: int) -> int:
         stmt = select(func.count(FavoriteMovie.id)).where(
-            FavoriteMovie.movie_id == movie_id
+            FavoriteMovie.movie_id == movie_id,
         )
         result = await self.session.execute(stmt)
         return cast(int, result.scalar())

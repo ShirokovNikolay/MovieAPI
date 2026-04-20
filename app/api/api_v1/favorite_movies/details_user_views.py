@@ -1,15 +1,13 @@
 from typing import Annotated
 
-from fastapi import Depends, APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from starlette import status
 
 from cache_services import FavoriteMovieCacheService
 from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
 from dependencies.cache_services import get_favorite_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
-from dependencies.services import get_favorite_movie_service
 from schemas.favorite_movie import FavoriteMovieResponseList
-from services.favorite_movie import FavoriteMovieService
 
 router = APIRouter(
     prefix="/users",
@@ -37,7 +35,7 @@ async def get_current_user_favorite_movies(
     page: int = Query(1, ge=1),
 ) -> FavoriteMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
-        user_id, size, page
+        user_id, size, page,
     )
 
 

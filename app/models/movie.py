@@ -1,13 +1,13 @@
 from datetime import datetime
-
-from sqlalchemy import ForeignKey, CheckConstraint
-from sqlalchemy.orm import mapped_column, Mapped, relationship
-from core.database.connection import Base
 from typing import TYPE_CHECKING
 
+from sqlalchemy import CheckConstraint, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from core.database.connection import Base
 
 if TYPE_CHECKING:
-    from models import Genre, Review, FavoriteMovie, WatchHistory
+    from models import FavoriteMovie, Genre, Review, WatchHistory
 
 
 class Movie(Base):
@@ -19,7 +19,7 @@ class Movie(Base):
         CheckConstraint(
             "0 <= rating <= 10",
             name="ck_movies_rating",
-        )
+        ),
     )
     preview_url: Mapped[str]
     source_url: Mapped[str]
@@ -27,7 +27,7 @@ class Movie(Base):
         ForeignKey(
             "genres.id",
             name="fk_movies_genre_id",
-        )
+        ),
     )
     release_date: Mapped[datetime]
     genre: Mapped["Genre"] = relationship(

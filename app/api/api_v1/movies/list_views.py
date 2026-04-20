@@ -1,16 +1,13 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from cache_services import MovieCacheService
+from dependencies.auth import get_admin_by_access_token
 from dependencies.cache_services import get_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
-from dependencies.services import get_movie_service
-from dependencies.auth import get_admin_by_access_token
-from schemas.movie import MovieResponseList, MovieCreate, MovieResponse
-
-from services import MovieService
+from schemas.movie import MovieCreate, MovieResponse, MovieResponseList
 
 router = APIRouter()
 
