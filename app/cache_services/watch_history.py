@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import cast
 
-from core.redis.cache_service import CacheService, create_cache_key
+from core.redis.cache_service import CacheService
 from schemas.watch_history import (
     WatchHistoryResponse,
     WatchHistoryResponseList,
@@ -22,7 +22,7 @@ class WatchHistoryCacheService:
         self,
         watch_history_id: int,
     ) -> WatchHistoryResponse:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "watch_history",
             watch_history_id=watch_history_id,
         )
@@ -45,7 +45,7 @@ class WatchHistoryCacheService:
         size: int = 10,
         page: int = 1,
     ) -> WatchHistoryResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "watch_history_list",
             user_id=user_id,
             size=size,
@@ -72,7 +72,7 @@ class WatchHistoryCacheService:
         size: int = 10,
         page: int = 1,
     ) -> WatchHistoryResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "watch_history_list",
             user_id=user_id,
             start_date=start_date,
@@ -100,7 +100,7 @@ class WatchHistoryCacheService:
         return watch_history_list_response
 
     async def count_user_watch_history(self, user_id: int) -> int:
-        key = create_cache_key("watch_history", user_id=user_id)
+        key = CacheService.create_cache_key("watch_history", user_id=user_id)
         cached_watch_history_response = await self.cache_service.get(key)
         if cached_watch_history_response is not None:
             return cast(int, cached_watch_history_response)
@@ -112,12 +112,12 @@ class WatchHistoryCacheService:
 
     async def delete_watch_history_by_id(self, watch_history_id: int) -> None:
         await self.watch_history_service.delete_watch_history_by_id(watch_history_id)
-        key = create_cache_key("watch_history")
+        key = CacheService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
 
     async def delete_user_watch_history(self, user_id: int) -> None:
         await self.watch_history_service.delete_user_watch_history(user_id)
-        key = create_cache_key("watch_history")
+        key = CacheService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)

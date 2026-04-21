@@ -1,6 +1,6 @@
 from typing import cast
 
-from core.redis.cache_service import CacheService, create_cache_key
+from core.redis.cache_service import CacheService
 from schemas.review import (
     ReviewCreate,
     ReviewPartialUpdate,
@@ -25,7 +25,7 @@ class ReviewCacheService:
         size: int = 10,
         page: int = 1,
     ) -> ReviewResponseList:
-        key = create_cache_key("reviews", size=size, page=page)
+        key = CacheService.create_cache_key("reviews", size=size, page=page)
         cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
         if cached_reviews_response is not None:
             return cast(ReviewResponseList, cached_reviews_response)
@@ -39,7 +39,7 @@ class ReviewCacheService:
         return reviews_response
 
     async def get_review_by_id(self, review_id: int) -> ReviewResponse:
-        key = create_cache_key("review", review_id=review_id)
+        key = CacheService.create_cache_key("review", review_id=review_id)
         cached_review_response = await self.cache_service.get(key, ReviewResponse)
         if cached_review_response is not None:
             return cast(ReviewResponse, cached_review_response)
@@ -58,7 +58,7 @@ class ReviewCacheService:
         size: int = 10,
         page: int = 1,
     ) -> ReviewResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "reviews",
             user_id=user_id,
             size=size,
@@ -85,7 +85,7 @@ class ReviewCacheService:
         user_id: int,
         movie_id: int,
     ) -> ReviewResponse:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "review",
             user_id=user_id,
             movie_id=movie_id,
@@ -111,7 +111,7 @@ class ReviewCacheService:
         size: int = 10,
         page: int = 1,
     ) -> ReviewResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
             size=size,
@@ -138,7 +138,7 @@ class ReviewCacheService:
         movie_id: int,
         limit: int,
     ) -> ReviewResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
             limit=limit,
@@ -163,7 +163,7 @@ class ReviewCacheService:
         movie_id: int,
         limit: int,
     ) -> ReviewResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
             limit=limit,
@@ -188,7 +188,7 @@ class ReviewCacheService:
         movie_id: int,
         limit: int,
     ) -> ReviewResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
             limit=limit,
@@ -220,7 +220,7 @@ class ReviewCacheService:
             user_id,
             create_review_data,
         )
-        key = create_cache_key("review")
+        key = CacheService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return review_response
@@ -236,7 +236,7 @@ class ReviewCacheService:
             review_id,
             update_review_data,
         )
-        key = create_cache_key("review")
+        key = CacheService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return review_response
@@ -252,7 +252,7 @@ class ReviewCacheService:
             review_id,
             update_review_data,
         )
-        key = create_cache_key("review")
+        key = CacheService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return review_response
@@ -266,6 +266,6 @@ class ReviewCacheService:
             current_user_id,
             review_id,
         )
-        key = create_cache_key("review")
+        key = CacheService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)

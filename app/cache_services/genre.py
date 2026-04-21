@@ -1,6 +1,6 @@
 from typing import cast
 
-from core.redis.cache_service import CacheService, create_cache_key
+from core.redis.cache_service import CacheService
 from schemas.genre import (
     GenreCreate,
     GenrePartialUpdate,
@@ -21,7 +21,7 @@ class GenreCacheService:
         self.cache_service = cache_service
 
     async def get_genre_by_id(self, genre_id: int) -> GenreResponse:
-        key = create_cache_key("genre", genre_id=genre_id)
+        key = CacheService.create_cache_key("genre", genre_id=genre_id)
         cached_genre_response = await self.cache_service.get(key, GenreResponse)
         if cached_genre_response is not None:
             return cast(GenreResponse, cached_genre_response)
@@ -35,7 +35,7 @@ class GenreCacheService:
         size: int = 10,
         page: int = 1,
     ) -> GenreResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "genres",
             size=size,
             page=page,
@@ -54,7 +54,7 @@ class GenreCacheService:
         size: int = 10,
         page: int = 1,
     ) -> GenreResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "genres",
             name=name,
             size=size,
@@ -74,7 +74,7 @@ class GenreCacheService:
 
     async def create_genre(self, create_data: GenreCreate) -> GenreResponse:
         genre_response = await self.genre_service.create_genre(create_data)
-        key = create_cache_key("genre")
+        key = CacheService.create_cache_key("genre")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return genre_response
@@ -85,7 +85,7 @@ class GenreCacheService:
         update_data: GenreUpdate,
     ) -> GenreResponse:
         genre_response = await self.genre_service.update_genre(genre_id, update_data)
-        key = create_cache_key("genre")
+        key = CacheService.create_cache_key("genre")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return genre_response
@@ -99,13 +99,13 @@ class GenreCacheService:
             genre_id,
             update_data,
         )
-        key = create_cache_key("genre")
+        key = CacheService.create_cache_key("genre")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return genre_response
 
     async def delete_genre_by_id(self, genre_id: int) -> None:
         await self.genre_service.delete_genre_by_id(genre_id)
-        key = create_cache_key("genre")
+        key = CacheService.create_cache_key("genre")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)

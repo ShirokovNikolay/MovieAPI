@@ -29,6 +29,13 @@ class CacheService:
     async def delete_by_pattern(self, pattern: str) -> None:
         await self.redis.delete_by_pattern(pattern)
 
+    @classmethod
+    def create_cache_key(cls, prefix: str, **kwargs: Any) -> str:
+        result = [prefix]
+        for key, value in kwargs.items():
+            result.append(f"{key}:{value}")
+        return ":".join(result)
+
     @staticmethod
     def convert_string_to_object(value: str, schema: Any) -> Any:
         if schema is None:
@@ -43,10 +50,3 @@ class CacheService:
         ):
             return value
         return value.model_dump_json()
-
-
-def create_cache_key(prefix: str, **kwargs: Any) -> str:
-    result = [prefix]
-    for key, value in kwargs.items():
-        result.append(f"{key}:{value}")
-    return ":".join(result)

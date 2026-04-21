@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import cast
 
-from core.redis.cache_service import CacheService, create_cache_key
+from core.redis.cache_service import CacheService
 from schemas.movie import (
     MovieCreate,
     MoviePartialUpdate,
@@ -25,7 +25,7 @@ class MovieCacheService:
         self.cache_service_for_watch_history = cache_service_for_watch_history
 
     async def get_movie_by_id(self, movie_id: int) -> MovieResponse:
-        key = create_cache_key("movie", movie_id=movie_id)
+        key = CacheService.create_cache_key("movie", movie_id=movie_id)
         cached_movie_response = await self.cache_service_for_movie.get(
             key,
             MovieResponse,
@@ -42,7 +42,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieResponseList:
-        key = create_cache_key("movies", size=size, page=page)
+        key = CacheService.create_cache_key("movies", size=size, page=page)
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -60,7 +60,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "movies",
             genre_id=genre_id,
             size=size,
@@ -87,7 +87,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "movies",
             name=name,
             size=size,
@@ -115,7 +115,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "movies",
             min_rating=min_rating,
             max_rating=max_rating,
@@ -144,7 +144,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieResponseList:
-        key = create_cache_key("movies", year=year, size=size, page=page)
+        key = CacheService.create_cache_key("movies", year=year, size=size, page=page)
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -163,7 +163,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieResponseList:
-        key = create_cache_key(
+        key = CacheService.create_cache_key(
             "movies",
             release_date_start=release_date_start,
             release_date_end=release_date_end,
@@ -187,7 +187,7 @@ class MovieCacheService:
         return movies_response
 
     async def get_top_rated_movies(self, limit: int) -> MovieResponseList:
-        key = create_cache_key("movies:top-rated", limit=limit)
+        key = CacheService.create_cache_key("movies:top-rated", limit=limit)
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -200,7 +200,7 @@ class MovieCacheService:
         return movies_response
 
     async def get_top_newest_movies(self, limit: int) -> MovieResponseList:
-        key = create_cache_key("movies:top-newest", limit=limit)
+        key = CacheService.create_cache_key("movies:top-newest", limit=limit)
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -213,7 +213,7 @@ class MovieCacheService:
         return movies_response
 
     async def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
-        key = create_cache_key("movies:top-oldest", limit=limit)
+        key = CacheService.create_cache_key("movies:top-oldest", limit=limit)
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -234,14 +234,14 @@ class MovieCacheService:
             user_id,
             create_watch_history_data,
         )
-        key = create_cache_key("watch_history")
+        key = CacheService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service_for_watch_history.delete_by_pattern(pattern)
         return movie_response
 
     async def create_movie(self, create_movie_data: MovieCreate) -> MovieResponse:
         movie_response = await self.movie_service.create_movie(create_movie_data)
-        key = create_cache_key("movie")
+        key = CacheService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
@@ -255,7 +255,7 @@ class MovieCacheService:
             movie_id,
             update_movie_data,
         )
-        key = create_cache_key("movie")
+        key = CacheService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
@@ -269,13 +269,13 @@ class MovieCacheService:
             movie_id,
             update_movie_data,
         )
-        key = create_cache_key("movie")
+        key = CacheService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
 
     async def delete_movie_by_id(self, movie_id: int) -> None:
         await self.movie_service.delete_movie_by_id(movie_id)
-        key = create_cache_key("movie")
+        key = CacheService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
