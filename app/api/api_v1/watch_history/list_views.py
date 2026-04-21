@@ -1,11 +1,10 @@
 from datetime import datetime
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, status
 
-from cache_services.watch_history import WatchHistoryCacheService
-from dependencies.auth import get_user_by_access_token
-from dependencies.cache_services import get_watch_history_cache_service
+from dependencies.annotations.cache_services import WatchHistoryCacheServiceDep
+from dependencies.annotations.security import AuthUserByAccessTokenDep
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from schemas.watch_history import WatchHistoryResponseList
 
 router = APIRouter(
@@ -19,22 +18,10 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_watch_history_list(
-    user_id: Annotated[
-        int,
-        Depends(get_user_by_access_token),
-    ],
-    watch_history_cache_service: Annotated[
-        WatchHistoryCacheService,
-        Depends(get_watch_history_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    user_id: AuthUserByAccessTokenDep,
+    watch_history_cache_service: WatchHistoryCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> WatchHistoryResponseList:
     return await watch_history_cache_service.get_watch_history_list(user_id, size, page)
 
@@ -45,24 +32,12 @@ async def get_watch_history_list(
     status_code=status.HTTP_200_OK,
 )
 async def get_watch_history_by_date_range(
-    user_id: Annotated[
-        int,
-        Depends(get_user_by_access_token),
-    ],
+    user_id: AuthUserByAccessTokenDep,
     start_date: datetime,
     end_date: datetime,
-    watch_history_cache_service: Annotated[
-        WatchHistoryCacheService,
-        Depends(get_watch_history_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    watch_history_cache_service: WatchHistoryCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> WatchHistoryResponseList:
     return await watch_history_cache_service.get_watch_history_by_date_range(
         user_id,
@@ -78,14 +53,8 @@ async def get_watch_history_by_date_range(
     status_code=status.HTTP_200_OK,
 )
 async def count_user_watch_history(
-    user_id: Annotated[
-        int,
-        Depends(get_user_by_access_token),
-    ],
-    watch_history_cache_service: Annotated[
-        WatchHistoryCacheService,
-        Depends(get_watch_history_cache_service),
-    ],
+    user_id: AuthUserByAccessTokenDep,
+    watch_history_cache_service: WatchHistoryCacheServiceDep,
 ) -> int:
     return await watch_history_cache_service.count_user_watch_history(user_id)
 
@@ -95,13 +64,7 @@ async def count_user_watch_history(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_user_watch_history(
-    user_id: Annotated[
-        int,
-        Depends(get_user_by_access_token),
-    ],
-    watch_history_cache_service: Annotated[
-        WatchHistoryCacheService,
-        Depends(get_watch_history_cache_service),
-    ],
+    user_id: AuthUserByAccessTokenDep,
+    watch_history_cache_service: WatchHistoryCacheServiceDep,
 ) -> None:
     await watch_history_cache_service.delete_user_watch_history(user_id)

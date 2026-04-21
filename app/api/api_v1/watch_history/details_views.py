@@ -1,11 +1,8 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends
 from starlette import status
 
-from cache_services.watch_history import WatchHistoryCacheService
+from dependencies.annotations.cache_services import WatchHistoryCacheServiceDep
 from dependencies.auth import get_admin_by_access_token
-from dependencies.cache_services import get_watch_history_cache_service
 from schemas.watch_history import WatchHistoryResponse
 
 router = APIRouter(
@@ -23,10 +20,7 @@ router = APIRouter(
 )
 async def get_watch_history_by_id(
     watch_history_id: int,
-    watch_history_cache_service: Annotated[
-        WatchHistoryCacheService,
-        Depends(get_watch_history_cache_service),
-    ],
+    watch_history_cache_service: WatchHistoryCacheServiceDep,
 ) -> WatchHistoryResponse:
     return await watch_history_cache_service.get_watch_history_by_id(watch_history_id)
 
@@ -37,9 +31,6 @@ async def get_watch_history_by_id(
 )
 async def delete_watch_history_by_id(
     watch_history_id: int,
-    watch_history_cache_service: Annotated[
-        WatchHistoryCacheService,
-        Depends(get_watch_history_cache_service),
-    ],
+    watch_history_cache_service: WatchHistoryCacheServiceDep,
 ) -> None:
     await watch_history_cache_service.delete_watch_history_by_id(watch_history_id)
