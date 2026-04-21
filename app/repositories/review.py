@@ -117,7 +117,8 @@ class ReviewRepository:
     async def get_top_rating_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> list[Review]:
         stmt = (
             select(Review)
@@ -127,7 +128,8 @@ class ReviewRepository:
             )
             .where(Review.movie_id == movie_id)
             .order_by(desc(Review.rating))
-            .limit(limit)
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -135,7 +137,8 @@ class ReviewRepository:
     async def get_top_newest_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> list[Review]:
         stmt = (
             select(Review)
@@ -145,7 +148,8 @@ class ReviewRepository:
             )
             .where(Review.movie_id == movie_id)
             .order_by(desc(Review.publication_date))
-            .limit(limit)
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
@@ -153,7 +157,8 @@ class ReviewRepository:
     async def get_top_oldest_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> list[Review]:
         stmt = (
             select(Review)
@@ -163,7 +168,8 @@ class ReviewRepository:
             )
             .where(Review.movie_id == movie_id)
             .order_by(Review.publication_date)
-            .limit(limit)
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

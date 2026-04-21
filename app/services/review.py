@@ -117,7 +117,8 @@ class ReviewService:
     async def get_top_rating_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> ReviewResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
@@ -126,15 +127,21 @@ class ReviewService:
             ReviewResponse.model_validate(review)
             for review in await self.review_repository.get_top_rating_movie_reviews(
                 movie_id,
-                limit,
+                size,
+                page,
             )
         ]
-        return ReviewResponseList(review_list=reviews, size=limit)
+        return ReviewResponseList(
+            review_list=reviews,
+            size=size,
+            page=page,
+        )
 
     async def get_top_newest_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> ReviewResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
@@ -143,15 +150,21 @@ class ReviewService:
             ReviewResponse.model_validate(review)
             for review in await self.review_repository.get_top_newest_movie_reviews(
                 movie_id,
-                limit,
+                size,
+                page,
             )
         ]
-        return ReviewResponseList(review_list=reviews, size=limit)
+        return ReviewResponseList(
+            review_list=reviews,
+            size=size,
+            page=page,
+        )
 
     async def get_top_oldest_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> ReviewResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
@@ -160,10 +173,15 @@ class ReviewService:
             ReviewResponse.model_validate(review)
             for review in await self.review_repository.get_top_oldest_movie_reviews(
                 movie_id,
-                limit,
+                size,
+                page,
             )
         ]
-        return ReviewResponseList(review_list=reviews, size=limit)
+        return ReviewResponseList(
+            review_list=reviews,
+            size=size,
+            page=page,
+        )
 
     async def create_review(
         self,

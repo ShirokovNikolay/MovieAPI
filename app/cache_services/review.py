@@ -1,6 +1,7 @@
 from typing import cast
 
 from core.redis.cache_service import CacheService
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from schemas.review import (
     ReviewCreate,
     ReviewPartialUpdate,
@@ -136,12 +137,14 @@ class ReviewCacheService:
     async def get_top_rating_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: PaginationSizeDep = 10,
+        page: PaginationPageDep = 1,
     ) -> ReviewResponseList:
         key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
-            limit=limit,
+            size=size,
+            page=page,
         )
         cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
         if cached_reviews_response is not None:
@@ -149,7 +152,8 @@ class ReviewCacheService:
 
         reviews_response = await self.review_service.get_top_rating_movie_reviews(
             movie_id,
-            limit,
+            size,
+            page,
         )
         await self.cache_service.set(
             key,
@@ -161,12 +165,14 @@ class ReviewCacheService:
     async def get_top_newest_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> ReviewResponseList:
         key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
-            limit=limit,
+            size=size,
+            page=page,
         )
         cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
         if cached_reviews_response is not None:
@@ -174,7 +180,8 @@ class ReviewCacheService:
 
         reviews_response = await self.review_service.get_top_newest_movie_reviews(
             movie_id,
-            limit,
+            size,
+            page,
         )
         await self.cache_service.set(
             key,
@@ -186,12 +193,14 @@ class ReviewCacheService:
     async def get_top_oldest_movie_reviews(
         self,
         movie_id: int,
-        limit: int,
+        size: int,
+        page: int,
     ) -> ReviewResponseList:
         key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
-            limit=limit,
+            size=size,
+            page=page,
         )
         cached_reviews_response = cast(
             ReviewResponseList,
@@ -202,7 +211,8 @@ class ReviewCacheService:
 
         reviews_response = await self.review_service.get_top_oldest_movie_reviews(
             movie_id,
-            limit,
+            size,
+            page,
         )
         await self.cache_service.set(
             key,
