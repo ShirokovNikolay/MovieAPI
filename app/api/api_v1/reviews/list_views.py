@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
-from dependencies.annotations.auth_annotations import AuthUserByAccessTokenDep
 from dependencies.annotations.cache_services import ReviewCacheServiceDep
+from dependencies.annotations.security import AuthUserByAccessTokenDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.auth import (
     get_admin_by_access_token,

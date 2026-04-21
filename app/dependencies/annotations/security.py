@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordRequestForm
 
 from dependencies.auth import (
     get_admin_by_access_token,
@@ -8,23 +9,28 @@ from dependencies.auth import (
     get_user_by_refresh_token,
 )
 
-AuthUserIdByAccessTokenDep = Annotated[
+AuthUserByAccessTokenDep = Annotated[
     int,
     Depends(
         get_user_by_access_token,
     ),
 ]
 
-AuthAdminIdByAccessTokenDep = Annotated[
+AuthAdminByAccessTokenDep = Annotated[
     int,
     Depends(
         get_admin_by_access_token,
     ),
 ]
 
-AuthUserIdByRefreshTokenDep = Annotated[
+AuthUserByRefreshTokenDep = Annotated[
     int,
     Depends(
         get_user_by_refresh_token,
     ),
+]
+
+OAuth2Dep = Annotated[
+    OAuth2PasswordRequestForm,
+    Depends(),
 ]
