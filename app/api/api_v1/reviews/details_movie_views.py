@@ -1,9 +1,7 @@
-from typing import Annotated
+from fastapi import APIRouter, Depends, status
 
-from fastapi import APIRouter, Depends, Query, status
-
-from cache_services import ReviewCacheService
-from dependencies.cache_services import get_review_cache_service
+from dependencies.annotations.cache_services import ReviewCacheServiceDep
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.rate_limiter import check_rate_limit_not_auth
 from schemas.review import ReviewResponseList
 
@@ -22,18 +20,9 @@ router = APIRouter(
 )
 async def get_movie_reviews(
     movie_id: int,
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    review_cache_service: ReviewCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> ReviewResponseList:
     return await review_cache_service.get_movie_reviews(movie_id, size, page)
 
@@ -46,10 +35,7 @@ async def get_movie_reviews(
 async def get_top_rating_movie_reviews(
     movie_id: int,
     limit: int,
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
+    review_cache_service: ReviewCacheServiceDep,
 ) -> ReviewResponseList:
     return await review_cache_service.get_top_rating_movie_reviews(movie_id, limit)
 
@@ -62,10 +48,7 @@ async def get_top_rating_movie_reviews(
 async def get_top_newest_movie_reviews(
     movie_id: int,
     limit: int,
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
+    review_cache_service: ReviewCacheServiceDep,
 ) -> ReviewResponseList:
     return await review_cache_service.get_top_newest_movie_reviews(movie_id, limit)
 
@@ -78,9 +61,6 @@ async def get_top_newest_movie_reviews(
 async def get_top_oldest_movie_reviews(
     movie_id: int,
     limit: int,
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
+    review_cache_service: ReviewCacheServiceDep,
 ) -> ReviewResponseList:
     return await review_cache_service.get_top_oldest_movie_reviews(movie_id, limit)

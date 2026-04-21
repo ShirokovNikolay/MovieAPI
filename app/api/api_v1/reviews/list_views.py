@@ -1,13 +1,11 @@
-from typing import Annotated
+from fastapi import APIRouter, Depends, status
 
-from fastapi import APIRouter, Depends, Query, status
-
-from cache_services import ReviewCacheService
+from dependencies.annotations.auth_annotations import AuthUserByAccessTokenDep
+from dependencies.annotations.cache_services import ReviewCacheServiceDep
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.auth import (
     get_admin_by_access_token,
-    get_user_by_access_token,
 )
-from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.review import (
     ReviewCreate,
@@ -31,18 +29,9 @@ router = APIRouter(
     ],
 )
 async def get_review_list(
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    review_cache_service: ReviewCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> ReviewResponseList:
     return await review_cache_service.get_reviews(size, page)
 
@@ -54,13 +43,7 @@ async def get_review_list(
 )
 async def create_review(
     create_review_data: ReviewCreate,
-    current_user_id: Annotated[
-        int,
-        Depends(get_user_by_access_token),
-    ],
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
+    user_id: AuthUserByAccessTokenDep,
+    review_cache_service: ReviewCacheServiceDep,
 ) -> ReviewResponse:
-    return await review_cache_service.create_review(current_user_id, create_review_data)
+    return await review_cache_service.create_review(user_id, create_review_data)

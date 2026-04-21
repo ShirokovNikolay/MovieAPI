@@ -1,15 +1,12 @@
-from typing import Annotated
-
 from fastapi import (
     APIRouter,
     Depends,
-    Query,
     status,
 )
 
-from cache_services import ReviewCacheService
+from dependencies.annotations.cache_services import ReviewCacheServiceDep
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.auth import get_admin_by_access_token
-from dependencies.cache_services import get_review_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.review import ReviewResponse, ReviewResponseList
 
@@ -29,18 +26,9 @@ router = APIRouter(
 )
 async def get_user_reviews(
     user_id: int,
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    review_cache_service: ReviewCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> ReviewResponseList:
     return await review_cache_service.get_user_reviews(user_id, size, page)
 
@@ -53,9 +41,6 @@ async def get_user_reviews(
 async def get_user_review_about_movie(
     user_id: int,
     movie_id: int,
-    review_cache_service: Annotated[
-        ReviewCacheService,
-        Depends(get_review_cache_service),
-    ],
+    review_cache_service: ReviewCacheServiceDep,
 ) -> ReviewResponse:
     return await review_cache_service.get_user_review_about_movie(user_id, movie_id)
