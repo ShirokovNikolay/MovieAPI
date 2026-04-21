@@ -1,11 +1,10 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from starlette import status
 
-from cache_services import FavoriteMovieCacheService
-from dependencies.auth import get_admin_by_access_token, get_user_by_access_token
-from dependencies.cache_services import get_favorite_movie_cache_service
+from dependencies.annotations.cache_services import FavoriteMovieCacheServiceDep
+from dependencies.annotations.security import AuthUserByAccessTokenDep
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
+from dependencies.auth import get_admin_by_access_token
 from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.favorite_movie import FavoriteMovieResponseList
 
@@ -23,22 +22,10 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_current_user_favorite_movies(
-    user_id: Annotated[
-        int,
-        Depends(get_user_by_access_token),
-    ],
-    favorite_movie_cache_service: Annotated[
-        FavoriteMovieCacheService,
-        Depends(get_favorite_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    user_id: AuthUserByAccessTokenDep,
+    favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> FavoriteMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
         user_id,
@@ -57,18 +44,9 @@ async def get_current_user_favorite_movies(
 )
 async def get_user_favorite_movies(
     user_id: int,
-    favorite_movie_cache_service: Annotated[
-        FavoriteMovieCacheService,
-        Depends(get_favorite_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> FavoriteMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
         user_id,
