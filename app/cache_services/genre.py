@@ -1,7 +1,6 @@
 from typing import cast
 
-from core.redis.cache_service import CacheService
-from core.security.cache_utils import create_cache_key
+from core.redis.cache_service import CacheService, create_cache_key
 from schemas.genre import (
     GenreCreate,
     GenrePartialUpdate,
