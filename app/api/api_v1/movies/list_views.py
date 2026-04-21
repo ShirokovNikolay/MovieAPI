@@ -108,27 +108,6 @@ async def get_movies_by_release_date_range(
 
 
 @router.get(
-    "/year/{year}",
-    response_model=MovieResponseList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_not_auth),
-    ],
-)
-async def get_movies_by_year(
-    year: int,
-    movie_cache_service: MovieCacheServiceDep,
-    size: PaginationSizeDep = 10,
-    page: PaginationPageDep = 1,
-) -> MovieResponseList:
-    return await movie_cache_service.get_movies_by_year(
-        year,
-        size,
-        page,
-    )
-
-
-@router.get(
     "/top-rated",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
