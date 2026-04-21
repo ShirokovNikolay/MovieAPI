@@ -186,8 +186,12 @@ class MovieCacheService:
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
-    async def get_top_rated_movies(self, limit: int) -> MovieResponseList:
-        key = CacheService.create_cache_key("movies:top-rated", limit=limit)
+    async def get_top_rated_movies(self, size: int, page: int) -> MovieResponseList:
+        key = CacheService.create_cache_key(
+            "movies:top-rated",
+            size=size,
+            page=page,
+        )
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -195,12 +199,16 @@ class MovieCacheService:
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
 
-        movies_response = await self.movie_service.get_top_rated_movies(limit)
+        movies_response = await self.movie_service.get_top_rated_movies(size, page)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
-    async def get_top_newest_movies(self, limit: int) -> MovieResponseList:
-        key = CacheService.create_cache_key("movies:top-newest", limit=limit)
+    async def get_top_newest_movies(self, size: int, page: int) -> MovieResponseList:
+        key = CacheService.create_cache_key(
+            "movies:top-newest",
+            size=size,
+            page=page,
+        )
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -208,12 +216,16 @@ class MovieCacheService:
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
 
-        movies_response = await self.movie_service.get_top_newest_movies(limit)
+        movies_response = await self.movie_service.get_top_newest_movies(size, page)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 
-    async def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
-        key = CacheService.create_cache_key("movies:top-oldest", limit=limit)
+    async def get_top_oldest_movies(self, size: int, page: int) -> MovieResponseList:
+        key = CacheService.create_cache_key(
+            "movies:top-oldest",
+            size=size,
+            page=page,
+        )
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieResponseList,
@@ -221,7 +233,7 @@ class MovieCacheService:
         if cached_movies_response is not None:
             return cast(MovieResponseList, cached_movies_response)
 
-        movies_response = await self.movie_service.get_top_oldest_movies(limit)
+        movies_response = await self.movie_service.get_top_oldest_movies(size, page)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
         return movies_response
 

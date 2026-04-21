@@ -129,7 +129,7 @@ async def get_movies_by_year(
 
 
 @router.get(
-    "/top-rated/{limit}",
+    "/top-rated",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
     dependencies=[
@@ -137,14 +137,15 @@ async def get_movies_by_year(
     ],
 )
 async def get_top_rated_movies(
-    limit: int,
     movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
-    return await movie_cache_service.get_top_rated_movies(limit)
+    return await movie_cache_service.get_top_rated_movies(size, page)
 
 
 @router.get(
-    "/top-oldest/{limit}",
+    "/top-oldest",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
     dependencies=[
@@ -152,14 +153,15 @@ async def get_top_rated_movies(
     ],
 )
 async def get_top_oldest_movies(
-    limit: int,
     movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
-    return await movie_cache_service.get_top_oldest_movies(limit)
+    return await movie_cache_service.get_top_oldest_movies(size, page)
 
 
 @router.get(
-    "/top-newest/{limit}",
+    "/top-newest",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
     dependencies=[
@@ -167,10 +169,11 @@ async def get_top_oldest_movies(
     ],
 )
 async def get_top_newest_movies(
-    limit: int,
     movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
-    return await movie_cache_service.get_top_newest_movies(limit)
+    return await movie_cache_service.get_top_newest_movies(size, page)
 
 
 @router.post(

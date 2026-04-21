@@ -179,34 +179,37 @@ class MovieService:
             page=page,
         )
 
-    async def get_top_rated_movies(self, limit: int) -> MovieResponseList:
+    async def get_top_rated_movies(self, size: int, page: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_top_rated_movies(limit)
+            for movie in await self.movie_repository.get_top_rated_movies(size, page)
         ]
         return MovieResponseList(
             movie_list=movies,
-            size=limit,
+            size=size,
+            page=page,
         )
 
-    async def get_top_newest_movies(self, limit: int) -> MovieResponseList:
+    async def get_top_newest_movies(self, size: int, page: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_top_newest_movies(limit)
+            for movie in await self.movie_repository.get_top_newest_movies(size, page)
         ]
         return MovieResponseList(
             movie_list=movies,
-            size=limit,
+            size=size,
+            page=page,
         )
 
-    async def get_top_oldest_movies(self, limit: int) -> MovieResponseList:
+    async def get_top_oldest_movies(self, size: int, page: int) -> MovieResponseList:
         movies = [
             MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_top_oldest_movies(limit)
+            for movie in await self.movie_repository.get_top_oldest_movies(size, page)
         ]
         return MovieResponseList(
             movie_list=movies,
-            size=limit,
+            size=size,
+            page=page,
         )
 
     async def create_movie(self, create_movie_data: MovieCreate) -> MovieResponse:

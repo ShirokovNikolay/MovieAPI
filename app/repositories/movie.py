@@ -142,33 +142,36 @@ class MovieRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_top_rated_movies(self, limit: int) -> list[Movie]:
+    async def get_top_rated_movies(self, size: int, page: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
             .order_by(desc(Movie.rating))
-            .limit(limit)
+            .limit(size)
+            .offset(size * (page - 1))
         )
 
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_top_newest_movies(self, limit: int) -> list[Movie]:
+    async def get_top_newest_movies(self, size: int, page: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
             .order_by(desc(Movie.release_date))
-            .limit(limit)
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_top_oldest_movies(self, limit: int) -> list[Movie]:
+    async def get_top_oldest_movies(self, size: int, page: int) -> list[Movie]:
         stmt = (
             select(Movie)
             .options(joinedload(Movie.genre))
             .order_by(Movie.release_date)
-            .limit(limit)
+            .limit(size)
+            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
