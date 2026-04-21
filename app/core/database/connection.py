@@ -7,7 +7,6 @@ from sqlalchemy.orm import DeclarativeBase
 from core.config import settings
 
 
-# Base = declarative_base()
 class Base(DeclarativeBase):
     """
     Базовый класс для работы с метаданными.
