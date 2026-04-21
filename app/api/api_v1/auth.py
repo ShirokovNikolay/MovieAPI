@@ -1,26 +1,24 @@
-from typing import Annotated
-
 from fastapi import (
     APIRouter,
-    Depends,
     status,
 )
-from fastapi.security import OAuth2PasswordRequestForm
 
 from core.constants import BEARER_TOKEN_TYPE
 from core.security.jwt_utils import (
     create_access_token,
     create_refresh_token,
 )
-from dependencies.auth import get_user_by_refresh_token
-from dependencies.services import get_user_service
+from dependencies.annotations.cache_services import UserCacheServiceDep
+from dependencies.annotations.security import (
+    AuthUserByRefreshTokenDep,
+    OAuth2Dep,
+)
 from schemas.token import TokenInfo
 from schemas.user import (
     UserCreate,
     UserLogin,
     UserResponse,
 )
-from services import UserService
 
 router = APIRouter(
     tags=["Auth"],
@@ -35,10 +33,7 @@ router = APIRouter(
 )
 async def register_user(
     create_user_data: UserCreate,
-    user_service: Annotated[
-        UserService,
-        Depends(get_user_service),
-    ],
+    user_service: UserCacheServiceDep,
 ) -> UserResponse:
     return await user_service.create_user(create_user_data)
 
@@ -49,11 +44,8 @@ async def register_user(
     status_code=status.HTTP_200_OK,
 )
 async def login_user(
-    oauth2_form: Annotated[OAuth2PasswordRequestForm, Depends()],
-    user_service: Annotated[
-        UserService,
-        Depends(get_user_service),
-    ],
+    oauth2_form: OAuth2Dep,
+    user_service: UserCacheServiceDep,
 ) -> TokenInfo:
     login_data = UserLogin(
         login=oauth2_form.username,
@@ -76,14 +68,8 @@ async def login_user(
     status_code=status.HTTP_200_OK,
 )
 async def refresh_access_token(
-    user_id: Annotated[
-        int,
-        Depends(get_user_by_refresh_token),
-    ],
-    user_service: Annotated[
-        UserService,
-        Depends(get_user_service),
-    ],
+    user_id: AuthUserByRefreshTokenDep,
+    user_service: UserCacheServiceDep,
 ) -> TokenInfo:
     user = await user_service.get_user_by_id(user_id)
     access_token = create_access_token(user)

@@ -1,10 +1,7 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, status
 
-from cache_services import UserCacheService
+from dependencies.annotations.cache_services import UserCacheServiceDep
 from dependencies.auth import get_admin_by_access_token
-from dependencies.cache_services import get_user_cache_service
 from schemas.user import UserResponse
 
 router = APIRouter(
@@ -22,10 +19,7 @@ router = APIRouter(
 )
 async def get_user_by_login(
     login: str,
-    user_cache_service: Annotated[
-        UserCacheService,
-        Depends(get_user_cache_service),
-    ],
+    user_cache_service: UserCacheServiceDep,
 ) -> UserResponse:
     return await user_cache_service.get_user_by_login(login)
 
@@ -36,9 +30,6 @@ async def get_user_by_login(
 )
 async def delete_user_by_login(
     login: str,
-    user_cache_service: Annotated[
-        UserCacheService,
-        Depends(get_user_cache_service),
-    ],
+    user_cache_service: UserCacheServiceDep,
 ) -> None:
     await user_cache_service.delete_user_by_login(login)
