@@ -1,11 +1,10 @@
 from datetime import datetime
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, status
 
-from cache_services import MovieCacheService
+from dependencies.annotations.cache_services import MovieCacheServiceDep
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.auth import get_admin_by_access_token
-from dependencies.cache_services import get_movie_cache_service
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.movie import MovieCreate, MovieResponse, MovieResponseList
 
@@ -16,21 +15,14 @@ router = APIRouter()
     "/",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(check_rate_limit_not_auth)],
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_movies(
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies(size, page)
 
@@ -45,18 +37,9 @@ async def get_movies(
 )
 async def search_movies_by_name(
     movie_name: str,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.search_movies_by_name(movie_name, size, page)
 
@@ -65,22 +48,15 @@ async def search_movies_by_name(
     "/genre/{genre_id}",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(check_rate_limit_not_auth)],
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_movies_by_genre_id(
     genre_id: int,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_genre_id(genre_id, size, page)
 
@@ -96,18 +72,9 @@ async def get_movies_by_genre_id(
 async def get_movies_by_rating_range(
     min_rating: int,
     max_rating: int,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_rating_range(
         min_rating,
@@ -121,23 +88,16 @@ async def get_movies_by_rating_range(
     "/date-range",
     response_model=MovieResponseList,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(check_rate_limit_not_auth)],
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
 )
 async def get_movies_by_release_date_range(
     release_date_start: datetime,
     release_date_end: datetime,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_release_date_range(
         release_date_start,
@@ -157,18 +117,9 @@ async def get_movies_by_release_date_range(
 )
 async def get_movies_by_year(
     year: int,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
-    size: Annotated[
-        int,
-        Query(ge=1),
-    ] = 10,
-    page: Annotated[
-        int,
-        Query(ge=1),
-    ] = 1,
+    movie_cache_service: MovieCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_year(
         year,
@@ -187,10 +138,7 @@ async def get_movies_by_year(
 )
 async def get_top_rated_movies(
     limit: int,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
+    movie_cache_service: MovieCacheServiceDep,
 ) -> MovieResponseList:
     return await movie_cache_service.get_top_rated_movies(limit)
 
@@ -205,10 +153,7 @@ async def get_top_rated_movies(
 )
 async def get_top_oldest_movies(
     limit: int,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
+    movie_cache_service: MovieCacheServiceDep,
 ) -> MovieResponseList:
     return await movie_cache_service.get_top_oldest_movies(limit)
 
@@ -223,10 +168,7 @@ async def get_top_oldest_movies(
 )
 async def get_top_newest_movies(
     limit: int,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
+    movie_cache_service: MovieCacheServiceDep,
 ) -> MovieResponseList:
     return await movie_cache_service.get_top_newest_movies(limit)
 
@@ -242,9 +184,6 @@ async def get_top_newest_movies(
 )
 async def create_movie(
     create_movie_data: MovieCreate,
-    movie_cache_service: Annotated[
-        MovieCacheService,
-        Depends(get_movie_cache_service),
-    ],
+    movie_cache_service: MovieCacheServiceDep,
 ) -> MovieResponse:
     return await movie_cache_service.create_movie(create_movie_data)
