@@ -1,0 +1,52 @@
+services:
+  tests:
+    build:
+      context: ./
+      dockerfile: Dockerfile.test
+    container_name: run-tests
+    environment:
+      TESTING: 1
+      DATABASE__DB_NAME: test-movie-catalog
+      DATABASE__HOST: test-database
+      REDIS__CONNECTION__HOST: test-redis
+    depends_on:
+      test-database:
+        condition: service_healthy
+      test-redis:
+        condition: service_healthy
+
+  test-database:
+    image: postgres:17-bookworm
+    container_name: test-database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test-movie-catalog
+    ports:
+      - "5433:5432"
+    volumes:
+      - "test-postgres-data:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d test-movie-catalog"]
+      start_period: 3s
+      interval: 2s
+      timeout: 2s
+      retries: 3
+
+  test-redis:
+    image: redis:latest
+    container_name: test-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - "test-redis-data:/data"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      start_period: 1s
+      interval: 2s
+      timeout: 2s
+      retries: 3
+
+volumes:
+  test-postgres-data:
+  test-redis-data:
