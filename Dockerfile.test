@@ -1,0 +1,15 @@
+FROM python:3.13-bookworm
+
+WORKDIR /MovieAPI
+
+RUN pip install uv
+
+COPY pyproject.toml uv.lock ./
+
+RUN uv sync --dev
+
+COPY app ./app
+
+COPY tests ./tests
+
+CMD ["uv", "run", "pytest"]
