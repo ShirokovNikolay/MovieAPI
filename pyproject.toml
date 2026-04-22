@@ -163,3 +163,15 @@ ignore = [
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
 unfixable = []
+
+
+# pytest settings
+
+[tool.pytest.ini_options]
+minversion = "1.3.0"
+addopts = ["-v"]
+testpaths = [
+    "tests",
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
