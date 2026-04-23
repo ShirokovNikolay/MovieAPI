@@ -21,7 +21,16 @@ class GenreIdNotFoundError(GenreNotFoundError):
         super().__init__(detail)
 
 
-class GenreNameAlreadyExistsError(ConflictError):
+class GenreAlreadyExistsError(ConflictError):
+    """
+    Класс для ошибок из-за существования жанра.
+    """
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(detail)
+
+
+class GenreNameAlreadyExistsError(GenreAlreadyExistsError):
     """
     Класс для ошибок, связанных с уже существующим именем жанра фильма.
     """
