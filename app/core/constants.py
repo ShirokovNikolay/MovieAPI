@@ -7,6 +7,11 @@ from core.exceptions.base import (
     NotFoundError,
     TooManyRequestsError,
 )
+from core.exceptions.genre import (
+    GenreNotFoundError,
+    GenreAlreadyExistsError,
+    GenreAlreadyHasMoviesError,
+)
 
 TOKEN_TYPE: str = "type"
 ACCESS_TOKEN_TYPE: str = "access"
@@ -19,6 +24,10 @@ BASE_ERROR = (
     | ForbiddenError
     | AuthenticationError
     | TooManyRequestsError
+)
+
+BASE_GENRE_ERROR = (
+    GenreNotFoundError | GenreAlreadyExistsError | GenreAlreadyHasMoviesError
 )
 
 

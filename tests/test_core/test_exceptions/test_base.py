@@ -14,6 +14,22 @@ from core.exceptions.base import (
 )
 
 
+@pytest.fixture(
+    scope="function",
+    params=[
+        NotFoundError,
+        ConflictError,
+        ForbiddenError,
+        AuthenticationError,
+        TooManyRequestsError,
+    ],
+)
+def base_error(
+    request: SubRequest,
+) -> BASE_ERROR:
+    return request.param
+
+
 def generate_random_string(
     min_string_length: int = 1,
     max_string_length: int = 10,
@@ -53,37 +69,17 @@ def generate_list_of_random_strings(
     ]
 
 
-@pytest.fixture(
-    scope="function",
-    params=generate_list_of_random_strings(
-        list_length=5,
-    ),
-)
-def detail(request: SubRequest) -> str:
-    return request.param
+def test_base_error_can_raise_with_detail(
+    detail: str,
+    base_error: BASE_ERROR,
+) -> None:
+    with pytest.raises(
+        base_error,
+        match=detail,
+    ) as exc_info:
+        raise base_error(detail)
+    assert exc_info.value.detail == detail
 
 
-@pytest.fixture(
-    scope="function",
-    params=[
-        NotFoundError,
-        ConflictError,
-        ForbiddenError,
-        AuthenticationError,
-        TooManyRequestsError,
-    ],
-)
-def error(
-    request: SubRequest,
-) -> BASE_ERROR:
-    return request.param
-
-
-def test_error_can_raise_with_detail(detail: str, error: BASE_ERROR) -> None:
-    with pytest.raises(error) as exception:
-        raise error(detail)
-    assert detail == exception.value.detail
-
-
-def test_error_inherits_from_base_exception(error) -> None:
-    assert issubclass(error, Exception)
+def test_error_inherits_from_base_exception(base_error) -> None:
+    assert issubclass(base_error, Exception)
