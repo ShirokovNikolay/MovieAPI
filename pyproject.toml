@@ -33,6 +33,7 @@ dev = [
 strict = true
 exclude = [
     "alembic",
+    "tests"
 ]
 plugins = [
     "pydantic.mypy"
