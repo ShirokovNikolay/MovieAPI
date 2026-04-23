@@ -21,17 +21,6 @@ class GenreIdNotFoundError(GenreNotFoundError):
         super().__init__(detail)
 
 
-class GenreNameNotFoundError(GenreNotFoundError):
-    """
-    Класс для ошибок, связанных с ненайденным именем жанра фильма.
-    """
-
-    def __init__(self, genre_name: str) -> None:
-        self.genre_name = genre_name
-        detail = f"Genre with genre name = {genre_name} not found."
-        super().__init__(detail)
-
-
 class GenreNameAlreadyExistsError(ConflictError):
     """
     Класс для ошибок, связанных с уже существующим именем жанра фильма.
@@ -60,17 +49,4 @@ class GenreIdAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
     def __init__(self, genre_id: int) -> None:
         self.genre_id = genre_id
         detail = f"Genre with genre id = {genre_id} has movies. Delete movies first."
-        super().__init__(detail)
-
-
-class GenreNameAlreadyHasMoviesError(GenreAlreadyHasMoviesError):
-    """
-    Класс для ошибок, связанных с уже существующими фильмами жанра с таким жанром.
-    """
-
-    def __init__(self, genre_name: str) -> None:
-        self.genre_name = genre_name
-        detail = (
-            f"Genre with genre name = {genre_name} has movies. Delete movies first."
-        )
         super().__init__(detail)

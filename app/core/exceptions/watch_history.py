@@ -10,7 +10,7 @@ class WatchHistoryNotFoundError(NotFoundError):
         super().__init__(detail)
 
 
-class WatchHistoryIdNotFoundError(NotFoundError):
+class WatchHistoryIdNotFoundError(WatchHistoryNotFoundError):
     """
     Класс для ошибок, связанных с ненахождением id записи в истории просмотров.
     """

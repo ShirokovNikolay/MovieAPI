@@ -10,7 +10,7 @@ class UserNotFoundError(NotFoundError):
         super().__init__(detail)
 
 
-class UserIdNotFoundError(NotFoundError):
+class UserIdNotFoundError(UserNotFoundError):
     """
     Класс для ошибок, связанных с ненахождением пользователя с таким id.
     """
