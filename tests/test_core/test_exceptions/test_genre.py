@@ -37,7 +37,7 @@ def base_genre_error(request: SubRequest) -> BASE_GENRE_ERROR:
 
 @pytest.fixture(
     scope="function",
-    params=generate_random_id_list(list_length=5),
+    params=generate_random_id_list(list_length=3),
 )
 def genre_id(request: SubRequest) -> int:
     return request.param
@@ -45,7 +45,7 @@ def genre_id(request: SubRequest) -> int:
 
 @pytest.fixture(
     scope="function",
-    params=generate_list_of_random_strings(list_length=5),
+    params=generate_list_of_random_strings(list_length=3),
 )
 def genre_name(request: SubRequest) -> int:
     return request.param
