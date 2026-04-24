@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import Annotated, ClassVar
 
 from annotated_types import MaxLen
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 StringMaxLength255 = Annotated[
-    str,
+    EmailStr,
     MaxLen(max_length=255),
 ]
 
