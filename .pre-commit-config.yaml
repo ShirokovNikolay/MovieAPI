@@ -18,6 +18,7 @@ repos:
       hooks:
         - id: mypy
           language: system
+          exclude: tests
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.15.11
@@ -26,3 +27,4 @@ repos:
         - id: ruff-check
           args:
             - --fix
+          exclude: tests
