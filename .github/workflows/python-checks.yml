@@ -29,10 +29,10 @@ jobs:
         run: uv sync --dev
 
       - name: Run black
-        run: uv run black .
+        run: uv run black ./
 
       - name: Run mypy
-        run: uv run mypy .
+        run: uv run mypy ./
 
       - name: Run ruff
         run: uv run ruff check --fix
