@@ -193,6 +193,3 @@ class TestGenreResponseSchema:
     ) -> None:
         schema = GenreResponse(**genre_response_data)
         assert schema.model_dump() == genre_response_data
-
-    def test_failed(self) -> None:
-        assert False
