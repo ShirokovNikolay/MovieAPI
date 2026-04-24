@@ -28,8 +28,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-#      - name: Run black
-#        run: uv run black ./
+      - name: Run black
+        run: uv run black ./
 
       - name: Run mypy
         run: uv run mypy ./
