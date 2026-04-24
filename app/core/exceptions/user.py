@@ -21,23 +21,14 @@ class UserIdNotFoundError(UserNotFoundError):
         super().__init__(detail)
 
 
-class UserLoginNotFoundError(NotFoundError):
+class UserLoginNotFoundError(UserNotFoundError):
     """
     Класс для ошибок, связанных с ненахождением пользователя с таким логином.
     """
 
     def __init__(self, login: str) -> None:
+        self.login = login
         detail = f"User with login = {login} not found."
-        super().__init__(detail)
-
-
-class UserEmailNotFoundError(NotFoundError):
-    """
-    Класс для ошибок, связанных с ненахождением пользователя с такой почтой.
-    """
-
-    def __init__(self, email: str) -> None:
-        detail = f"User with email = {email} not found."
         super().__init__(detail)
 
 
@@ -57,6 +48,7 @@ class UserLoginAlreadyExistsError(UserAlreadyExistsError):
     """
 
     def __init__(self, login: str) -> None:
+        self.login = login
         detail = f"User with login = {login} already exists."
         super().__init__(detail)
 
@@ -67,5 +59,6 @@ class UserEmailAlreadyExistsError(UserAlreadyExistsError):
     """
 
     def __init__(self, email: str) -> None:
+        self.email = email
         detail = f"User with email = {email} already exists."
         super().__init__(detail)

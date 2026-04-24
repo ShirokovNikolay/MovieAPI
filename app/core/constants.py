@@ -17,6 +17,7 @@ from core.exceptions.genre import (
     GenreAlreadyHasMoviesError,
 )
 from core.exceptions.movie import MovieNotFoundError, MovieAlreadyExistsError
+from core.exceptions.user import UserNotFoundError, UserAlreadyExistsError
 from core.exceptions.watch_history import WatchHistoryNotFoundError
 
 TOKEN_TYPE: str = "type"
@@ -41,6 +42,8 @@ BASE_MOVIE_ERROR = MovieNotFoundError | MovieAlreadyExistsError
 BASE_FAVORITE_MOVIE_ERROR = FavoriteMovieNotFoundError | FavoriteMovieAlreadyExistsError
 
 BASE_WATCH_HISTORY_ERROR = WatchHistoryNotFoundError
+
+BASE_USER_ERROR = UserNotFoundError | UserAlreadyExistsError
 
 
 class UserRole(StrEnum):
