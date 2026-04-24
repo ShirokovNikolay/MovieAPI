@@ -107,5 +107,10 @@ def user_id(object_id: int) -> int:
 
 
 @pytest.fixture(scope="function")
+def review_id(object_id: int) -> int:
+    return object_id
+
+
+@pytest.fixture(scope="function")
 def watch_history_id(object_id: int) -> int:
     return object_id

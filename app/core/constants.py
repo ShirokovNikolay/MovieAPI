@@ -1,5 +1,10 @@
 from enum import StrEnum
 
+from core.exceptions.auth import (
+    InvalidTokenError,
+    InvalidPasswordError,
+    PermissionDeniedError,
+)
 from core.exceptions.base import (
     AuthenticationError,
     ConflictError,
@@ -17,6 +22,7 @@ from core.exceptions.genre import (
     GenreAlreadyHasMoviesError,
 )
 from core.exceptions.movie import MovieNotFoundError, MovieAlreadyExistsError
+from core.exceptions.review import ReviewNotFoundError, ReviewAlreadyExistsError
 from core.exceptions.user import UserNotFoundError, UserAlreadyExistsError
 from core.exceptions.watch_history import WatchHistoryNotFoundError
 
@@ -44,6 +50,10 @@ BASE_FAVORITE_MOVIE_ERROR = FavoriteMovieNotFoundError | FavoriteMovieAlreadyExi
 BASE_WATCH_HISTORY_ERROR = WatchHistoryNotFoundError
 
 BASE_USER_ERROR = UserNotFoundError | UserAlreadyExistsError
+
+BASE_REVIEW_ERROR = ReviewNotFoundError | ReviewAlreadyExistsError
+
+BASE_AUTH_ERROR = InvalidTokenError | InvalidPasswordError | PermissionDeniedError
 
 
 class UserRole(StrEnum):
