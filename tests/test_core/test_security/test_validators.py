@@ -2,8 +2,7 @@ import pytest
 
 from core.constants import TOKEN_TYPE
 from core.security.validators import validate_token_payload
-from tests.test_core.test_exceptions.conftest import generate_random_string
-from tests.test_core.test_security.conftest import payload
+from tests.utils import generate_random_string
 
 
 def test_validate_token_payload_no_sub(payload: dict[str, str | int]) -> None:
