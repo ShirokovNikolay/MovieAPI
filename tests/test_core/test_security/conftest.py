@@ -1,7 +1,7 @@
 import pytest
 
 from core.constants import TOKEN_TYPE
-from tests.test_core.test_exceptions.conftest import generate_random_string
+from tests.utils import generate_random_string
 
 
 @pytest.fixture(scope="function")

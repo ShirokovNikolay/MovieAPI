@@ -1,8 +1,8 @@
 from enum import StrEnum
 
 from core.exceptions.auth import (
-    InvalidTokenError,
     InvalidPasswordError,
+    InvalidTokenError,
     PermissionDeniedError,
 )
 from core.exceptions.base import (
@@ -13,17 +13,17 @@ from core.exceptions.base import (
     TooManyRequestsError,
 )
 from core.exceptions.favorite_movie import (
-    FavoriteMovieNotFoundError,
     FavoriteMovieAlreadyExistsError,
+    FavoriteMovieNotFoundError,
 )
 from core.exceptions.genre import (
-    GenreNotFoundError,
     GenreAlreadyExistsError,
     GenreAlreadyHasMoviesError,
+    GenreNotFoundError,
 )
-from core.exceptions.movie import MovieNotFoundError, MovieAlreadyExistsError
-from core.exceptions.review import ReviewNotFoundError, ReviewAlreadyExistsError
-from core.exceptions.user import UserNotFoundError, UserAlreadyExistsError
+from core.exceptions.movie import MovieAlreadyExistsError, MovieNotFoundError
+from core.exceptions.review import ReviewAlreadyExistsError, ReviewNotFoundError
+from core.exceptions.user import UserAlreadyExistsError, UserNotFoundError
 from core.exceptions.watch_history import WatchHistoryNotFoundError
 
 TOKEN_TYPE: str = "type"
