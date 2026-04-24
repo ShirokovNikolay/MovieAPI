@@ -16,5 +16,6 @@ class WatchHistoryIdNotFoundError(WatchHistoryNotFoundError):
     """
 
     def __init__(self, watch_history_id: int) -> None:
+        self.watch_history_id = watch_history_id
         detail = f"Watch history with watch history id = {watch_history_id} not found."
         super().__init__(detail)
