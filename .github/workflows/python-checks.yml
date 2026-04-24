@@ -42,5 +42,8 @@ jobs:
       - lint
     runs-on: ubuntu-latest
     steps:
+      - name: Clone git repository
+        uses: actions/checkout@v6
+
       - name: Run tests
         run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
