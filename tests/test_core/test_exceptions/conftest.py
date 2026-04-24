@@ -84,3 +84,28 @@ def name(request: SubRequest) -> str:
 )
 def object_id(request: SubRequest) -> int:
     return request.param
+
+
+@pytest.fixture(scope="function")
+def genre_id(object_id: int) -> int:
+    return object_id
+
+
+@pytest.fixture(scope="function")
+def movie_id(object_id: int) -> int:
+    return object_id
+
+
+@pytest.fixture(scope="function")
+def favorite_movie_id(object_id: int) -> int:
+    return object_id
+
+
+@pytest.fixture(scope="function")
+def user_id(object_id: int) -> int:
+    return object_id
+
+
+@pytest.fixture(scope="function")
+def watch_history_id(object_id: int) -> int:
+    return object_id

@@ -16,6 +16,7 @@ class FavoriteMovieIdNotFoundError(FavoriteMovieNotFoundError):
     """
 
     def __init__(self, favorite_movie_id: int) -> None:
+        self.favorite_movie_id = favorite_movie_id
         detail = f"Favorite movie with id = {favorite_movie_id} not found."
         super().__init__(detail)
 
@@ -27,6 +28,8 @@ class FavoriteMovieNotFoundByUserAndMovieError(FavoriteMovieNotFoundError):
     """
 
     def __init__(self, user_id: int, movie_id: int) -> None:
+        self.user_id = user_id
+        self.movie_id = movie_id
         detail = (
             f"Favorite movie with user_id = {user_id} "
             f"and movie_id = {movie_id} not found."
@@ -34,12 +37,23 @@ class FavoriteMovieNotFoundByUserAndMovieError(FavoriteMovieNotFoundError):
         super().__init__(detail)
 
 
-class FavoriteMovieAlreadyExistsByUserAndMovieError(ConflictError):
+class FavoriteMovieAlreadyExistsError(ConflictError):
+    """
+    Класс для ошибок связанных с существованием фильма в избранных.
+    """
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(detail)
+
+
+class FavoriteMovieAlreadyExistsByUserAndMovieError(FavoriteMovieAlreadyExistsError):
     """
     Класс для ошибок из-за существования фильма в избранных для пользователя.
     """
 
     def __init__(self, user_id: int, movie_id: int) -> None:
+        self.user_id = user_id
+        self.movie_id = movie_id
         detail = (
             f"Favorite movie with user_id = {user_id} "
             f"and movie_id = {movie_id} already exists."

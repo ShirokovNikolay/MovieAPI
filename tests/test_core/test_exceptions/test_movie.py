@@ -34,15 +34,15 @@ def test_base_movie_error_raise_can_raise_with_detail(
 
 
 def test_movie_id_not_found_error_can_raise_with_detail(
-    object_id: int,
+    movie_id: int,
 ) -> None:
     with pytest.raises(
         MovieIdNotFoundError,
-        match=str(object_id),
+        match=str(movie_id),
     ) as exc_info:
-        raise MovieIdNotFoundError(object_id)
-    assert exc_info.value.movie_id == object_id
-    assert str(object_id) in exc_info.value.detail
+        raise MovieIdNotFoundError(movie_id)
+    assert exc_info.value.movie_id == movie_id
+    assert str(movie_id) in exc_info.value.detail
 
 
 def test_movie_name_already_exists_error_can_raise_with_detail(

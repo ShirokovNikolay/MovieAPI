@@ -36,22 +36,22 @@ def test_base_genre_error_can_raise_with_detail(
     assert exc_info.value.detail == detail
 
 
-def test_genre_id_not_found_error_can_raise_with_detail(object_id: int) -> None:
+def test_genre_id_not_found_error_can_raise_with_detail(genre_id: int) -> None:
     with pytest.raises(
         GenreIdNotFoundError,
-        match=str(object_id),
+        match=str(genre_id),
     ) as exc_info:
-        raise GenreIdNotFoundError(object_id)
-    assert exc_info.value.genre_id == object_id
+        raise GenreIdNotFoundError(genre_id)
+    assert exc_info.value.genre_id == genre_id
 
 
-def test_genre_id_already_has_movies_error(object_id: int) -> None:
+def test_genre_id_already_has_movies_error(genre_id: int) -> None:
     with pytest.raises(
         GenreIdAlreadyHasMoviesError,
-        match=str(object_id),
+        match=str(genre_id),
     ) as exc_info:
-        raise GenreIdAlreadyHasMoviesError(object_id)
-    assert exc_info.value.genre_id == object_id
+        raise GenreIdAlreadyHasMoviesError(genre_id)
+    assert exc_info.value.genre_id == genre_id
 
 
 def test_genre_name_already_exists_error_can_raise_with_detail(name: str) -> None:
