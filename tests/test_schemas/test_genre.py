@@ -184,3 +184,15 @@ class TestGenrePartialUpdateSchema:
             match="string_too_long",
         ):
             GenrePartialUpdate(**genre_data)
+
+
+class TestGenreResponseSchema:
+    def test_genre_response_schema(
+        self,
+        genre_response_data: dict[str, str | int],
+    ) -> None:
+        schema = GenreResponse(**genre_response_data)
+        assert schema.model_dump() == genre_response_data
+
+    def test_failed(self) -> None:
+        assert False
