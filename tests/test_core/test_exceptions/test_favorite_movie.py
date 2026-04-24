@@ -22,7 +22,7 @@ def base_favorite_movie_error(request: SubRequest) -> BASE_MOVIE_ERROR:
     return request.param
 
 
-def test_base_favorite_movie_error_raise_can_raise_with_detail(
+def test_base_favorite_movie_error_can_raise_with_detail(
     base_favorite_movie_error: BASE_FAVORITE_MOVIE_ERROR,
     detail: str,
 ) -> None:
