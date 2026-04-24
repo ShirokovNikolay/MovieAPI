@@ -1,0 +1,38 @@
+name: python-checks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone git repository
+        uses: actions/checkout@v6
+
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+
+      - name: run black
+        run: black .
+
+      - name: run mypy
+        run: mypy .
+
+      - name: run ruff
+        run: ruff check --fix
+
+  testing:
+    needs:
+      - lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: run tests
+        run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
