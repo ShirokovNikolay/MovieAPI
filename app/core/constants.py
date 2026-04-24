@@ -12,6 +12,7 @@ from core.exceptions.genre import (
     GenreAlreadyExistsError,
     GenreAlreadyHasMoviesError,
 )
+from core.exceptions.movie import MovieNotFoundError, MovieAlreadyExistsError
 
 TOKEN_TYPE: str = "type"
 ACCESS_TOKEN_TYPE: str = "access"
@@ -29,6 +30,8 @@ BASE_ERROR = (
 BASE_GENRE_ERROR = (
     GenreNotFoundError | GenreAlreadyExistsError | GenreAlreadyHasMoviesError
 )
+
+BASE_MOVIE_ERROR = MovieNotFoundError | MovieAlreadyExistsError
 
 
 class UserRole(StrEnum):

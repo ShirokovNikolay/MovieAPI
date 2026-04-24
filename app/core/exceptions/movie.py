@@ -21,7 +21,16 @@ class MovieIdNotFoundError(MovieNotFoundError):
         super().__init__(detail)
 
 
-class MovieNameAlreadyExistsError(ConflictError):
+class MovieAlreadyExistsError(ConflictError):
+    """
+    Класс для ошибок из-за ненахождения фильма.
+    """
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(detail)
+
+
+class MovieNameAlreadyExistsError(MovieAlreadyExistsError):
     """
     Класс для ошибок, связанных с уже существующим именем фильма.
     """

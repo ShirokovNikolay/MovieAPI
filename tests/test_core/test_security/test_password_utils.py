@@ -2,9 +2,9 @@ import pytest
 from _pytest.fixtures import SubRequest
 
 from core.security.password_utils import hash_password, verify_password
-from tests.test_core.test_exceptions.test_base import (
-    generate_list_of_random_strings,
+from tests.test_core.test_exceptions.conftest import (
     generate_random_string,
+    generate_list_of_random_strings,
 )
 
 
