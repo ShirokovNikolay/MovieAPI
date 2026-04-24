@@ -20,19 +20,27 @@ jobs:
         with:
           python-version-file: .python-version
 
-      - name: run black
-        run: black .
+      - name: Install UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          version-file: "pyproject.toml"
 
-      - name: run mypy
-        run: mypy .
+      - name: Install dependencies
+        run: uv sync --dev
 
-      - name: run ruff
-        run: ruff check --fix
+      - name: Run black
+        run: uv run black .
+
+      - name: Run mypy
+        run: uv run mypy .
+
+      - name: Run ruff
+        run: uv run ruff check --fix
 
   testing:
     needs:
       - lint
     runs-on: ubuntu-latest
     steps:
-      - name: run tests
+      - name: Run tests
         run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
