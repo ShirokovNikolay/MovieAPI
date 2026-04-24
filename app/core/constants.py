@@ -7,6 +7,10 @@ from core.exceptions.base import (
     NotFoundError,
     TooManyRequestsError,
 )
+from core.exceptions.favorite_movie import (
+    FavoriteMovieNotFoundError,
+    FavoriteMovieAlreadyExistsError,
+)
 from core.exceptions.genre import (
     GenreNotFoundError,
     GenreAlreadyExistsError,
@@ -32,6 +36,8 @@ BASE_GENRE_ERROR = (
 )
 
 BASE_MOVIE_ERROR = MovieNotFoundError | MovieAlreadyExistsError
+
+BASE_FAVORITE_MOVIE_ERROR = FavoriteMovieNotFoundError | FavoriteMovieAlreadyExistsError
 
 
 class UserRole(StrEnum):
