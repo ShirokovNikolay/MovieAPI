@@ -2,12 +2,12 @@ import pytest
 from _pytest.fixtures import SubRequest
 
 from core.security.password_utils import hash_password, verify_password
-from tests.utils import generate_list_of_random_strings, generate_random_string
+from tests.utils import generate_random_strings, generate_random_string
 
 
 @pytest.fixture(
     scope="function",
-    params=generate_list_of_random_strings(list_length=3),
+    params=generate_random_strings(list_length=3),
 )
 def password(request: SubRequest) -> str:
     return request.param

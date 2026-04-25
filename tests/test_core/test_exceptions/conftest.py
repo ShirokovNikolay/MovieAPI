@@ -1,12 +1,12 @@
 import pytest
 from _pytest.fixtures import SubRequest
 
-from tests.utils import generate_list_of_random_strings, generate_random_id_list
+from tests.utils import generate_random_strings, generate_random_numbers
 
 
 @pytest.fixture(
     scope="function",
-    params=generate_list_of_random_strings(
+    params=generate_random_strings(
         list_length=3,
     ),
 )
@@ -16,7 +16,7 @@ def detail(request: SubRequest) -> str:
 
 @pytest.fixture(
     scope="function",
-    params=generate_list_of_random_strings(
+    params=generate_random_strings(
         list_length=3,
     ),
 )
@@ -26,7 +26,7 @@ def name(request: SubRequest) -> str:
 
 @pytest.fixture(
     scope="function",
-    params=generate_random_id_list(
+    params=generate_random_numbers(
         list_length=3,
     ),
 )

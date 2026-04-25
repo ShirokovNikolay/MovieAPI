@@ -2,16 +2,16 @@ import random
 import string
 
 
-def generate_random_id(start=1, end=1000) -> int:
+def generate_random_number(start=1, end=1000) -> int:
     return random.randint(start, end)
 
 
-def generate_random_id_list(
+def generate_random_numbers(
     list_length: int = 5,
     start=1,
     end=1000,
 ) -> list[int]:
-    return [generate_random_id(start, end) for _ in range(list_length)]
+    return [generate_random_number(start, end) for _ in range(list_length)]
 
 
 def generate_random_string(
@@ -32,7 +32,7 @@ def generate_random_string(
     )
 
 
-def generate_list_of_random_strings(
+def generate_random_strings(
     min_string_length: int = 1,
     max_string_length: int = 10,
     string_length: int | None = None,
