@@ -14,7 +14,7 @@ DescriptionString = Annotated[
     MaxLen(max_length=200),
 ]
 
-RatingConstarint = Annotated[
+RatingConstraint = Annotated[
     float,
     Field(
         ge=0.0,
@@ -30,7 +30,7 @@ class MovieBase(BaseModel):
 
     name: NameString
     description: DescriptionString
-    rating: RatingConstarint
+    rating: RatingConstraint
     preview_url: str
     source_url: str
     genre_id: int
@@ -57,7 +57,7 @@ class MoviePartialUpdate(BaseModel):
 
     name: NameString | None = None
     description: DescriptionString | None = None
-    rating: RatingConstarint | None = None
+    rating: RatingConstraint | None = None
     preview_url: str | None = None
     source_url: str | None = None
     genre_id: int | None = None
