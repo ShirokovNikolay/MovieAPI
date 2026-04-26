@@ -4,8 +4,11 @@ from typing import Annotated, ClassVar
 from annotated_types import MaxLen
 from pydantic import BaseModel, ConfigDict, Field
 
-StringMaxLength400 = Annotated[str, MaxLen(max_length=400)]
-RatingConstarint = Annotated[
+StringMaxLength400 = Annotated[
+    str,
+    MaxLen(max_length=400),
+]
+RatingConstraint = Annotated[
     int,
     Field(ge=0, le=10),
 ]
@@ -17,7 +20,8 @@ class ReviewBase(BaseModel):
     """
 
     review_text: StringMaxLength400
-    rating: RatingConstarint
+    rating: RatingConstraint
+    movie_id: int
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
@@ -26,13 +30,14 @@ class ReviewCreate(ReviewBase):
     Модель для создания отзыва о фильме.
     """
 
-    movie_id: int
 
-
-class ReviewUpdate(ReviewBase):
+class ReviewUpdate(BaseModel):
     """
     Модель для обновления отзыва о фильме.
     """
+
+    review_text: StringMaxLength400
+    rating: RatingConstraint
 
 
 class ReviewPartialUpdate(BaseModel):
@@ -41,7 +46,7 @@ class ReviewPartialUpdate(BaseModel):
     """
 
     review_text: StringMaxLength400 | None = None
-    rating: RatingConstarint | None = None
+    rating: RatingConstraint | None = None
 
 
 class ReviewResponse(ReviewBase):
