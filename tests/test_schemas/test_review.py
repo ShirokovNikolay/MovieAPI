@@ -80,8 +80,8 @@ def review_response_list() -> list[ReviewResponse]:
         ReviewResponse,
     ],
 )
-class TestReviewBaseCreateUpdateResponseSchema:
-    def test_review_schema(
+class TestReviewBaseCreateUpdateResponse:
+    def test_review(
         self,
         schema,
         review_response_data: dict[str, str | int],
@@ -90,7 +90,7 @@ class TestReviewBaseCreateUpdateResponseSchema:
         for field in schema_object.model_dump():
             assert getattr(schema_object, field) == review_response_data[field]
 
-    def test_review_schema_without_text(
+    def test_review_without_text(
         self,
         schema,
         review_response_data: dict[str, str | int],
@@ -99,7 +99,7 @@ class TestReviewBaseCreateUpdateResponseSchema:
         with pytest.raises(ValidationError, match="Field required"):
             schema(**review_response_data)
 
-    def test_review_schema_without_rating(
+    def test_review_without_rating(
         self,
         schema,
         review_response_data: dict[str, str | int],
@@ -108,7 +108,7 @@ class TestReviewBaseCreateUpdateResponseSchema:
         with pytest.raises(ValidationError, match="Field required"):
             schema(**review_response_data)
 
-    def test_review_schema_without_movie_id(
+    def test_review_without_movie_id(
         self,
         schema,
         review_response_data: dict[str, str | int],
@@ -121,7 +121,7 @@ class TestReviewBaseCreateUpdateResponseSchema:
         with pytest.raises(ValidationError, match="Field required"):
             schema(**review_response_data)
 
-    def test_review_schema_with_too_long_text_field(
+    def test_review_with_too_long_text_field(
         self,
         schema,
         review_response_data: dict[str, str | int],
@@ -132,7 +132,7 @@ class TestReviewBaseCreateUpdateResponseSchema:
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**review_response_data)
 
-    def test_review_schema_with_too_small_rating_field(
+    def test_review_with_too_small_rating_field(
         self,
         schema,
         review_response_data: dict[str, str | int],
@@ -141,7 +141,7 @@ class TestReviewBaseCreateUpdateResponseSchema:
         with pytest.raises(ValidationError):
             schema(**review_response_data)
 
-    def test_review_schema_with_too_large_rating_field(
+    def test_review_with_too_large_rating_field(
         self,
         schema,
         review_response_data: dict[str, str | int],
@@ -151,8 +151,8 @@ class TestReviewBaseCreateUpdateResponseSchema:
             schema(**review_response_data)
 
 
-class TestReviewPartialUpdateSchema:
-    def test_review_partial_update_schema(
+class TestReviewPartialUpdate:
+    def test_review_partial_update(
         self,
         review_data: dict[str, str | int],
     ) -> None:
@@ -160,7 +160,7 @@ class TestReviewPartialUpdateSchema:
         for field in schema_object.model_dump():
             assert getattr(schema_object, field) == review_data[field]
 
-    def test_review_partial_update_schema_without_text(
+    def test_review_partial_update_without_text(
         self,
         review_data: dict[str, str | int],
     ) -> None:
@@ -169,7 +169,7 @@ class TestReviewPartialUpdateSchema:
         assert review_partial_update_schema.review_text is None
         assert review_partial_update_schema.rating == review_data["rating"]
 
-    def test_review_partial_update_schema_without_rating(
+    def test_review_partial_update_without_rating(
         self,
         review_data: dict[str, str | int],
     ) -> None:
@@ -179,8 +179,8 @@ class TestReviewPartialUpdateSchema:
         assert review_partial_update_schema.rating is None
 
 
-class TestReviewResponseListSchema:
-    def test_review_response_list_schema(
+class TestReviewResponseList:
+    def test_review_response_list(
         self,
         review_response_list: list[ReviewResponse],
     ) -> None:
