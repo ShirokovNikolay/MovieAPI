@@ -195,7 +195,7 @@ class TestReviewResponseList:
         assert schema.page == page
         assert schema.size == size
 
-    def test_review_response_list_schema_with_empty_genre_list(self) -> None:
+    def test_review_response_list_schema_with_empty_list(self) -> None:
         page = generate_random_number()
         size = generate_random_number()
         schema = ReviewResponseList(

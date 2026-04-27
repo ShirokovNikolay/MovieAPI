@@ -323,7 +323,7 @@ class TestMovieResponseList:
         assert schema.page == page
         assert schema.size == size
 
-    def test_genre_response_list_with_empty_genre_list(self) -> None:
+    def test_genre_response_list_with_empty_list(self) -> None:
         page = generate_random_number()
         size = generate_random_number()
         schema = MovieResponseList(
