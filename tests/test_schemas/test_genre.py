@@ -69,8 +69,8 @@ def genre_response_list() -> list[GenreResponse]:
         GenreResponse,
     ],
 )
-class TestGenreBaseCreateUpdateResponseSchemas:
-    def test_genre_schema(
+class TestGenreBaseCreateUpdateResponse:
+    def test_genre(
         self,
         schema,
         genre_response_data: dict[str, str | int],
@@ -79,7 +79,7 @@ class TestGenreBaseCreateUpdateResponseSchemas:
         for field in schema_object.model_dump():
             assert getattr(schema_object, field) == genre_response_data[field]
 
-    def test_genre_schema_without_name(
+    def test_genre_without_name(
         self,
         schema,
         genre_response_data: dict[str, str | int],
@@ -88,7 +88,7 @@ class TestGenreBaseCreateUpdateResponseSchemas:
         with pytest.raises(ValidationError, match="Field required"):
             schema(**genre_response_data)
 
-    def test_genre_schema_without_description(
+    def test_genre_without_description(
         self,
         schema,
         genre_response_data: dict[str, str | int],
@@ -97,7 +97,7 @@ class TestGenreBaseCreateUpdateResponseSchemas:
         with pytest.raises(ValidationError, match="Field required"):
             schema(**genre_response_data)
 
-    def test_genre_schema_with_too_long_description_field(
+    def test_genre_with_too_long_description_field(
         self,
         schema,
         genre_response_data: dict[str, str | int],
@@ -108,7 +108,7 @@ class TestGenreBaseCreateUpdateResponseSchemas:
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**genre_response_data)
 
-    def test_genre_schema_with_too_short_name_field(
+    def test_genre_with_too_short_name_field(
         self,
         schema,
         genre_response_data: dict[str, str | int],
@@ -119,7 +119,7 @@ class TestGenreBaseCreateUpdateResponseSchemas:
         with pytest.raises(ValidationError, match="string_too_short"):
             schema(**genre_response_data)
 
-    def test_genre_schema_with_too_long_name_field(
+    def test_genre_with_too_long_name_field(
         self,
         schema,
         genre_response_data: dict[str, str | int],
@@ -131,12 +131,12 @@ class TestGenreBaseCreateUpdateResponseSchemas:
             schema(**genre_response_data)
 
 
-class TestGenrePartialUpdateSchema:
-    def test_genre_partial_update_schema(self, genre_data: dict[str, str]) -> None:
+class TestGenrePartialUpdate:
+    def test_genre_partial_update(self, genre_data: dict[str, str]) -> None:
         schema = GenrePartialUpdate(**genre_data)
         assert schema.model_dump() == genre_data
 
-    def test_genre_partial_update_schema_without_name_field(
+    def test_genre_partial_update_without_name_field(
         self,
         genre_data: dict[str, str],
     ) -> None:
@@ -145,7 +145,7 @@ class TestGenrePartialUpdateSchema:
         assert schema.name is None
         assert schema.description == genre_data["description"]
 
-    def test_genre_partial_update_schema_without_description_field(
+    def test_genre_partial_update_without_description_field(
         self,
         genre_data: dict[str, str],
     ) -> None:
@@ -154,7 +154,7 @@ class TestGenrePartialUpdateSchema:
         assert schema.name == genre_data["name"]
         assert schema.description is None
 
-    def test_genre_partial_update_schema_with_too_short_name_field(
+    def test_genre_partial_update_with_too_short_name_field(
         self,
         genre_data: dict[str, str],
     ) -> None:
@@ -165,7 +165,7 @@ class TestGenrePartialUpdateSchema:
         ):
             GenrePartialUpdate(**genre_data)
 
-    def test_genre_partial_update_schema_with_too_long_name_field(
+    def test_genre_partial_update_with_too_long_name_field(
         self,
         genre_data: dict[str, str],
     ) -> None:
@@ -176,7 +176,7 @@ class TestGenrePartialUpdateSchema:
         ):
             GenrePartialUpdate(**genre_data)
 
-    def test_genre_partial_update_schema_with_too_long_description_field(
+    def test_genre_partial_update_with_too_long_description_field(
         self,
         genre_data: dict[str, str],
     ) -> None:
@@ -190,8 +190,8 @@ class TestGenrePartialUpdateSchema:
             GenrePartialUpdate(**genre_data)
 
 
-class TestGenreResponseSchema:
-    def test_genre_response_schema_without_id_field(
+class TestGenreResponse:
+    def test_genre_response_without_id_field(
         self,
         genre_response_data: dict[str, str | int],
     ) -> None:
@@ -203,8 +203,8 @@ class TestGenreResponseSchema:
             GenreResponse(**genre_response_data)
 
 
-class TestGenreResponseListSchema:
-    def test_genre_response_list_schema(
+class TestGenreResponseList:
+    def test_genre_response_list(
         self,
         genre_response_list: list[GenreResponse],
     ) -> None:
@@ -219,7 +219,7 @@ class TestGenreResponseListSchema:
         assert schema.page == page
         assert schema.size == size
 
-    def test_genre_response_list_schema_with_empty_genre_list(self) -> None:
+    def test_genre_response_list_with_empty_genre_list(self) -> None:
         page = generate_random_number()
         size = generate_random_number()
         schema = GenreResponseList(
