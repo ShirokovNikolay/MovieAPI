@@ -3,16 +3,7 @@ from pydantic import ValidationError
 
 from core.constants import BEARER_TOKEN_TYPE
 from schemas.token_info import TokenInfo
-from tests.utils import generate_random_string
-
-
-def create_token_info_data():
-    data = {
-        "access_token": generate_random_string(),
-        "refresh_token": generate_random_string(),
-        "token_type": generate_random_string(),
-    }
-    return data
+from tests.utils import create_token_info_data
 
 
 @pytest.fixture(scope="function")

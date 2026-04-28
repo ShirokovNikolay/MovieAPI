@@ -9,40 +9,18 @@ from schemas.genre import (
     GenreBase,
     GenreResponseList,
 )
-from tests.utils import generate_random_number, generate_random_string
-
-NAME_MIN_LENGTH = 3
-NAME_MAX_LENGTH = 15
-DESCRIPTION_MAX_LENGTH = 200
-
-
-def create_genre_data():
-    data = {
-        "name": generate_random_string(
-            min_string_length=3,
-            max_string_length=15,
-        ),
-        "description": generate_random_string(
-            min_string_length=0,
-            max_string_length=200,
-        ),
-    }
-    return data
-
-
-def create_genre_response_data():
-    data = create_genre_data()
-    data["id"] = generate_random_number()
-    return data
-
-
-def create_genre_response_list(list_length: int = 5) -> list[GenreResponse]:
-    genre_response_list = []
-    for i in range(list_length):
-        genre_data = create_genre_response_data()
-        genre_response = GenreResponse(**genre_data)
-        genre_response_list.append(genre_response)
-    return genre_response_list
+from core.constants import (
+    GENRE_NAME_MIN_LENGTH,
+    GENRE_NAME_MAX_LENGTH,
+    GENRE_DESCRIPTION_MAX_LENGTH,
+)
+from tests.utils import (
+    generate_random_number,
+    generate_random_string,
+    create_genre_data,
+    create_genre_response_data,
+    create_genre_response_list,
+)
 
 
 @pytest.fixture(scope="function")
@@ -103,7 +81,7 @@ class TestGenreBaseCreateUpdateResponse:
         genre_response_data: dict[str, str | int],
     ) -> None:
         genre_response_data["description"] = generate_random_string(
-            string_length=DESCRIPTION_MAX_LENGTH + 1,
+            string_length=GENRE_DESCRIPTION_MAX_LENGTH + 1,
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**genre_response_data)
@@ -114,7 +92,7 @@ class TestGenreBaseCreateUpdateResponse:
         genre_response_data: dict[str, str | int],
     ) -> None:
         genre_response_data["name"] = generate_random_string(
-            string_length=NAME_MIN_LENGTH - 1
+            string_length=GENRE_NAME_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
             schema(**genre_response_data)
@@ -125,7 +103,7 @@ class TestGenreBaseCreateUpdateResponse:
         genre_response_data: dict[str, str | int],
     ) -> None:
         genre_response_data["name"] = generate_random_string(
-            string_length=NAME_MAX_LENGTH + 1
+            string_length=GENRE_NAME_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**genre_response_data)
@@ -158,7 +136,9 @@ class TestGenrePartialUpdate:
         self,
         genre_data: dict[str, str],
     ) -> None:
-        genre_data["name"] = generate_random_string(string_length=NAME_MIN_LENGTH - 1)
+        genre_data["name"] = generate_random_string(
+            string_length=GENRE_NAME_MIN_LENGTH - 1
+        )
         with pytest.raises(
             ValidationError,
             match="string_too_short",
@@ -169,7 +149,9 @@ class TestGenrePartialUpdate:
         self,
         genre_data: dict[str, str],
     ) -> None:
-        genre_data["name"] = generate_random_string(string_length=NAME_MAX_LENGTH + 1)
+        genre_data["name"] = generate_random_string(
+            string_length=GENRE_NAME_MAX_LENGTH + 1
+        )
         with pytest.raises(
             ValidationError,
             match="string_too_long",
@@ -181,7 +163,7 @@ class TestGenrePartialUpdate:
         genre_data: dict[str, str],
     ) -> None:
         genre_data["description"] = generate_random_string(
-            string_length=DESCRIPTION_MAX_LENGTH + 1,
+            string_length=GENRE_DESCRIPTION_MAX_LENGTH + 1,
         )
         with pytest.raises(
             ValidationError,

@@ -3,14 +3,23 @@ from typing import Annotated, ClassVar
 from annotated_types import Len, MaxLen
 from pydantic import BaseModel, ConfigDict
 
-NameString = Annotated[
+from core.constants import (
+    GENRE_DESCRIPTION_MAX_LENGTH,
+    GENRE_NAME_MAX_LENGTH,
+    GENRE_NAME_MIN_LENGTH,
+)
+
+NameConstraint = Annotated[
     str,
-    Len(min_length=3, max_length=15),
+    Len(
+        min_length=GENRE_NAME_MIN_LENGTH,
+        max_length=GENRE_NAME_MAX_LENGTH,
+    ),
 ]
 
-DescriptionString = Annotated[
+DescriptionConstraint = Annotated[
     str,
-    MaxLen(max_length=200),
+    MaxLen(max_length=GENRE_DESCRIPTION_MAX_LENGTH),
 ]
 
 
@@ -19,8 +28,8 @@ class GenreBase(BaseModel):
     Базовая модель для работы с жанром фильма.
     """
 
-    name: NameString
-    description: DescriptionString
+    name: NameConstraint
+    description: DescriptionConstraint
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
@@ -41,8 +50,8 @@ class GenrePartialUpdate(BaseModel):
     Модель для частичного обновления информации о жанре фильма.
     """
 
-    name: NameString | None = None
-    description: DescriptionString | None = None
+    name: NameConstraint | None = None
+    description: DescriptionConstraint | None = None
 
 
 class GenreResponse(GenreBase):

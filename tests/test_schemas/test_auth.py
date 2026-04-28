@@ -2,11 +2,11 @@ import pytest
 from pydantic import ValidationError
 
 from schemas.auth import UserLogin
-from tests.test_schemas.test_user import (
-    LOGIN_MIN_LENGTH,
-    LOGIN_MAX_LENGTH,
-    PASSWORD_MIN_LENGTH,
-    PASSWORD_MAX_LENGTH,
+from core.constants import (
+    USER_LOGIN_MIN_LENGTH,
+    USER_LOGIN_MAX_LENGTH,
+    USER_PASSWORD_MIN_LENGTH,
+    USER_PASSWORD_MAX_LENGTH,
 )
 from tests.utils import generate_random_string
 
@@ -14,12 +14,12 @@ from tests.utils import generate_random_string
 def create_user_login_data() -> dict[str, str]:
     data = {
         "login": generate_random_string(
-            min_string_length=LOGIN_MIN_LENGTH,
-            max_string_length=LOGIN_MAX_LENGTH,
+            min_string_length=USER_LOGIN_MIN_LENGTH,
+            max_string_length=USER_LOGIN_MAX_LENGTH,
         ),
         "password": generate_random_string(
-            min_string_length=PASSWORD_MIN_LENGTH,
-            max_string_length=PASSWORD_MAX_LENGTH,
+            min_string_length=USER_PASSWORD_MIN_LENGTH,
+            max_string_length=USER_PASSWORD_MAX_LENGTH,
         ),
     }
     return data
@@ -54,7 +54,7 @@ class TestUserLogin:
         user_login_data: dict[str, str],
     ) -> None:
         user_login_data["login"] = generate_random_string(
-            string_length=LOGIN_MIN_LENGTH - 1
+            string_length=USER_LOGIN_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
             UserLogin(**user_login_data)
@@ -64,7 +64,7 @@ class TestUserLogin:
         user_login_data: dict[str, str],
     ) -> None:
         user_login_data["login"] = generate_random_string(
-            string_length=LOGIN_MAX_LENGTH + 1
+            string_length=USER_LOGIN_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             UserLogin(**user_login_data)
@@ -74,7 +74,7 @@ class TestUserLogin:
         user_login_data: dict[str, str],
     ) -> None:
         user_login_data["password"] = generate_random_string(
-            string_length=PASSWORD_MIN_LENGTH - 1
+            string_length=USER_PASSWORD_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
             UserLogin(**user_login_data)
@@ -84,7 +84,7 @@ class TestUserLogin:
         user_login_data: dict[str, str],
     ) -> None:
         user_login_data["password"] = generate_random_string(
-            string_length=PASSWORD_MAX_LENGTH + 1
+            string_length=USER_PASSWORD_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             UserLogin(**user_login_data)

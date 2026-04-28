@@ -4,29 +4,57 @@ from typing import Annotated, ClassVar
 from annotated_types import Len
 from pydantic import BaseModel, ConfigDict, EmailStr
 
+from core.constants import (
+    USER_EMAIL_MAX_LENGTH,
+    USER_EMAIL_MIN_LENGTH,
+    USER_LOGIN_MAX_LENGTH,
+    USER_LOGIN_MIN_LENGTH,
+    USER_NAME_MAX_LENGTH,
+    USER_NAME_MIN_LENGTH,
+    USER_PASSWORD_MAX_LENGTH,
+    USER_PASSWORD_MIN_LENGTH,
+    USER_SURNAME_MAX_LENGTH,
+    USER_SURNAME_MIN_LENGTH,
+)
+
 SurnameConstraint = Annotated[
     str,
-    Len(min_length=3, max_length=30),
+    Len(
+        min_length=USER_SURNAME_MIN_LENGTH,
+        max_length=USER_SURNAME_MAX_LENGTH,
+    ),
 ]
 
 NameConstraint = Annotated[
     str,
-    Len(min_length=3, max_length=20),
+    Len(
+        min_length=USER_NAME_MIN_LENGTH,
+        max_length=USER_NAME_MAX_LENGTH,
+    ),
 ]
 
 LoginConstraint = Annotated[
     str,
-    Len(min_length=3, max_length=20),
+    Len(
+        min_length=USER_LOGIN_MIN_LENGTH,
+        max_length=USER_LOGIN_MAX_LENGTH,
+    ),
 ]
 
 EmailConstraint = Annotated[
     EmailStr,
-    Len(min_length=10, max_length=40),
+    Len(
+        min_length=USER_EMAIL_MIN_LENGTH,
+        max_length=USER_EMAIL_MAX_LENGTH,
+    ),
 ]
 
 PasswordConstraint = Annotated[
     str,
-    Len(min_length=8, max_length=30),
+    Len(
+        min_length=USER_PASSWORD_MIN_LENGTH,
+        max_length=USER_PASSWORD_MAX_LENGTH,
+    ),
 ]
 
 
