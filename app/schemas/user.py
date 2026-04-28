@@ -21,7 +21,7 @@ LoginConstraint = Annotated[
 
 EmailConstraint = Annotated[
     EmailStr,
-    Len(min_length=3, max_length=40),
+    Len(min_length=10, max_length=40),
 ]
 
 PasswordConstraint = Annotated[
@@ -86,7 +86,7 @@ class UserResponseList(BaseModel):
 
     user_list: list[UserResponse]
     size: int
-    page: int = 1
+    page: int
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
