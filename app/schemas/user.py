@@ -1,22 +1,32 @@
 from datetime import datetime
 from typing import Annotated, ClassVar
 
-from annotated_types import MaxLen
+from annotated_types import Len
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-StringMaxLength255 = Annotated[
+SurnameConstraint = Annotated[
+    str,
+    Len(min_length=3, max_length=30),
+]
+
+NameConstraint = Annotated[
+    str,
+    Len(min_length=3, max_length=20),
+]
+
+LoginConstraint = Annotated[
+    str,
+    Len(min_length=3, max_length=20),
+]
+
+EmailConstraint = Annotated[
     EmailStr,
-    MaxLen(max_length=255),
+    Len(min_length=3, max_length=40),
 ]
 
-StringMaxLength30 = Annotated[
+PasswordConstraint = Annotated[
     str,
-    MaxLen(max_length=30),
-]
-
-StringMaxLength20 = Annotated[
-    str,
-    MaxLen(max_length=20),
+    Len(min_length=8, max_length=30),
 ]
 
 
@@ -25,10 +35,10 @@ class UserBase(BaseModel):
     Базовая модель для пользователя.
     """
 
-    surname: StringMaxLength30
-    name: StringMaxLength20
-    login: StringMaxLength20
-    email: StringMaxLength255
+    surname: SurnameConstraint
+    name: NameConstraint
+    login: LoginConstraint
+    email: EmailConstraint
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
@@ -37,7 +47,7 @@ class UserCreate(UserBase):
     Модель для создания пользователя.
     """
 
-    password: StringMaxLength20
+    password: PasswordConstraint
 
 
 class UserUpdate(UserBase):
@@ -45,7 +55,7 @@ class UserUpdate(UserBase):
     Модель для обновления данных о пользователе
     """
 
-    password: StringMaxLength20
+    password: PasswordConstraint
 
 
 class UserPartialUpdate(BaseModel):
@@ -53,11 +63,11 @@ class UserPartialUpdate(BaseModel):
     Модель для частичного обновления данных о пользователе.
     """
 
-    surname: StringMaxLength30 | None = None
-    name: StringMaxLength20 | None = None
-    login: StringMaxLength20 | None = None
-    email: StringMaxLength255 | None = None
-    password: StringMaxLength20 | None = None
+    surname: SurnameConstraint | None = None
+    name: NameConstraint | None = None
+    login: LoginConstraint | None = None
+    email: EmailConstraint | None = None
+    password: PasswordConstraint | None = None
 
 
 class UserResponse(UserBase):
@@ -85,5 +95,5 @@ class UserLogin(BaseModel):
     Модель для аутентификации пользователя.
     """
 
-    login: str
-    password: StringMaxLength20
+    login: LoginConstraint
+    password: PasswordConstraint
