@@ -52,7 +52,7 @@ class UserCreate(UserBase):
 
 class UserUpdate(UserBase):
     """
-    Модель для обновления данных о пользователе
+    Модель для обновления данных о пользователе.
     """
 
     password: PasswordConstraint
@@ -87,13 +87,3 @@ class UserResponseList(BaseModel):
     user_list: list[UserResponse]
     size: int
     page: int
-    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
-
-
-class UserLogin(BaseModel):
-    """
-    Модель для аутентификации пользователя.
-    """
-
-    login: LoginConstraint
-    password: PasswordConstraint
