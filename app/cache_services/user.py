@@ -1,9 +1,9 @@
 from typing import cast
 
 from core.redis.cache_service import CacheService
+from schemas.auth import UserLogin
 from schemas.user import (
     UserCreate,
-    UserLogin,
     UserPartialUpdate,
     UserResponse,
     UserResponseList,

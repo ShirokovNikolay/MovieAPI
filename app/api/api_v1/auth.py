@@ -13,10 +13,10 @@ from dependencies.annotations.security import (
     AuthUserByRefreshTokenDep,
     OAuth2Dep,
 )
+from schemas.auth import UserLogin
 from schemas.token_info import TokenInfo
 from schemas.user import (
     UserCreate,
-    UserLogin,
     UserResponse,
 )
 

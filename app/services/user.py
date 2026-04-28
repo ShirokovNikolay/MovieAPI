@@ -12,9 +12,9 @@ from core.exceptions.user import (
 )
 from core.security.password_utils import hash_password, verify_password
 from repositories import UserRepository
+from schemas.auth import UserLogin
 from schemas.user import (
     UserCreate,
-    UserLogin,
     UserPartialUpdate,
     UserResponse,
     UserResponseList,
