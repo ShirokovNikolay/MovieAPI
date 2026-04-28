@@ -26,9 +26,16 @@ from core.exceptions.review import ReviewAlreadyExistsError, ReviewNotFoundError
 from core.exceptions.user import UserAlreadyExistsError, UserNotFoundError
 from core.exceptions.watch_history import WatchHistoryNotFoundError
 
+
+class UserRole(StrEnum):
+    user = "user"
+    admin = "admin"
+
+
 TOKEN_TYPE: str = "type"
 ACCESS_TOKEN_TYPE: str = "access"
 REFRESH_TOKEN_TYPE: str = "refresh"
+
 BEARER_TOKEN_TYPE: str = "Bearer"
 
 BASE_ERROR = (
@@ -53,9 +60,5 @@ BASE_USER_ERROR = UserNotFoundError | UserAlreadyExistsError
 
 BASE_REVIEW_ERROR = ReviewNotFoundError | ReviewAlreadyExistsError
 
+
 BASE_AUTH_ERROR = InvalidTokenError | InvalidPasswordError | PermissionDeniedError
-
-
-class UserRole(StrEnum):
-    user = "user"
-    admin = "admin"

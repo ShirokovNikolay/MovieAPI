@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from core.constants import BEARER_TOKEN_TYPE
-from schemas.token import TokenInfo
+from schemas.token_info import TokenInfo
 from tests.utils import generate_random_string
 
 
