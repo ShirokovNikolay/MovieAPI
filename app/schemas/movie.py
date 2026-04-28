@@ -4,21 +4,32 @@ from typing import Annotated, ClassVar
 from annotated_types import Len, MaxLen
 from pydantic import BaseModel, ConfigDict, Field
 
+from core.constants import (
+    MOVIE_DESCRIPTION_MAX_LENGTH,
+    MOVIE_NAME_MAX_LENGTH,
+    MOVIE_NAME_MIN_LENGTH,
+    MOVIE_RATING_MAX_VALUE,
+    MOVIE_RATING_MIN_VALUE,
+)
+
 NameConstraint = Annotated[
     str,
-    Len(min_length=3, max_length=20),
+    Len(
+        min_length=MOVIE_NAME_MIN_LENGTH,
+        max_length=MOVIE_NAME_MAX_LENGTH,
+    ),
 ]
 
 DescriptionConstraint = Annotated[
     str,
-    MaxLen(max_length=200),
+    MaxLen(max_length=MOVIE_DESCRIPTION_MAX_LENGTH),
 ]
 
 RatingConstraint = Annotated[
     float,
     Field(
-        ge=0.0,
-        le=10.0,
+        ge=MOVIE_RATING_MIN_VALUE,
+        le=MOVIE_RATING_MAX_VALUE,
     ),
 ]
 

@@ -11,59 +11,21 @@ from schemas.movie import (
     MoviePartialUpdate,
     MovieResponseList,
 )
-from tests.utils import generate_random_number, generate_random_string
-from faker import Faker
-
-NAME_MIN_LENGTH = 3
-NAME_MAX_LENGTH = 20
-DESCRIPTION_MIN_LENGTH = 0
-DESCRIPTION_MAX_LENGTH = 200
-RATING_MIN_VALUE = 0
-RATING_MAX_VALUE = 10
-
-
-def create_movie_data() -> dict[str, str | datetime]:
-    faker = Faker()
-    data = {
-        "name": generate_random_string(
-            min_string_length=NAME_MIN_LENGTH,
-            max_string_length=NAME_MAX_LENGTH,
-        ),
-        "description": generate_random_string(
-            min_string_length=DESCRIPTION_MIN_LENGTH,
-            max_string_length=DESCRIPTION_MAX_LENGTH,
-        ),
-        "rating": generate_random_number(RATING_MIN_VALUE, RATING_MAX_VALUE) / 10,
-        "preview_url": faker.url(),
-        "source_url": faker.url(),
-        "genre_id": generate_random_number(0, 100),
-        "release_date": datetime(
-            year=generate_random_number(2020, 2025),
-            month=generate_random_number(1, 12),
-            day=generate_random_number(1, 28),
-        ),
-    }
-    return data
-
-
-def create_movie_response_data() -> dict[str, str | int | datetime]:
-    data = create_movie_data()
-    data["id"] = generate_random_number()
-    return data
-
-
-def create_movie_response_list(list_length: int = 5) -> list[MovieResponse]:
-    result = []
-    for i in range(list_length):
-        movie_data = create_movie_response_data()
-        movie_response_schema = MovieResponse(**movie_data)
-        result.append(movie_response_schema)
-    return result
-
-
-def check_schema_not_none_fields_is_valid(schema, data) -> None:
-    for field in schema.model_dump(exclude_none=True):
-        assert getattr(schema, field) == data[field]
+from core.constants import (
+    MOVIE_NAME_MIN_LENGTH,
+    MOVIE_NAME_MAX_LENGTH,
+    MOVIE_DESCRIPTION_MAX_LENGTH,
+    MOVIE_RATING_MIN_VALUE,
+    MOVIE_RATING_MAX_VALUE,
+)
+from tests.utils import (
+    generate_random_number,
+    generate_random_string,
+    create_movie_data,
+    create_movie_response_data,
+    create_movie_response_list,
+    check_schema_not_none_fields_is_valid,
+)
 
 
 @pytest.fixture(scope="function")
@@ -190,7 +152,7 @@ class TestMovieBaseCreateUpdateResponse:
         movie_response_data: dict[str, str | int],
     ) -> None:
         movie_response_data["name"] = generate_random_string(
-            string_length=NAME_MIN_LENGTH - 1
+            string_length=MOVIE_NAME_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
             schema(**movie_response_data)
@@ -201,7 +163,7 @@ class TestMovieBaseCreateUpdateResponse:
         movie_response_data: dict[str, str | int],
     ) -> None:
         movie_response_data["name"] = generate_random_string(
-            string_length=NAME_MAX_LENGTH + 1
+            string_length=MOVIE_NAME_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**movie_response_data)
@@ -212,7 +174,7 @@ class TestMovieBaseCreateUpdateResponse:
         movie_response_data: dict[str, str | int],
     ) -> None:
         movie_response_data["description"] = generate_random_string(
-            string_length=DESCRIPTION_MAX_LENGTH + 1
+            string_length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**movie_response_data)
@@ -222,7 +184,7 @@ class TestMovieBaseCreateUpdateResponse:
         schema,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data["rating"] = RATING_MIN_VALUE - 1
+        movie_response_data["rating"] = MOVIE_RATING_MIN_VALUE - 1
         with pytest.raises(ValidationError):
             schema(**movie_response_data)
 
@@ -231,7 +193,7 @@ class TestMovieBaseCreateUpdateResponse:
         schema,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data["rating"] = RATING_MAX_VALUE + 1
+        movie_response_data["rating"] = MOVIE_RATING_MAX_VALUE + 1
         with pytest.raises(ValidationError):
             schema(**movie_response_data)
 
@@ -268,7 +230,9 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["name"] = generate_random_string(string_length=NAME_MIN_LENGTH - 1)
+        movie_data["name"] = generate_random_string(
+            string_length=MOVIE_NAME_MIN_LENGTH - 1
+        )
         with pytest.raises(ValidationError, match="string_too_short"):
             MoviePartialUpdate(**movie_data)
 
@@ -276,7 +240,9 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["name"] = generate_random_string(string_length=NAME_MAX_LENGTH + 1)
+        movie_data["name"] = generate_random_string(
+            string_length=MOVIE_NAME_MAX_LENGTH + 1
+        )
         with pytest.raises(ValidationError, match="string_too_long"):
             MoviePartialUpdate(**movie_data)
 
@@ -285,7 +251,7 @@ class TestMoviePartialUpdate:
         movie_data: dict[str, str | int | datetime],
     ) -> None:
         movie_data["description"] = generate_random_string(
-            string_length=DESCRIPTION_MAX_LENGTH + 1
+            string_length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             MoviePartialUpdate(**movie_data)
@@ -294,7 +260,7 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["rating"] = RATING_MIN_VALUE - 1
+        movie_data["rating"] = MOVIE_RATING_MIN_VALUE - 1
         with pytest.raises(ValidationError, match="greater_than_equal"):
             MoviePartialUpdate(**movie_data)
 
@@ -302,7 +268,7 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["rating"] = RATING_MAX_VALUE + 1
+        movie_data["rating"] = MOVIE_RATING_MAX_VALUE + 1
         with pytest.raises(ValidationError, match="less_than_equal"):
             MoviePartialUpdate(**movie_data)
 

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import pytest
 from pydantic import ValidationError
 
@@ -11,49 +9,18 @@ from schemas.review import (
     ReviewPartialUpdate,
     ReviewResponseList,
 )
-from tests.utils import generate_random_string, generate_random_number
-
-REVIEW_TEXT_MIN_LENGTH = 0
-REVIEW_TEXT_MAX_LENGTH = 400
-RATING_MIN_VALUE = 0
-RATING_MAX_VALUE = 10
-
-
-def create_review_data():
-    data = {
-        "review_text": generate_random_string(
-            min_string_length=REVIEW_TEXT_MIN_LENGTH,
-            max_string_length=REVIEW_TEXT_MAX_LENGTH,
-        ),
-        "rating": generate_random_number(
-            start=RATING_MIN_VALUE,
-            end=RATING_MAX_VALUE,
-        ),
-        "movie_id": generate_random_number(1, 1000),
-    }
-    return data
-
-
-def create_review_response_data():
-    data = create_review_data()
-    data["id"] = generate_random_number(1, 1000)
-    data["user_id"] = generate_random_number(1, 1000)
-    data["publication_date"] = datetime(
-        year=generate_random_number(2020, 2025),
-        month=generate_random_number(1, 12),
-        day=generate_random_number(1, 28),
-    )
-
-    return data
-
-
-def create_review_response_list_data(list_length: int = 5) -> list[ReviewResponse]:
-    result = []
-    for i in range(list_length):
-        review_data = create_review_response_data()
-        review_response = ReviewResponse(**review_data)
-        result.append(review_response)
-    return result
+from core.constants import (
+    REVIEW_TEXT_MAX_LENGTH,
+    REVIEW_RATING_MIN_VALUE,
+    REVIEW_RATING_MAX_VALUE,
+)
+from tests.utils import (
+    generate_random_string,
+    generate_random_number,
+    create_review_data,
+    create_review_response_data,
+    create_review_response_list_data,
+)
 
 
 @pytest.fixture(scope="function")
@@ -137,7 +104,7 @@ class TestReviewBaseCreateUpdateResponse:
         schema,
         review_response_data: dict[str, str | int],
     ) -> None:
-        review_response_data["rating"] = RATING_MIN_VALUE - 1
+        review_response_data["rating"] = REVIEW_RATING_MIN_VALUE - 1
         with pytest.raises(ValidationError):
             schema(**review_response_data)
 
@@ -146,7 +113,7 @@ class TestReviewBaseCreateUpdateResponse:
         schema,
         review_response_data: dict[str, str | int],
     ) -> None:
-        review_response_data["rating"] = RATING_MAX_VALUE + 1
+        review_response_data["rating"] = REVIEW_RATING_MAX_VALUE + 1
         with pytest.raises(ValidationError):
             schema(**review_response_data)
 
