@@ -4,12 +4,12 @@ from typing import Annotated, ClassVar
 from annotated_types import Len, MaxLen
 from pydantic import BaseModel, ConfigDict, Field
 
-NameString = Annotated[
+NameConstraint = Annotated[
     str,
     Len(min_length=3, max_length=20),
 ]
 
-DescriptionString = Annotated[
+DescriptionConstraint = Annotated[
     str,
     MaxLen(max_length=200),
 ]
@@ -28,8 +28,8 @@ class MovieBase(BaseModel):
     Базовая модель для работы с фильмом.
     """
 
-    name: NameString
-    description: DescriptionString
+    name: NameConstraint
+    description: DescriptionConstraint
     rating: RatingConstraint
     preview_url: str
     source_url: str
@@ -55,8 +55,8 @@ class MoviePartialUpdate(BaseModel):
     Модель для частичного обновления фильма.
     """
 
-    name: NameString | None = None
-    description: DescriptionString | None = None
+    name: NameConstraint | None = None
+    description: DescriptionConstraint | None = None
     rating: RatingConstraint | None = None
     preview_url: str | None = None
     source_url: str | None = None
