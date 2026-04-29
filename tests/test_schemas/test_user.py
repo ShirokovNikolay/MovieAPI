@@ -62,6 +62,15 @@ def user_response_list() -> list[UserResponse]:
     ],
 )
 class TestUserBaseCreateUpdatePartialUpdateResponse:
+    def test_user(
+        self,
+        schema,
+        user_data_response: dict[str, str | int],
+    ) -> None:
+        user = schema(**user_data_response)
+        for field in user.model_dump():
+            assert getattr(user, field) == user_data_response[field]
+
     @pytest.mark.parametrize(
         "field,value,expected_error_message",
         [
@@ -119,26 +128,6 @@ class TestUserBaseCreateUpdatePartialUpdateResponse:
         with pytest.raises(ValidationError, match=expected_error_message):
             schema(**user_data_response)
 
-
-@pytest.mark.parametrize(
-    "schema",
-    [
-        UserBase,
-        UserCreate,
-        UserUpdate,
-        UserResponse,
-    ],
-)
-class TestUserBaseCreateUpdateResponse:
-    def test_user(
-        self,
-        schema,
-        user_data_response: dict[str, str | int],
-    ) -> None:
-        user = schema(**user_data_response)
-        for field in user.model_dump():
-            assert getattr(user, field) == user_data_response[field]
-
     @pytest.mark.parametrize(
         "field",
         [
@@ -154,6 +143,10 @@ class TestUserBaseCreateUpdateResponse:
         field: str,
         user_data_response: dict[str, str | int],
     ) -> None:
+        if schema is UserPartialUpdate:
+            pytest.skip(
+                reason="UserPartialUpdate schema does does not have required fields"
+            )
         user_data_response.pop(field)
         with pytest.raises(ValidationError, match="Field required"):
             schema(**user_data_response)
