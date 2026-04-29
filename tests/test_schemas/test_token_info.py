@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from core.constants import BEARER_TOKEN_TYPE
 from schemas.token_info import TokenInfo
-from tests.utils import create_token_info_data
+from tests.utils.data_generators.token_info import create_token_info_data
 
 
 @pytest.fixture(scope="function")

@@ -18,13 +18,15 @@ from core.constants import (
     MOVIE_RATING_MIN_VALUE,
     MOVIE_RATING_MAX_VALUE,
 )
-from tests.utils import (
-    generate_random_number,
-    generate_random_string,
+from tests.utils.data_generators.base import (
+    generate_number,
+    generate_string,
+    check_schema_not_none_fields_is_valid,
+)
+from tests.utils.data_generators.movie import (
     create_movie_data,
     create_movie_response_data,
     create_movie_response_list,
-    check_schema_not_none_fields_is_valid,
 )
 
 
@@ -151,7 +153,7 @@ class TestMovieBaseCreateUpdateResponse:
         schema,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data["name"] = generate_random_string(
+        movie_response_data["name"] = generate_string(
             string_length=MOVIE_NAME_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
@@ -162,7 +164,7 @@ class TestMovieBaseCreateUpdateResponse:
         schema,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data["name"] = generate_random_string(
+        movie_response_data["name"] = generate_string(
             string_length=MOVIE_NAME_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -173,7 +175,7 @@ class TestMovieBaseCreateUpdateResponse:
         schema,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data["description"] = generate_random_string(
+        movie_response_data["description"] = generate_string(
             string_length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -230,9 +232,7 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["name"] = generate_random_string(
-            string_length=MOVIE_NAME_MIN_LENGTH - 1
-        )
+        movie_data["name"] = generate_string(string_length=MOVIE_NAME_MIN_LENGTH - 1)
         with pytest.raises(ValidationError, match="string_too_short"):
             MoviePartialUpdate(**movie_data)
 
@@ -240,9 +240,7 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["name"] = generate_random_string(
-            string_length=MOVIE_NAME_MAX_LENGTH + 1
-        )
+        movie_data["name"] = generate_string(string_length=MOVIE_NAME_MAX_LENGTH + 1)
         with pytest.raises(ValidationError, match="string_too_long"):
             MoviePartialUpdate(**movie_data)
 
@@ -250,7 +248,7 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["description"] = generate_random_string(
+        movie_data["description"] = generate_string(
             string_length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -278,8 +276,8 @@ class TestMovieResponseList:
         self,
         movie_response_list: list[MovieResponse],
     ) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = MovieResponseList(
             movie_list=movie_response_list,
             page=page,
@@ -290,8 +288,8 @@ class TestMovieResponseList:
         assert schema.size == size
 
     def test_genre_response_list_with_empty_list(self) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = MovieResponseList(
             movie_list=[],
             page=page,

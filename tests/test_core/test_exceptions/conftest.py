@@ -1,12 +1,12 @@
 import pytest
 from _pytest.fixtures import SubRequest
 
-from tests.utils import generate_random_strings, generate_random_numbers
+from tests.utils.data_generators.base import generate_strings, generate_numbers
 
 
 @pytest.fixture(
     scope="function",
-    params=generate_random_strings(
+    params=generate_strings(
         list_length=3,
     ),
 )
@@ -16,7 +16,7 @@ def detail(request: SubRequest) -> str:
 
 @pytest.fixture(
     scope="function",
-    params=generate_random_strings(
+    params=generate_strings(
         list_length=3,
     ),
 )
@@ -26,7 +26,7 @@ def name(request: SubRequest) -> str:
 
 @pytest.fixture(
     scope="function",
-    params=generate_random_numbers(
+    params=generate_numbers(
         list_length=3,
     ),
 )

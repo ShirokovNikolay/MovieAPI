@@ -2,12 +2,12 @@ import pytest
 from _pytest.fixtures import SubRequest
 
 from core.security.password_utils import hash_password, verify_password
-from tests.utils import generate_random_strings, generate_random_string
+from tests.utils.data_generators.base import generate_strings, generate_string
 
 
 @pytest.fixture(
     scope="function",
-    params=generate_random_strings(list_length=3),
+    params=generate_strings(list_length=3),
 )
 def password(request: SubRequest) -> str:
     return request.param
@@ -27,6 +27,6 @@ def test_password_encryption_is_reproducible(password: str) -> None:
 
 @pytest.mark.xfail
 def test_verify_wrong_password(password: str) -> None:
-    wrong_password = password + generate_random_string()
+    wrong_password = password + generate_string()
     encoded_wrong_password = hash_password(wrong_password)
     assert verify_password(password, encoded_wrong_password)

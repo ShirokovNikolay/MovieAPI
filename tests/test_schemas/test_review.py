@@ -14,9 +14,11 @@ from core.constants import (
     REVIEW_RATING_MIN_VALUE,
     REVIEW_RATING_MAX_VALUE,
 )
-from tests.utils import (
-    generate_random_string,
-    generate_random_number,
+from tests.utils.data_generators.base import (
+    generate_string,
+    generate_number,
+)
+from tests.utils.data_generators.review import (
     create_review_data,
     create_review_response_data,
     create_review_response_list_data,
@@ -93,7 +95,7 @@ class TestReviewBaseCreateUpdateResponse:
         schema,
         review_response_data: dict[str, str | int],
     ) -> None:
-        review_response_data["review_text"] = generate_random_string(
+        review_response_data["review_text"] = generate_string(
             string_length=REVIEW_TEXT_MAX_LENGTH + 1,
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -151,8 +153,8 @@ class TestReviewResponseList:
         self,
         review_response_list: list[ReviewResponse],
     ) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = ReviewResponseList(
             review_list=review_response_list,
             page=page,
@@ -163,8 +165,8 @@ class TestReviewResponseList:
         assert schema.size == size
 
     def test_review_response_list_schema_with_empty_list(self) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = ReviewResponseList(
             review_list=[],
             page=page,

@@ -7,8 +7,8 @@ from schemas.favorite_movie import (
     FavoriteMovieResponse,
     FavoriteMovieResponseList,
 )
-from tests.utils import (
-    generate_random_number,
+from tests.utils.data_generators.base import generate_number
+from tests.utils.data_generators.favorite_movie import (
     create_favorite_movie_response_data,
     create_favorite_movie_response_list_data,
 )
@@ -70,8 +70,8 @@ class TestFavoriteMovieResponseList:
         self,
         favorite_movie_response_list: list[FavoriteMovieResponse],
     ) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = FavoriteMovieResponseList(
             favorite_movie_list=favorite_movie_response_list,
             page=page,
@@ -82,8 +82,8 @@ class TestFavoriteMovieResponseList:
         assert schema.size == size
 
     def test_favorite_movie_response_list_with_empty_list(self) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = FavoriteMovieResponseList(
             favorite_movie_list=[],
             page=page,

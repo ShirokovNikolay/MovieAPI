@@ -9,12 +9,12 @@ from schemas.watch_history import (
     WatchHistoryResponse,
     WatchHistoryResponseList,
 )
-from tests.utils import (
-    generate_random_number,
+from tests.utils.data_generators.watch_history import (
     create_watch_history_data,
     create_watch_history_response_list,
     create_watch_history_response_data,
 )
+from tests.utils.data_generators.base import generate_number
 
 
 @pytest.fixture(scope="function")
@@ -92,8 +92,8 @@ class TestWatchHistoryResponseList:
         self,
         watch_history_response_list: list[WatchHistoryResponse],
     ) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = WatchHistoryResponseList(
             watch_history_list=watch_history_response_list,
             page=page,
@@ -104,8 +104,8 @@ class TestWatchHistoryResponseList:
         assert schema.size == size
 
     def test_watch_history_response_list_with_empty_list(self) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = WatchHistoryResponseList(
             watch_history_list=[],
             page=page,
