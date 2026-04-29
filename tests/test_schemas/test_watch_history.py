@@ -62,27 +62,20 @@ class TestWatchHistoryBaseCreate:
 
 
 class TestWatchHistoryResponse:
-    def test_watch_history_without_id(
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "id",
+            "user_id",
+            "watched_at",
+        ],
+    )
+    def test_watch_history_without_field(
         self,
+        field: str,
         watch_history_response_data: dict[str, str | int | datetime],
     ) -> None:
-        watch_history_response_data.pop("id")
-        with pytest.raises(ValidationError, match="Field required"):
-            WatchHistoryResponse(**watch_history_response_data)
-
-    def test_watch_history_without_user_id(
-        self,
-        watch_history_response_data: dict[str, str | int | datetime],
-    ) -> None:
-        watch_history_response_data.pop("user_id")
-        with pytest.raises(ValidationError, match="Field required"):
-            WatchHistoryResponse(**watch_history_response_data)
-
-    def test_watch_history_without_watched_at_field(
-        self,
-        watch_history_response_data: dict[str, str | int | datetime],
-    ) -> None:
-        watch_history_response_data.pop("watched_at")
+        watch_history_response_data.pop(field)
         with pytest.raises(ValidationError, match="Field required"):
             WatchHistoryResponse(**watch_history_response_data)
 
