@@ -51,10 +51,11 @@ def movie_response_list():
         MovieBase,
         MovieCreate,
         MovieUpdate,
+        MoviePartialUpdate,
         MovieResponse,
     ],
 )
-class TestMovieBaseCreateUpdateResponse:
+class TestMovieBaseCreateUpdatePartialUpdateResponse:
     def test_movie(
         self,
         schema,
@@ -64,152 +65,99 @@ class TestMovieBaseCreateUpdateResponse:
         for field in movie_schema.model_dump():
             assert getattr(movie_schema, field) == movie_response_data[field]
 
-    def test_movie_without_name_field(
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "name",
+            "description",
+            "rating",
+            "preview_url",
+            "source_url",
+            "genre_id",
+            "release_date",
+        ],
+    )
+    def test_movie_without_field(
         self,
         schema,
+        field: str,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data.pop("name")
-        with pytest.raises(
-            ValidationError,
-            match="Field required",
-        ):
+        if schema is MoviePartialUpdate:
+            pytest.skip(
+                reason="Movie partial update schema does not have required fields"
+            )
+        movie_response_data.pop(field)
+        with pytest.raises(ValidationError, match="Field required"):
             schema(**movie_response_data)
 
-    def test_movie_without_description_field(
+    @pytest.mark.parametrize(
+        "field,value,expected_error_message",
+        [
+            (
+                "name",
+                generate_string(length=MOVIE_NAME_MIN_LENGTH - 1),
+                "string_too_short",
+            ),
+            (
+                "name",
+                generate_string(length=MOVIE_NAME_MAX_LENGTH + 1),
+                "string_too_long",
+            ),
+            (
+                "description",
+                generate_string(length=MOVIE_DESCRIPTION_MAX_LENGTH + 1),
+                "string_too_long",
+            ),
+        ],
+    )
+    def test_movie_with_not_valid_field_length(
         self,
         schema,
+        field: str,
+        value: str,
+        expected_error_message: str,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data.pop("description")
-        with pytest.raises(
-            ValidationError,
-            match="Field required",
-        ):
+        movie_response_data[field] = value
+        with pytest.raises(ValidationError, match=expected_error_message):
             schema(**movie_response_data)
 
-    def test_movie_without_rating_field(
+    @pytest.mark.parametrize(
+        "field,value,expected_error_message",
+        [
+            (
+                "rating",
+                MOVIE_RATING_MIN_VALUE - 1,
+                "greater_than_equal",
+            ),
+            (
+                "rating",
+                MOVIE_RATING_MAX_VALUE + 1,
+                "less_than_equal",
+            ),
+        ],
+    )
+    def test_movie_with_not_valid_value(
         self,
         schema,
+        field: str,
+        value: int,
+        expected_error_message: str,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data.pop("rating")
-        with pytest.raises(
-            ValidationError,
-            match="Field required",
-        ):
-            schema(**movie_response_data)
-
-    def test_movie_without_preview_url_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data.pop("preview_url")
-        with pytest.raises(
-            ValidationError,
-            match="Field required",
-        ):
-            schema(**movie_response_data)
-
-    def test_movie_without_source_url_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data.pop("source_url")
-        with pytest.raises(
-            ValidationError,
-            match="Field required",
-        ):
-            schema(**movie_response_data)
-
-    def test_movie_without_genre_id_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data.pop("genre_id")
-        with pytest.raises(
-            ValidationError,
-            match="Field required",
-        ):
-            schema(**movie_response_data)
-
-    def test_movie_without_release_date_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data.pop("release_date")
-        with pytest.raises(
-            ValidationError,
-            match="Field required",
-        ):
-            schema(**movie_response_data)
-
-    def test_movie_with_too_short_name_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data["name"] = generate_string(length=MOVIE_NAME_MIN_LENGTH - 1)
-        with pytest.raises(ValidationError, match="string_too_short"):
-            schema(**movie_response_data)
-
-    def test_movie_with_too_long_name_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data["name"] = generate_string(length=MOVIE_NAME_MAX_LENGTH + 1)
-        with pytest.raises(ValidationError, match="string_too_long"):
-            schema(**movie_response_data)
-
-    def test_movie_with_too_long_description_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data["description"] = generate_string(
-            length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
-        )
-        with pytest.raises(ValidationError, match="string_too_long"):
-            schema(**movie_response_data)
-
-    def test_movie_with_too_small_rating_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data["rating"] = MOVIE_RATING_MIN_VALUE - 1
-        with pytest.raises(ValidationError):
-            schema(**movie_response_data)
-
-    def test_movie_with_too_large_rating_field(
-        self,
-        schema,
-        movie_response_data: dict[str, str | int],
-    ) -> None:
-        movie_response_data["rating"] = MOVIE_RATING_MAX_VALUE + 1
-        with pytest.raises(ValidationError):
+        movie_response_data[field] = value
+        with pytest.raises(ValidationError, match=expected_error_message):
             schema(**movie_response_data)
 
 
 class TestMoviePartialUpdate:
-    def test_movie_partial_update(
-        self,
-        movie_data: dict[str, str | datetime],
-    ) -> None:
-        movie_update_schema = MoviePartialUpdate(**movie_data)
-        assert movie_update_schema.model_dump() == movie_data
-
     def test_movie_partial_update_is_empty(self):
         movie_update_schema = MoviePartialUpdate()
         for field in movie_update_schema.model_dump():
             assert getattr(movie_update_schema, field) is None
 
-    def test_movie_partial_update_without_any_field(
+    def test_movie_partial_update_without_field(
         self,
         movie_data: dict[str, str | datetime],
     ) -> None:
@@ -223,48 +171,6 @@ class TestMoviePartialUpdate:
             )
             assert getattr(movie_update_schema, field) is None
             movie_data[field] = value
-
-    def test_movie_partial_update_with_too_short_name_field(
-        self,
-        movie_data: dict[str, str | int | datetime],
-    ) -> None:
-        movie_data["name"] = generate_string(length=MOVIE_NAME_MIN_LENGTH - 1)
-        with pytest.raises(ValidationError, match="string_too_short"):
-            MoviePartialUpdate(**movie_data)
-
-    def test_movie_partial_update_with_too_long_name_field(
-        self,
-        movie_data: dict[str, str | int | datetime],
-    ) -> None:
-        movie_data["name"] = generate_string(length=MOVIE_NAME_MAX_LENGTH + 1)
-        with pytest.raises(ValidationError, match="string_too_long"):
-            MoviePartialUpdate(**movie_data)
-
-    def test_movie_partial_update_schema_too_long_description_field(
-        self,
-        movie_data: dict[str, str | int | datetime],
-    ) -> None:
-        movie_data["description"] = generate_string(
-            length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
-        )
-        with pytest.raises(ValidationError, match="string_too_long"):
-            MoviePartialUpdate(**movie_data)
-
-    def test_movie_partial_update_with_too_small_rating_field(
-        self,
-        movie_data: dict[str, str | int | datetime],
-    ) -> None:
-        movie_data["rating"] = MOVIE_RATING_MIN_VALUE - 1
-        with pytest.raises(ValidationError, match="greater_than_equal"):
-            MoviePartialUpdate(**movie_data)
-
-    def test_movie_partial_update_with_too_large_rating_field(
-        self,
-        movie_data: dict[str, str | int | datetime],
-    ) -> None:
-        movie_data["rating"] = MOVIE_RATING_MAX_VALUE + 1
-        with pytest.raises(ValidationError, match="less_than_equal"):
-            MoviePartialUpdate(**movie_data)
 
 
 class TestMovieResponseList:
@@ -283,7 +189,7 @@ class TestMovieResponseList:
         assert schema.page == page
         assert schema.size == size
 
-    def test_genre_response_list_with_empty_list(self) -> None:
+    def test_movie_response_list_with_empty_list(self) -> None:
         page = generate_number()
         size = generate_number()
         schema = MovieResponseList(
