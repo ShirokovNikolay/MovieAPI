@@ -83,7 +83,7 @@ class TestGenreBaseCreateUpdateResponse:
         genre_response_data: dict[str, str | int],
     ) -> None:
         genre_response_data["description"] = generate_string(
-            string_length=GENRE_DESCRIPTION_MAX_LENGTH + 1,
+            length=GENRE_DESCRIPTION_MAX_LENGTH + 1,
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**genre_response_data)
@@ -93,9 +93,7 @@ class TestGenreBaseCreateUpdateResponse:
         schema,
         genre_response_data: dict[str, str | int],
     ) -> None:
-        genre_response_data["name"] = generate_string(
-            string_length=GENRE_NAME_MIN_LENGTH - 1
-        )
+        genre_response_data["name"] = generate_string(length=GENRE_NAME_MIN_LENGTH - 1)
         with pytest.raises(ValidationError, match="string_too_short"):
             schema(**genre_response_data)
 
@@ -104,9 +102,7 @@ class TestGenreBaseCreateUpdateResponse:
         schema,
         genre_response_data: dict[str, str | int],
     ) -> None:
-        genre_response_data["name"] = generate_string(
-            string_length=GENRE_NAME_MAX_LENGTH + 1
-        )
+        genre_response_data["name"] = generate_string(length=GENRE_NAME_MAX_LENGTH + 1)
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**genre_response_data)
 
@@ -138,7 +134,7 @@ class TestGenrePartialUpdate:
         self,
         genre_data: dict[str, str],
     ) -> None:
-        genre_data["name"] = generate_string(string_length=GENRE_NAME_MIN_LENGTH - 1)
+        genre_data["name"] = generate_string(length=GENRE_NAME_MIN_LENGTH - 1)
         with pytest.raises(
             ValidationError,
             match="string_too_short",
@@ -149,7 +145,7 @@ class TestGenrePartialUpdate:
         self,
         genre_data: dict[str, str],
     ) -> None:
-        genre_data["name"] = generate_string(string_length=GENRE_NAME_MAX_LENGTH + 1)
+        genre_data["name"] = generate_string(length=GENRE_NAME_MAX_LENGTH + 1)
         with pytest.raises(
             ValidationError,
             match="string_too_long",
@@ -161,7 +157,7 @@ class TestGenrePartialUpdate:
         genre_data: dict[str, str],
     ) -> None:
         genre_data["description"] = generate_string(
-            string_length=GENRE_DESCRIPTION_MAX_LENGTH + 1,
+            length=GENRE_DESCRIPTION_MAX_LENGTH + 1,
         )
         with pytest.raises(
             ValidationError,

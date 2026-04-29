@@ -40,9 +40,7 @@ class TestUserLogin:
         self,
         user_login_data: dict[str, str],
     ) -> None:
-        user_login_data["login"] = generate_string(
-            string_length=USER_LOGIN_MIN_LENGTH - 1
-        )
+        user_login_data["login"] = generate_string(length=USER_LOGIN_MIN_LENGTH - 1)
         with pytest.raises(ValidationError, match="string_too_short"):
             UserLogin(**user_login_data)
 
@@ -50,9 +48,7 @@ class TestUserLogin:
         self,
         user_login_data: dict[str, str],
     ) -> None:
-        user_login_data["login"] = generate_string(
-            string_length=USER_LOGIN_MAX_LENGTH + 1
-        )
+        user_login_data["login"] = generate_string(length=USER_LOGIN_MAX_LENGTH + 1)
         with pytest.raises(ValidationError, match="string_too_long"):
             UserLogin(**user_login_data)
 
@@ -61,7 +57,7 @@ class TestUserLogin:
         user_login_data: dict[str, str],
     ) -> None:
         user_login_data["password"] = generate_string(
-            string_length=USER_PASSWORD_MIN_LENGTH - 1
+            length=USER_PASSWORD_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
             UserLogin(**user_login_data)
@@ -71,7 +67,7 @@ class TestUserLogin:
         user_login_data: dict[str, str],
     ) -> None:
         user_login_data["password"] = generate_string(
-            string_length=USER_PASSWORD_MAX_LENGTH + 1
+            length=USER_PASSWORD_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             UserLogin(**user_login_data)

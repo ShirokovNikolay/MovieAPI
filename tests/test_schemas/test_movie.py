@@ -153,9 +153,7 @@ class TestMovieBaseCreateUpdateResponse:
         schema,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data["name"] = generate_string(
-            string_length=MOVIE_NAME_MIN_LENGTH - 1
-        )
+        movie_response_data["name"] = generate_string(length=MOVIE_NAME_MIN_LENGTH - 1)
         with pytest.raises(ValidationError, match="string_too_short"):
             schema(**movie_response_data)
 
@@ -164,9 +162,7 @@ class TestMovieBaseCreateUpdateResponse:
         schema,
         movie_response_data: dict[str, str | int],
     ) -> None:
-        movie_response_data["name"] = generate_string(
-            string_length=MOVIE_NAME_MAX_LENGTH + 1
-        )
+        movie_response_data["name"] = generate_string(length=MOVIE_NAME_MAX_LENGTH + 1)
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**movie_response_data)
 
@@ -176,7 +172,7 @@ class TestMovieBaseCreateUpdateResponse:
         movie_response_data: dict[str, str | int],
     ) -> None:
         movie_response_data["description"] = generate_string(
-            string_length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
+            length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**movie_response_data)
@@ -232,7 +228,7 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["name"] = generate_string(string_length=MOVIE_NAME_MIN_LENGTH - 1)
+        movie_data["name"] = generate_string(length=MOVIE_NAME_MIN_LENGTH - 1)
         with pytest.raises(ValidationError, match="string_too_short"):
             MoviePartialUpdate(**movie_data)
 
@@ -240,7 +236,7 @@ class TestMoviePartialUpdate:
         self,
         movie_data: dict[str, str | int | datetime],
     ) -> None:
-        movie_data["name"] = generate_string(string_length=MOVIE_NAME_MAX_LENGTH + 1)
+        movie_data["name"] = generate_string(length=MOVIE_NAME_MAX_LENGTH + 1)
         with pytest.raises(ValidationError, match="string_too_long"):
             MoviePartialUpdate(**movie_data)
 
@@ -249,7 +245,7 @@ class TestMoviePartialUpdate:
         movie_data: dict[str, str | int | datetime],
     ) -> None:
         movie_data["description"] = generate_string(
-            string_length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
+            length=MOVIE_DESCRIPTION_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             MoviePartialUpdate(**movie_data)

@@ -96,7 +96,7 @@ class TestReviewBaseCreateUpdateResponse:
         review_response_data: dict[str, str | int],
     ) -> None:
         review_response_data["review_text"] = generate_string(
-            string_length=REVIEW_TEXT_MAX_LENGTH + 1,
+            length=REVIEW_TEXT_MAX_LENGTH + 1,
         )
         with pytest.raises(ValidationError, match="string_too_long"):
             schema(**review_response_data)

@@ -17,20 +17,20 @@ from schemas.user import UserResponse
 from tests.utils.data_generators.base import generate_string, generate_number
 
 
-def generate_random_email_fixed_length(email_length: int) -> str:
+def generate_email_fixed_length(length: int) -> str:
     domain_zone = ["com", "net", "org", "ru", "io"]
     dz = random.choice(domain_zone)
-    remain_length = email_length - len(dz) - 2
+    remain_length = length - len(dz) - 2
     local_part_length = random.randint(1, remain_length - 1)
     domain_part_length = remain_length - local_part_length
-    local_part = generate_string(string_length=local_part_length)
-    domain_part = generate_string(string_length=domain_part_length).lower()
+    local_part = generate_string(length=local_part_length)
+    domain_part = generate_string(length=domain_part_length).lower()
     return f"{local_part}@{domain_part}.{dz}"
 
 
 def generate_random_email_with_length_range(min_length, max_length) -> str:
     email_length = random.randint(min_length, max_length)
-    return generate_random_email_fixed_length(email_length)
+    return generate_email_fixed_length(email_length)
 
 
 def create_user_data() -> dict[str, str]:
