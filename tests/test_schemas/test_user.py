@@ -1,4 +1,3 @@
-import random
 from datetime import datetime
 
 import pytest
@@ -24,73 +23,17 @@ from core.constants import (
     USER_PASSWORD_MIN_LENGTH,
     USER_PASSWORD_MAX_LENGTH,
 )
-from tests.utils import (
-    generate_random_number,
-    generate_random_string,
+from tests.utils.data_generators.base import (
+    generate_number,
+    generate_string,
     check_schema_not_none_fields_is_valid,
 )
-
-
-def generate_random_email_fixed_length(email_length: int) -> str:
-    domain_zone = ["com", "net", "org", "ru", "io"]
-    dz = random.choice(domain_zone)
-    remain_length = email_length - len(dz) - 2
-    local_part_length = random.randint(1, remain_length - 1)
-    domain_part_length = remain_length - local_part_length
-    local_part = generate_random_string(string_length=local_part_length)
-    domain_part = generate_random_string(string_length=domain_part_length).lower()
-    return f"{local_part}@{domain_part}.{dz}"
-
-
-def generate_random_email_with_length_range(min_length, max_length) -> str:
-    email_length = random.randint(min_length, max_length)
-    return generate_random_email_fixed_length(email_length)
-
-
-def create_user_data() -> dict[str, str]:
-    data = {
-        "surname": generate_random_string(
-            min_string_length=USER_SURNAME_MIN_LENGTH,
-            max_string_length=USER_SURNAME_MAX_LENGTH,
-        ),
-        "name": generate_random_string(
-            min_string_length=USER_NAME_MIN_LENGTH,
-            max_string_length=USER_NAME_MAX_LENGTH,
-        ),
-        "login": generate_random_string(
-            min_string_length=USER_LOGIN_MIN_LENGTH,
-            max_string_length=USER_LOGIN_MAX_LENGTH,
-        ),
-        "email": generate_random_email_with_length_range(
-            min_length=USER_EMAIL_MIN_LENGTH,
-            max_length=USER_EMAIL_MAX_LENGTH,
-        ),
-        "password": generate_random_string(
-            min_string_length=USER_PASSWORD_MIN_LENGTH,
-            max_string_length=USER_PASSWORD_MAX_LENGTH,
-        ),
-    }
-    return data
-
-
-def create_user_data_response() -> dict[str, str | int | datetime]:
-    data = create_user_data()
-    data["id"] = generate_random_number()
-    data["registration_date"] = datetime(
-        year=generate_random_number(2020, 2025),
-        month=generate_random_number(1, 12),
-        day=generate_random_number(1, 28),
-    )
-    return data
-
-
-def create_user_response_list(list_length: int = 5) -> list[UserResponse]:
-    result = []
-    for i in range(list_length):
-        user_data = create_user_data_response()
-        user = UserResponse(**user_data)
-        result.append(user)
-    return result
+from tests.utils.data_generators.user import (
+    generate_random_email_fixed_length,
+    create_user_data,
+    create_user_data_response,
+    create_user_response_list,
+)
 
 
 @pytest.fixture(scope="function")
@@ -168,7 +111,7 @@ class TestUserBaseCreateUpdateResponse:
         schema,
         user_data_response: dict[str, str | int],
     ) -> None:
-        user_data_response["surname"] = generate_random_string(
+        user_data_response["surname"] = generate_string(
             string_length=USER_SURNAME_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
@@ -179,7 +122,7 @@ class TestUserBaseCreateUpdateResponse:
         schema,
         user_data_response: dict[str, str | int],
     ) -> None:
-        user_data_response["surname"] = generate_random_string(
+        user_data_response["surname"] = generate_string(
             string_length=USER_SURNAME_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -190,7 +133,7 @@ class TestUserBaseCreateUpdateResponse:
         schema,
         user_data_response: dict[str, str | int],
     ) -> None:
-        user_data_response["name"] = generate_random_string(
+        user_data_response["name"] = generate_string(
             string_length=USER_NAME_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
@@ -201,7 +144,7 @@ class TestUserBaseCreateUpdateResponse:
         schema,
         user_data_response: dict[str, str | int],
     ) -> None:
-        user_data_response["name"] = generate_random_string(
+        user_data_response["name"] = generate_string(
             string_length=USER_NAME_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -212,7 +155,7 @@ class TestUserBaseCreateUpdateResponse:
         schema,
         user_data_response: dict[str, str | int],
     ) -> None:
-        user_data_response["login"] = generate_random_string(
+        user_data_response["login"] = generate_string(
             string_length=USER_LOGIN_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
@@ -223,7 +166,7 @@ class TestUserBaseCreateUpdateResponse:
         schema,
         user_data_response: dict[str, str | int],
     ) -> None:
-        user_data_response["login"] = generate_random_string(
+        user_data_response["login"] = generate_string(
             string_length=USER_LOGIN_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -274,7 +217,7 @@ class TestUserCreateUpdate:
         schema,
         user_data_response: dict[str, str],
     ) -> None:
-        user_data_response["password"] = generate_random_string(
+        user_data_response["password"] = generate_string(
             string_length=USER_PASSWORD_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
@@ -285,7 +228,7 @@ class TestUserCreateUpdate:
         schema,
         user_data_response: dict[str, str],
     ) -> None:
-        user_data_response["password"] = generate_random_string(
+        user_data_response["password"] = generate_string(
             string_length=USER_PASSWORD_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -320,7 +263,7 @@ class TestUserPartialUpdate:
         self,
         user_data: dict[str, str | int],
     ) -> None:
-        user_data["surname"] = generate_random_string(
+        user_data["surname"] = generate_string(
             string_length=USER_SURNAME_MIN_LENGTH - 1
         )
         with pytest.raises(ValidationError, match="string_too_short"):
@@ -330,7 +273,7 @@ class TestUserPartialUpdate:
         self,
         user_data: dict[str, str | int],
     ) -> None:
-        user_data["surname"] = generate_random_string(
+        user_data["surname"] = generate_string(
             string_length=USER_SURNAME_MAX_LENGTH + 1
         )
         with pytest.raises(ValidationError, match="string_too_long"):
@@ -340,9 +283,7 @@ class TestUserPartialUpdate:
         self,
         user_data: dict[str, str | int],
     ) -> None:
-        user_data["name"] = generate_random_string(
-            string_length=USER_NAME_MIN_LENGTH - 1
-        )
+        user_data["name"] = generate_string(string_length=USER_NAME_MIN_LENGTH - 1)
         with pytest.raises(ValidationError, match="string_too_short"):
             UserPartialUpdate(**user_data)
 
@@ -350,9 +291,7 @@ class TestUserPartialUpdate:
         self,
         user_data: dict[str, str | int],
     ) -> None:
-        user_data["name"] = generate_random_string(
-            string_length=USER_NAME_MAX_LENGTH + 1
-        )
+        user_data["name"] = generate_string(string_length=USER_NAME_MAX_LENGTH + 1)
         with pytest.raises(ValidationError, match="string_too_long"):
             UserPartialUpdate(**user_data)
 
@@ -360,9 +299,7 @@ class TestUserPartialUpdate:
         self,
         user_data: dict[str, str | int],
     ) -> None:
-        user_data["login"] = generate_random_string(
-            string_length=USER_LOGIN_MIN_LENGTH - 1
-        )
+        user_data["login"] = generate_string(string_length=USER_LOGIN_MIN_LENGTH - 1)
         with pytest.raises(ValidationError, match="string_too_short"):
             UserPartialUpdate(**user_data)
 
@@ -370,9 +307,7 @@ class TestUserPartialUpdate:
         self,
         user_data: dict[str, str | int],
     ) -> None:
-        user_data["login"] = generate_random_string(
-            string_length=USER_LOGIN_MAX_LENGTH + 1
-        )
+        user_data["login"] = generate_string(string_length=USER_LOGIN_MAX_LENGTH + 1)
         with pytest.raises(ValidationError, match="string_too_long"):
             UserPartialUpdate(**user_data)
 
@@ -420,8 +355,8 @@ class TestUserResponseList:
         self,
         user_response_list: list[UserResponse],
     ) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = UserResponseList(
             user_list=user_response_list,
             page=page,
@@ -432,8 +367,8 @@ class TestUserResponseList:
         assert schema.size == size
 
     def test_user_response_list_with_empty_list(self) -> None:
-        page = generate_random_number()
-        size = generate_random_number()
+        page = generate_number()
+        size = generate_number()
         schema = UserResponseList(
             user_list=[],
             page=page,
