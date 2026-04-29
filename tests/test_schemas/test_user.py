@@ -213,7 +213,7 @@ class TestUserPartialUpdate:
         for field in user.model_dump():
             assert getattr(user, field) == user_data_response[field]
 
-    def test_user_partial_update_without_any_field(
+    def test_user_partial_update_without_field(
         self,
         user_data: dict[str, str | datetime],
     ) -> None:
