@@ -22,52 +22,55 @@ class TestUserLogin:
         user_login = UserLogin(**user_login_data)
         assert user_login.model_dump() == user_login_data
 
-    def test_user_login_without_login_field(
-        self, user_login_data: dict[str, str]
-    ) -> None:
-        user_login_data.pop("login")
-        with pytest.raises(ValidationError, match="Field required"):
-            UserLogin(**user_login_data)
-
-    def test_user_login_without_password_field(
-        self, user_login_data: dict[str, str]
-    ) -> None:
-        user_login_data.pop("password")
-        with pytest.raises(ValidationError, match="Field required"):
-            UserLogin(**user_login_data)
-
-    def test_user_with_too_short_login(
+    @pytest.mark.parametrize(
+        "field,expected_error_message",
+        [
+            ("login", "Field required"),
+            ("password", "Field required"),
+        ],
+    )
+    def test_user_login_without_field(
         self,
         user_login_data: dict[str, str],
+        field: str,
+        expected_error_message: str,
     ) -> None:
-        user_login_data["login"] = generate_string(length=USER_LOGIN_MIN_LENGTH - 1)
-        with pytest.raises(ValidationError, match="string_too_short"):
+        user_login_data.pop(field)
+        with pytest.raises(ValidationError, match=expected_error_message):
             UserLogin(**user_login_data)
 
-    def test_user_with_too_long_login(
+    @pytest.mark.parametrize(
+        "field,value,expected_error_message",
+        [
+            (
+                "login",
+                generate_string(length=USER_LOGIN_MIN_LENGTH - 1),
+                "string_too_short",
+            ),
+            (
+                "password",
+                generate_string(length=USER_PASSWORD_MIN_LENGTH - 1),
+                "string_too_short",
+            ),
+            (
+                "login",
+                generate_string(length=USER_LOGIN_MAX_LENGTH + 1),
+                "string_too_long",
+            ),
+            (
+                "password",
+                generate_string(length=USER_PASSWORD_MAX_LENGTH + 1),
+                "string_too_long",
+            ),
+        ],
+    )
+    def test_user_login_with_not_valid_field_length(
         self,
         user_login_data: dict[str, str],
+        field: str,
+        value: str,
+        expected_error_message: str,
     ) -> None:
-        user_login_data["login"] = generate_string(length=USER_LOGIN_MAX_LENGTH + 1)
-        with pytest.raises(ValidationError, match="string_too_long"):
-            UserLogin(**user_login_data)
-
-    def test_user_with_too_short_password(
-        self,
-        user_login_data: dict[str, str],
-    ) -> None:
-        user_login_data["password"] = generate_string(
-            length=USER_PASSWORD_MIN_LENGTH - 1
-        )
-        with pytest.raises(ValidationError, match="string_too_short"):
-            UserLogin(**user_login_data)
-
-    def test_user_with_too_long_password(
-        self,
-        user_login_data: dict[str, str],
-    ) -> None:
-        user_login_data["password"] = generate_string(
-            length=USER_PASSWORD_MAX_LENGTH + 1
-        )
-        with pytest.raises(ValidationError, match="string_too_long"):
+        user_login_data[field] = value
+        with pytest.raises(ValidationError, match=expected_error_message):
             UserLogin(**user_login_data)
