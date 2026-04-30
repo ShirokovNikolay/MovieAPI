@@ -17,6 +17,7 @@ from core.constants import (
 from tests.utils.data_generators.base import (
     generate_string,
     generate_number,
+    check_schema_not_none_fields_is_valid,
 )
 from tests.utils.data_generators.review import (
     create_review_data,
@@ -46,10 +47,11 @@ def review_response_list() -> list[ReviewResponse]:
         ReviewBase,
         ReviewCreate,
         ReviewUpdate,
+        ReviewPartialUpdate,
         ReviewResponse,
     ],
 )
-class TestReviewBaseCreateUpdateResponse:
+class TestReviewBaseCreateUpdatePartialUpdateResponse:
     def test_review(
         self,
         schema,
@@ -59,93 +61,81 @@ class TestReviewBaseCreateUpdateResponse:
         for field in schema_object.model_dump():
             assert getattr(schema_object, field) == review_response_data[field]
 
-    def test_review_without_text(
+    @pytest.mark.parametrize(
+        "field",
+        [
+            "review_text",
+            "movie_id",
+            "rating",
+        ],
+    )
+    def test_review_without_field(
         self,
         schema,
+        field: str,
         review_response_data: dict[str, str | int],
     ) -> None:
-        review_response_data.pop("review_text")
-        with pytest.raises(ValidationError, match="Field required"):
-            schema(**review_response_data)
-
-    def test_review_without_rating(
-        self,
-        schema,
-        review_response_data: dict[str, str | int],
-    ) -> None:
-        review_response_data.pop("rating")
-        with pytest.raises(ValidationError, match="Field required"):
-            schema(**review_response_data)
-
-    def test_review_without_movie_id(
-        self,
-        schema,
-        review_response_data: dict[str, str | int],
-    ) -> None:
-        if schema is ReviewUpdate:
+        if schema is ReviewPartialUpdate:
             pytest.skip(
-                reason="ReviewUpdate should not have movie_id field but should test ReviewUpdate schema due to DRY principe",
+                reason="Review Partial Update schema does not have required fields"
             )
-        review_response_data.pop("movie_id")
+        if field == "movie_id" and schema is ReviewUpdate:
+            pytest.skip(
+                reason="Review Update schema does not have required movie_id field"
+            )
+        review_response_data.pop(field)
         with pytest.raises(ValidationError, match="Field required"):
             schema(**review_response_data)
 
-    def test_review_with_too_long_text_field(
+    @pytest.mark.parametrize(
+        "field,value,expected_error_message",
+        [
+            (
+                "review_text",
+                generate_string(length=REVIEW_TEXT_MAX_LENGTH + 1),
+                "string_too_long",
+            ),
+            (
+                "rating",
+                REVIEW_RATING_MIN_VALUE - 1,
+                "greater_than_equal",
+            ),
+            (
+                "rating",
+                REVIEW_RATING_MAX_VALUE + 1,
+                "less_than_equal",
+            ),
+        ],
+    )
+    def test_review_with_not_valid_field_value(
         self,
         schema,
+        field: str,
+        value: str | int,
+        expected_error_message: str,
         review_response_data: dict[str, str | int],
     ) -> None:
-        review_response_data["review_text"] = generate_string(
-            length=REVIEW_TEXT_MAX_LENGTH + 1,
-        )
-        with pytest.raises(ValidationError, match="string_too_long"):
-            schema(**review_response_data)
-
-    def test_review_with_too_small_rating_field(
-        self,
-        schema,
-        review_response_data: dict[str, str | int],
-    ) -> None:
-        review_response_data["rating"] = REVIEW_RATING_MIN_VALUE - 1
-        with pytest.raises(ValidationError):
-            schema(**review_response_data)
-
-    def test_review_with_too_large_rating_field(
-        self,
-        schema,
-        review_response_data: dict[str, str | int],
-    ) -> None:
-        review_response_data["rating"] = REVIEW_RATING_MAX_VALUE + 1
-        with pytest.raises(ValidationError):
+        review_response_data[field] = value
+        with pytest.raises(ValidationError, match=expected_error_message):
             schema(**review_response_data)
 
 
 class TestReviewPartialUpdate:
-    def test_review_partial_update(
+    def test_review_without_field(
         self,
         review_data: dict[str, str | int],
     ) -> None:
-        schema_object = ReviewPartialUpdate(**review_data)
-        for field in schema_object.model_dump():
-            assert getattr(schema_object, field) == review_data[field]
-
-    def test_review_partial_update_without_text(
-        self,
-        review_data: dict[str, str | int],
-    ) -> None:
-        review_data.pop("review_text")
-        review_partial_update_schema = ReviewPartialUpdate(**review_data)
-        assert review_partial_update_schema.review_text is None
-        assert review_partial_update_schema.rating == review_data["rating"]
-
-    def test_review_partial_update_without_rating(
-        self,
-        review_data: dict[str, str | int],
-    ) -> None:
-        review_data.pop("rating")
-        review_partial_update_schema = ReviewPartialUpdate(**review_data)
-        assert review_partial_update_schema.review_text == review_data["review_text"]
-        assert review_partial_update_schema.rating is None
+        review_data_copy = review_data.copy()
+        review_data_copy.pop("movie_id")
+        for field in review_data_copy:
+            value = review_data.pop(field)
+            review_update_schema = ReviewPartialUpdate(**review_data)
+            check_schema_not_none_fields_is_valid(
+                review_update_schema,
+                review_data,
+            )
+            assert getattr(review_update_schema, field) is None
+            review_data[field] = value
 
 
 class TestReviewResponseList:
