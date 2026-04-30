@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
 
 engine = create_async_engine(
     url=settings.database.url_database,
-    echo=settings.debug,
+    echo=settings.database.echo,
 )
 
 session_factory = async_sessionmaker(
