@@ -51,7 +51,7 @@ def review_response_list() -> list[ReviewResponse]:
         ReviewResponse,
     ],
 )
-class TestReviewBaseCreateUpdatePartialUpdateResponse:
+class TestReview:
     def test_review(
         self,
         schema,

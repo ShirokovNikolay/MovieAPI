@@ -53,7 +53,7 @@ def genre_response_list() -> list[GenreResponse]:
         GenreResponse,
     ],
 )
-class TestGenreBaseCreateUpdatePartialUpdateResponse:
+class TestGenre:
     def test_genre(
         self,
         schema,
