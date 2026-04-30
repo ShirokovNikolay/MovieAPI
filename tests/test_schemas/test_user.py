@@ -61,7 +61,7 @@ def user_response_list() -> list[UserResponse]:
         UserResponse,
     ],
 )
-class TestUserBaseCreateUpdatePartialUpdateResponse:
+class TestUser:
     def test_user(
         self,
         schema,

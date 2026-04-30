@@ -32,7 +32,7 @@ def favorite_movie_response_list() -> list[FavoriteMovieResponse]:
         FavoriteMovieResponse,
     ],
 )
-class TestFavoriteMovieBaseCreateResponse:
+class TestFavoriteMovie:
     def test_favorite_movie(
         self,
         favorite_movie_response_data: dict[str, int],

@@ -55,7 +55,7 @@ def movie_response_list():
         MovieResponse,
     ],
 )
-class TestMovieBaseCreateUpdatePartialUpdateResponse:
+class TestMovie:
     def test_movie(
         self,
         schema,

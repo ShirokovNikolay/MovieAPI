@@ -37,47 +37,30 @@ def watch_history_response_list() -> list[WatchHistoryResponse]:
     [
         WatchHistoryBase,
         WatchHistoryCreate,
+        WatchHistoryResponse,
     ],
 )
-class TestWatchHistoryBaseCreate:
+class TestWatchHistory:
     def test_watch_history(
         self,
         schema,
-        watch_history_data: dict[str, int],
+        watch_history_response_data: dict[str, int | datetime],
     ) -> None:
-        watch_history = schema(**watch_history_data)
-        assert watch_history.model_dump() == watch_history_data
+        watch_history = schema(**watch_history_response_data)
+        for field in watch_history.model_dump():
+            assert getattr(watch_history, field) == watch_history_response_data[field]
 
     def test_watch_history_without_movie_id(
         self,
         schema,
-        watch_history_data: dict[str, int],
+        watch_history_response_data: dict[str, int],
     ) -> None:
-        watch_history_data.pop("movie_id")
+        watch_history_response_data.pop("movie_id")
         with pytest.raises(
             ValidationError,
             match="Field required",
         ):
-            schema(**watch_history_data)
-
-
-class TestWatchHistoryResponse:
-    @pytest.mark.parametrize(
-        "field",
-        [
-            "id",
-            "user_id",
-            "watched_at",
-        ],
-    )
-    def test_watch_history_without_field(
-        self,
-        field: str,
-        watch_history_response_data: dict[str, str | int | datetime],
-    ) -> None:
-        watch_history_response_data.pop(field)
-        with pytest.raises(ValidationError, match="Field required"):
-            WatchHistoryResponse(**watch_history_response_data)
+            schema(**watch_history_response_data)
 
 
 class TestWatchHistoryResponseList:
