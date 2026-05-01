@@ -64,7 +64,7 @@ BASE_REVIEW_ERROR = ReviewNotFoundError | ReviewAlreadyExistsError
 BASE_AUTH_ERROR = InvalidTokenError | InvalidPasswordError | PermissionDeniedError
 # Genre
 GENRE_NAME_MIN_LENGTH = 3
-GENRE_NAME_MAX_LENGTH = 15
+GENRE_NAME_MAX_LENGTH = 30
 GENRE_DESCRIPTION_MAX_LENGTH = 200
 # Movie
 MOVIE_NAME_MIN_LENGTH = 3
