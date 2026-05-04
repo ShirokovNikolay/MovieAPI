@@ -2,9 +2,15 @@ from os import getenv
 from typing import AsyncGenerator
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    create_async_engine,
+    async_sessionmaker,
+    AsyncEngine,
+)
 
-from core.database import session_factory
+
+from core.config import settings
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -16,7 +22,21 @@ def test_environment_is_ready() -> None:
 
 
 @pytest.fixture(scope="function")
-async def session() -> AsyncGenerator[AsyncSession, None]:
-    async with session_factory() as session:
-        yield session
-        await session.rollback()
+async def engine() -> AsyncEngine:
+    return create_async_engine(
+        url=settings.database.url_database,
+    )
+
+
+@pytest.fixture(scope="function")
+async def session_factory(engine: AsyncEngine) -> async_sessionmaker:
+    return async_sessionmaker(bind=engine)
+
+
+@pytest.fixture(scope="function")
+async def session(
+    session_factory: async_sessionmaker,
+) -> AsyncGenerator[AsyncSession, None]:
+    async with session_factory() as database_session:
+        yield database_session
+        await database_session.rollback()
