@@ -18,6 +18,6 @@ def test_environment_is_ready() -> None:
 
 @pytest.fixture(scope="function")
 async def session() -> AsyncGenerator[AsyncSession, None]:
-    async with session_factory() as database_session:
-        yield database_session
-        await database_session.rollback()
+    async with session_factory() as db_session:
+        yield db_session
+        await db_session.rollback()

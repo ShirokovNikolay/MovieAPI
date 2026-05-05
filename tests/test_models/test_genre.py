@@ -13,11 +13,6 @@ from tests.test_schemas.test_genre import genre_data
 from tests.utils.data_generators.base import generate_string
 
 
-@pytest.fixture(scope="function")
-def genre_create_schema(genre_data: dict[str, str]) -> GenreCreate:
-    return GenreCreate(**genre_data)
-
-
 class TestGenreModel:
     async def test_create_genre(
         self,
