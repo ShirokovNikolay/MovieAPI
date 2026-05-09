@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import CheckConstraint, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from core.constants import REVIEW_TEXT_MAX_LENGTH
 from core.database.connection import Base
 
 if TYPE_CHECKING:
@@ -33,11 +34,9 @@ class Review(Base):
         "Movie",
         back_populates="reviews",
     )
-    review_text: Mapped[str | None] = mapped_column(String(400))
-    rating: Mapped[int] = mapped_column(
-        CheckConstraint(
-            "0 <= rating <= 10",
-            name="ck_reviews_rating",
-        ),
-    )
+    review_text: Mapped[str | None] = mapped_column(String(REVIEW_TEXT_MAX_LENGTH))
+    rating: Mapped[int]
     publication_date: Mapped[datetime] = mapped_column(server_default=func.now())
+    __table_args__ = (
+        CheckConstraint("rating >= 0 AND rating <= 10", name="ch_reviews_rating"),
+    )
