@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
+from core.security.password_utils import hash_password
 from schemas.user import (
     UserResponse,
     UserBase,
@@ -39,6 +40,14 @@ from tests.utils.data_generators.user import (
 @pytest.fixture(scope="function")
 def user_data() -> dict[str, str]:
     return create_user_data()
+
+
+@pytest.fixture(scope="function")
+def user_data_encrypted_password() -> dict[str, str]:
+    data = create_user_data()
+    password = data.pop("password")
+    data["encrypted_password"] = hash_password(password)
+    return data
 
 
 @pytest.fixture(scope="function")
