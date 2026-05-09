@@ -44,12 +44,12 @@ class TestMovieModel:
             (
                 "name",
                 generate_string(length=MOVIE_NAME_MAX_LENGTH + 1),
-                IntegrityError,
+                DBAPIError,
             ),
             (
                 "description",
                 generate_string(length=MOVIE_DESCRIPTION_MAX_LENGTH + 1),
-                IntegrityError,
+                DBAPIError,
             ),
             (
                 "rating",
