@@ -30,22 +30,22 @@ def upgrade() -> None:
     )
 
     op.create_check_constraint(
-        "ch_user_surname",
+        "ch_users_surname",
         "users",
         "LENGTH(surname) >= 3 AND LENGTH(surname) <= 30",
     )
     op.create_check_constraint(
-        "ch_user_name",
+        "ch_users_name",
         "users",
         "LENGTH(name) >= 3 AND LENGTH(name) <= 20",
     )
     op.create_check_constraint(
-        "ch_user_login",
+        "ch_users_login",
         "users",
         "LENGTH(login) >= 3 AND LENGTH(login) <= 20",
     )
     op.create_check_constraint(
-        "ch_user_email",
+        "ch_users_email",
         "users",
         "LENGTH(email) >= 10 AND LENGTH(email) <= 40",
     )
@@ -63,22 +63,22 @@ def downgrade() -> None:
         existing_nullable=False,
     )
     op.drop_constraint(
-        "ch_user_surname",
+        "ch_users_surname",
         "users",
         type_="check",
     )
     op.drop_constraint(
-        "ch_user_name",
+        "ch_users_name",
         "users",
         type_="check",
     )
     op.drop_constraint(
-        "ch_user_login",
+        "ch_users_login",
         "users",
         type_="check",
     )
     op.drop_constraint(
-        "ch_user_email",
+        "ch_users_email",
         "users",
         type_="check",
     )

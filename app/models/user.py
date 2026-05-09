@@ -50,8 +50,20 @@ class User(Base):
     )
 
     __table_args__ = (
-        CheckConstraint("LENGTH(surname) >= 3 AND LENGTH(surname) <= 30"),
-        CheckConstraint("LENGTH(name) >= 3 AND LENGTH(name) <= 20"),
-        CheckConstraint("LENGTH(login) >= 3 AND LENGTH(login) <= 20"),
-        CheckConstraint("LENGTH(email) >= 10 AND LENGTH(email) <= 40"),
+        CheckConstraint(
+            "LENGTH(surname) >= 3 AND LENGTH(surname) <= 30",
+            name="ch_users_surname",
+        ),
+        CheckConstraint(
+            "LENGTH(name) >= 3 AND LENGTH(name) <= 20",
+            name="ch_users_name",
+        ),
+        CheckConstraint(
+            "LENGTH(login) >= 3 AND LENGTH(login) <= 20",
+            name="ch_users_login",
+        ),
+        CheckConstraint(
+            "LENGTH(email) >= 10 AND LENGTH(email) <= 40",
+            name="ch_users_email",
+        ),
     )
