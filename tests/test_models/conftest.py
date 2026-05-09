@@ -1,16 +1,10 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import Genre, Movie
-from schemas.genre import GenreCreate
-from schemas.movie import MovieCreate
+from models import Genre, Movie, User
 from tests.test_schemas.test_genre import genre_data
 from tests.test_schemas.test_movie import movie_data
-
-
-@pytest.fixture(scope="function")
-def genre_create_schema(genre_data: dict[str, str]) -> GenreCreate:
-    return GenreCreate(**genre_data)
+from tests.test_schemas.test_user import user_data
 
 
 @pytest.fixture(scope="function")
@@ -26,19 +20,26 @@ async def genre_model(
 
 
 @pytest.fixture(scope="function")
-def movie_create_schema(movie_data: dict[str, str]) -> MovieCreate:
-    return MovieCreate(**movie_data)
-
-
-@pytest.fixture(scope="session")
 async def movie_model(
     session: AsyncSession,
-    movie_create_schema: MovieCreate,
+    movie_data: dict,
     genre_model: Genre,
 ) -> Movie:
-    movie_create_schema.genre_id = genre_model.id
-    movie = Movie(**movie_create_schema.model_dump())
+    movie_data["genre_id"] = genre_model.id
+    movie = Movie(**movie_data)
     session.add(movie)
     await session.flush()
     await session.refresh(movie)
     return movie
+
+
+@pytest.fixture(scope="function")
+async def user_model(
+    session: AsyncSession,
+    user_data: dict[str, str],
+) -> User:
+    user = User(**user_data)
+    session.add(user)
+    await session.flush()
+    await session.refresh(user)
+    return user
