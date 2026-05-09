@@ -1,9 +1,14 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, ForeignKey
+from sqlalchemy import CheckConstraint, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from core.constants import (
+    MOVIE_DESCRIPTION_MAX_LENGTH,
+    MOVIE_NAME_MAX_LENGTH,
+    MOVIE_URL_MAX_LENGTH,
+)
 from core.database.connection import Base
 
 if TYPE_CHECKING:
@@ -13,16 +18,14 @@ if TYPE_CHECKING:
 class Movie(Base):
     __tablename__ = "movies"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
-    description: Mapped[str | None]
-    rating: Mapped[float] = mapped_column(
-        CheckConstraint(
-            "0 <= rating <= 10",
-            name="ck_movies_rating",
-        ),
+    name: Mapped[str] = mapped_column(String(MOVIE_NAME_MAX_LENGTH))
+    description: Mapped[str | None] = mapped_column(
+        String(MOVIE_DESCRIPTION_MAX_LENGTH),
+        nullable=True,
     )
-    preview_url: Mapped[str]
-    source_url: Mapped[str]
+    rating: Mapped[float]
+    preview_url: Mapped[str] = mapped_column(String(MOVIE_URL_MAX_LENGTH))
+    source_url: Mapped[str] = mapped_column(String(MOVIE_URL_MAX_LENGTH))
     genre_id: Mapped[int] = mapped_column(
         ForeignKey(
             "genres.id",
@@ -45,4 +48,15 @@ class Movie(Base):
     watch_history: Mapped[list["WatchHistory"]] = relationship(
         "WatchHistory",
         back_populates="movie",
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "LENGTH(name) >= 3 AND LENGTH(name) <= 20",
+            name="ch_movies_name",
+        ),
+        CheckConstraint(
+            "rating >= 1 AND rating <= 10",
+            name="ch_movies_rating",
+        ),
     )
