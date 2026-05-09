@@ -8,7 +8,6 @@ from core.constants import (
     GENRE_NAME_MAX_LENGTH,
 )
 from models import Genre
-from schemas.genre import GenreCreate
 from tests.test_schemas.test_genre import genre_data
 from tests.utils.data_generators.base import generate_string
 
@@ -17,15 +16,15 @@ class TestGenreModel:
     async def test_create_genre(
         self,
         session: AsyncSession,
-        genre_create_schema: GenreCreate,
+        genre_data: dict[str, str],
     ) -> None:
-        genre = Genre(**genre_create_schema.model_dump())
+        genre = Genre(**genre_data)
         session.add(genre)
         await session.flush()
         await session.refresh(genre)
         assert genre.id is not None
-        assert genre.name == genre_create_schema.name
-        assert genre.description == genre_create_schema.description
+        assert genre.name == genre_data["name"]
+        assert genre.description == genre_data["description"]
         assert genre.create_date is not None
 
     @pytest.mark.parametrize(
