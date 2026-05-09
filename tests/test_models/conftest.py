@@ -16,9 +16,9 @@ def genre_create_schema(genre_data: dict[str, str]) -> GenreCreate:
 @pytest.fixture(scope="function")
 async def genre_model(
     session: AsyncSession,
-    genre_create_schema: GenreCreate,
+    genre_data: dict[str, str],
 ) -> Genre:
-    genre = Genre(**genre_create_schema.model_dump())
+    genre = Genre(**genre_data)
     session.add(genre)
     await session.flush()
     await session.refresh(genre)
