@@ -1,12 +1,7 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import Genre, Movie, User, Review, FavoriteMovie
-from tests.test_schemas.test_genre import genre_data
-from tests.test_schemas.test_movie import movie_data
-from tests.test_schemas.test_user import user_data_encrypted_password
-from tests.test_schemas.test_review import review_response_data
-from tests.test_schemas.test_favorite_movie import favorite_movie_response_data
+from models import Genre, Movie, User, Review, FavoriteMovie, WatchHistory
 
 
 @pytest.fixture(scope="function")
@@ -77,3 +72,19 @@ async def favorite_movie(
     await session.flush()
     await session.refresh(favorite_movie_model)
     return favorite_movie_model
+
+
+@pytest.fixture(scope="function")
+async def watch_history(
+    watch_history_response_data: dict,
+    movie: Movie,
+    user: User,
+    session: AsyncSession,
+) -> WatchHistory:
+    watch_history_response_data["movie_id"] = movie.id
+    watch_history_response_data["user_id"] = user.id
+    watch_history_model = WatchHistory(**watch_history_response_data)
+    session.add(watch_history_model)
+    await session.flush()
+    await session.refresh(watch_history_model)
+    return watch_history_model

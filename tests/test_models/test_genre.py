@@ -8,7 +8,6 @@ from core.constants import (
     GENRE_NAME_MAX_LENGTH,
 )
 from models import Genre
-from tests.test_schemas.test_genre import genre_data
 from tests.utils.data_generators.base import generate_string
 
 

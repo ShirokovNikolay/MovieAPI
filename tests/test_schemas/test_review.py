@@ -26,21 +26,6 @@ from tests.utils.data_generators.review import (
 )
 
 
-@pytest.fixture(scope="function")
-def review_data():
-    return create_review_data()
-
-
-@pytest.fixture(scope="function")
-def review_response_data():
-    return create_review_response_data()
-
-
-@pytest.fixture(scope="function")
-def review_response_list() -> list[ReviewResponse]:
-    return create_review_response_list_data(list_length=3)
-
-
 @pytest.mark.parametrize(
     "schema",
     [

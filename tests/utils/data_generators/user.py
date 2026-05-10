@@ -59,7 +59,7 @@ def create_user_data() -> dict[str, str]:
     return data
 
 
-def create_user_data_response() -> dict[str, str | int | datetime]:
+def create_user_response_data() -> dict[str, str | int | datetime]:
     data = create_user_data()
     data["id"] = generate_number()
     data["registration_date"] = datetime(
@@ -73,7 +73,7 @@ def create_user_data_response() -> dict[str, str | int | datetime]:
 def create_user_response_list(list_length: int = 5) -> list[UserResponse]:
     result = []
     for i in range(list_length):
-        user_data = create_user_data_response()
+        user_data = create_user_response_data()
         user = UserResponse(**user_data)
         result.append(user)
     return result
