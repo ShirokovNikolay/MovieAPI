@@ -3,8 +3,8 @@ from typing import cast
 from core.redis.cache_service import CacheService
 from schemas.favorite_movie import (
     FavoriteMovieCreate,
-    FavoriteMovieResponse,
-    FavoriteMovieResponseList,
+    FavoriteMovieWithMovieResponse,
+    FavoriteMovieWithMovieResponseList,
 )
 from services import FavoriteMovieService
 
@@ -23,7 +23,7 @@ class FavoriteMovieCacheService:
         user_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> FavoriteMovieResponseList:
+    ) -> FavoriteMovieWithMovieResponseList:
         key = self.cache_service.create_cache_key(
             "favorite movies",
             user_id=user_id,
@@ -32,10 +32,13 @@ class FavoriteMovieCacheService:
         )
         cached_favorite_movies_response = await self.cache_service.get(
             key,
-            FavoriteMovieResponseList,
+            FavoriteMovieWithMovieResponseList,
         )
         if cached_favorite_movies_response is not None:
-            return cast(FavoriteMovieResponseList, cached_favorite_movies_response)
+            return cast(
+                FavoriteMovieWithMovieResponseList,
+                cached_favorite_movies_response,
+            )
 
         favorite_movies_response = (
             await self.favorite_movie_service.get_favorite_movies_by_user_id(
@@ -55,17 +58,17 @@ class FavoriteMovieCacheService:
     async def get_favorite_movie_by_id(
         self,
         favorite_movie_id: int,
-    ) -> FavoriteMovieResponse:
+    ) -> FavoriteMovieWithMovieResponse:
         key = self.cache_service.create_cache_key(
             "favorite movie",
             favorite_movie_id=favorite_movie_id,
         )
         cached_favorite_movie_response = await self.cache_service.get(
             key,
-            FavoriteMovieResponse,
+            FavoriteMovieWithMovieResponse,
         )
         if cached_favorite_movie_response is not None:
-            return cast(FavoriteMovieResponse, cached_favorite_movie_response)
+            return cast(FavoriteMovieWithMovieResponse, cached_favorite_movie_response)
 
         favorite_movie_response = (
             await self.favorite_movie_service.get_favorite_movie_by_id(
@@ -94,7 +97,7 @@ class FavoriteMovieCacheService:
         self,
         user_id: int,
         create_favorite_movie_data: FavoriteMovieCreate,
-    ) -> FavoriteMovieResponse:
+    ) -> FavoriteMovieWithMovieResponse:
         favorite_movie_response = (
             await self.favorite_movie_service.create_user_favorite_movie(
                 user_id,
