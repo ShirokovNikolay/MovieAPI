@@ -116,8 +116,15 @@ class WatchHistoryCacheService:
         await self.cache_service.set(key, watch_history_response)
         return watch_history_response
 
-    async def delete_watch_history_by_id(self, watch_history_id: int) -> None:
-        await self.watch_history_service.delete_watch_history_by_id(watch_history_id)
+    async def delete_watch_history_by_id(
+        self,
+        user_id: int,
+        watch_history_id: int,
+    ) -> None:
+        await self.watch_history_service.delete_watch_history_by_id(
+            user_id,
+            watch_history_id,
+        )
         key = CacheService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
