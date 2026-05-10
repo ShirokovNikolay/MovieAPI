@@ -3,8 +3,8 @@ from typing import cast
 
 from core.redis.cache_service import CacheService
 from schemas.watch_history import (
-    WatchHistoryResponse,
-    WatchHistoryResponseList,
+    WatchHistoryWithMovieResponse,
+    WatchHistoryWithMovieResponseList,
 )
 from services import WatchHistoryService
 
@@ -21,17 +21,17 @@ class WatchHistoryCacheService:
     async def get_watch_history_by_id(
         self,
         watch_history_id: int,
-    ) -> WatchHistoryResponse:
+    ) -> WatchHistoryWithMovieResponse:
         key = CacheService.create_cache_key(
             "watch_history",
             watch_history_id=watch_history_id,
         )
         cached_watch_history_response = await self.cache_service.get(
             key,
-            WatchHistoryResponse,
+            WatchHistoryWithMovieResponse,
         )
         if cached_watch_history_response is not None:
-            return cast(WatchHistoryResponse, cached_watch_history_response)
+            return cast(WatchHistoryWithMovieResponse, cached_watch_history_response)
 
         watch_history_response = (
             await self.watch_history_service.get_watch_history_by_id(watch_history_id)
@@ -44,7 +44,7 @@ class WatchHistoryCacheService:
         user_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> WatchHistoryResponseList:
+    ) -> WatchHistoryWithMovieResponseList:
         key = CacheService.create_cache_key(
             "watch_history_list",
             user_id=user_id,
@@ -53,10 +53,13 @@ class WatchHistoryCacheService:
         )
         cached_watch_history_list_response = await self.cache_service.get(
             key,
-            WatchHistoryResponseList,
+            WatchHistoryWithMovieResponseList,
         )
         if cached_watch_history_list_response is not None:
-            return cast(WatchHistoryResponseList, cached_watch_history_list_response)
+            return cast(
+                WatchHistoryWithMovieResponseList,
+                cached_watch_history_list_response,
+            )
 
         watch_history_list_response = (
             await self.watch_history_service.get_watch_history_list(user_id, size, page)
@@ -71,7 +74,7 @@ class WatchHistoryCacheService:
         end_date: datetime,
         size: int = 10,
         page: int = 1,
-    ) -> WatchHistoryResponseList:
+    ) -> WatchHistoryWithMovieResponseList:
         key = CacheService.create_cache_key(
             "watch_history_list",
             user_id=user_id,
@@ -82,10 +85,13 @@ class WatchHistoryCacheService:
         )
         cached_watch_history_list_response = await self.cache_service.get(
             key,
-            WatchHistoryResponseList,
+            WatchHistoryWithMovieResponseList,
         )
         if cached_watch_history_list_response is not None:
-            return cast(WatchHistoryResponseList, cached_watch_history_list_response)
+            return cast(
+                WatchHistoryWithMovieResponseList,
+                cached_watch_history_list_response,
+            )
 
         watch_history_list_response = (
             await self.watch_history_service.get_watch_history_by_date_range(
