@@ -25,7 +25,7 @@ services:
     volumes:
       - "postgres-data:/var/lib/postgresql/data"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d test-movie-catalog"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d movie-catalog"]
       start_period: 3s
       interval: 2s
       timeout: 2s
