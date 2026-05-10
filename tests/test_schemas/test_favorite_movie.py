@@ -8,20 +8,6 @@ from schemas.favorite_movie import (
     FavoriteMovieResponseList,
 )
 from tests.utils.data_generators.base import generate_number
-from tests.utils.data_generators.favorite_movie import (
-    create_favorite_movie_response_data,
-    create_favorite_movie_response_list_data,
-)
-
-
-@pytest.fixture(scope="function")
-def favorite_movie_response_data() -> dict[str, int]:
-    return create_favorite_movie_response_data()
-
-
-@pytest.fixture(scope="function")
-def favorite_movie_response_list() -> list[FavoriteMovieResponse]:
-    return create_favorite_movie_response_list_data(list_length=3)
 
 
 @pytest.mark.parametrize(

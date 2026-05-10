@@ -28,21 +28,6 @@ from tests.utils.data_generators.base import (
 )
 
 
-@pytest.fixture(scope="function")
-def genre_data() -> dict[str, str]:
-    return create_genre_data()
-
-
-@pytest.fixture(scope="function")
-def genre_response_data() -> dict[str, str | int]:
-    return create_genre_response_data()
-
-
-@pytest.fixture(scope="function")
-def genre_response_list() -> list[GenreResponse]:
-    return create_genre_response_list(list_length=3)
-
-
 @pytest.mark.parametrize(
     "schema",
     [

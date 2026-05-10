@@ -3,7 +3,6 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import Movie, User, FavoriteMovie
-from tests.test_schemas.test_favorite_movie import favorite_movie_response_data
 from tests.utils.data_generators.base import generate_number
 
 

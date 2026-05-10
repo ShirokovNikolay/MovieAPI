@@ -13,7 +13,6 @@ from core.constants import (
     USER_EMAIL_MIN_LENGTH,
     USER_EMAIL_MAX_LENGTH,
 )
-from tests.test_schemas.test_user import user_data_encrypted_password
 from models import User
 from tests.utils.data_generators.base import generate_string
 

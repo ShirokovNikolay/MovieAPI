@@ -31,33 +31,7 @@ from tests.utils.data_generators.base import (
 )
 from tests.utils.data_generators.user import (
     generate_email_fixed_length,
-    create_user_data,
-    create_user_data_response,
-    create_user_response_list,
 )
-
-
-@pytest.fixture(scope="function")
-def user_data() -> dict[str, str]:
-    return create_user_data()
-
-
-@pytest.fixture(scope="function")
-def user_data_encrypted_password() -> dict[str, str]:
-    data = create_user_data()
-    password = data.pop("password")
-    data["encrypted_password"] = hash_password(password)
-    return data
-
-
-@pytest.fixture(scope="function")
-def user_data_response() -> dict[str, str | int]:
-    return create_user_data_response()
-
-
-@pytest.fixture(scope="function")
-def user_response_list() -> list[UserResponse]:
-    return create_user_response_list(list_length=3)
 
 
 @pytest.mark.parametrize(
@@ -74,11 +48,11 @@ class TestUser:
     def test_user(
         self,
         schema,
-        user_data_response: dict[str, str | int],
+        user_response_data,
     ) -> None:
-        user = schema(**user_data_response)
+        user = schema(**user_response_data)
         for field in user.model_dump():
-            assert getattr(user, field) == user_data_response[field]
+            assert getattr(user, field) == user_response_data[field]
 
     @pytest.mark.parametrize(
         "field,value,expected_error_message",
@@ -131,11 +105,11 @@ class TestUser:
         field: str,
         value: str,
         expected_error_message: str,
-        user_data_response: dict[str, str | int],
+        user_response_data,
     ) -> None:
-        user_data_response[field] = value
+        user_response_data[field] = value
         with pytest.raises(ValidationError, match=expected_error_message):
-            schema(**user_data_response)
+            schema(**user_response_data)
 
     @pytest.mark.parametrize(
         "field",
@@ -150,15 +124,15 @@ class TestUser:
         self,
         schema,
         field: str,
-        user_data_response: dict[str, str | int],
+        user_response_data,
     ) -> None:
         if schema is UserPartialUpdate:
             pytest.skip(
                 reason="UserPartialUpdate schema does does not have required fields"
             )
-        user_data_response.pop(field)
+        user_response_data.pop(field)
         with pytest.raises(ValidationError, match="Field required"):
-            schema(**user_data_response)
+            schema(**user_response_data)
 
 
 @pytest.mark.parametrize(
@@ -172,11 +146,11 @@ class TestUserCreateUpdate:
     def test_user_without_password_field(
         self,
         schema,
-        user_data_response: dict[str, str | int],
+        user_response_data,
     ) -> None:
-        user_data_response.pop("password")
+        user_response_data.pop("password")
         with pytest.raises(ValidationError, match="Field required"):
-            schema(**user_data_response)
+            schema(**user_response_data)
 
     @pytest.mark.parametrize(
         "field,value,expected_error_message",
@@ -199,21 +173,21 @@ class TestUserCreateUpdate:
         field: str,
         value: str,
         expected_error_message: str,
-        user_data_response: dict[str, str | int],
+        user_response_data,
     ) -> None:
-        user_data_response[field] = value
+        user_response_data[field] = value
         with pytest.raises(ValidationError, match=expected_error_message):
-            schema(**user_data_response)
+            schema(**user_response_data)
 
 
 class TestUserPartialUpdate:
     def test_user(
         self,
-        user_data_response: dict[str, str | int],
+        user_response_data,
     ) -> None:
-        user = UserPartialUpdate(**user_data_response)
+        user = UserPartialUpdate(**user_response_data)
         for field in user.model_dump():
-            assert getattr(user, field) == user_data_response[field]
+            assert getattr(user, field) == user_response_data[field]
 
     def test_user_partial_update_without_field(
         self,
@@ -239,12 +213,10 @@ class TestUserResponse:
             "registration_date",
         ],
     )
-    def test_user_without_field(
-        self, user_data_response: dict[str, str | int], field: str
-    ) -> None:
-        user_data_response.pop(field)
+    def test_user_without_field(self, user_response_data, field: str) -> None:
+        user_response_data.pop(field)
         with pytest.raises(ValidationError, match="Field required"):
-            UserResponse(**user_data_response)
+            UserResponse(**user_response_data)
 
 
 class TestUserResponseList:

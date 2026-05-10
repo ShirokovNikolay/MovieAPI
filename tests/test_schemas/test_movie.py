@@ -23,26 +23,6 @@ from tests.utils.data_generators.base import (
     generate_string,
     check_schema_not_none_fields_is_valid,
 )
-from tests.utils.data_generators.movie import (
-    create_movie_data,
-    create_movie_response_data,
-    create_movie_response_list,
-)
-
-
-@pytest.fixture(scope="function")
-def movie_data():
-    return create_movie_data()
-
-
-@pytest.fixture(scope="function")
-def movie_response_data():
-    return create_movie_response_data()
-
-
-@pytest.fixture(scope="function")
-def movie_response_list():
-    return create_movie_response_list(list_length=3)
 
 
 @pytest.mark.parametrize(

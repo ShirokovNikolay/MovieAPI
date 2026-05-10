@@ -17,21 +17,6 @@ from tests.utils.data_generators.watch_history import (
 from tests.utils.data_generators.base import generate_number
 
 
-@pytest.fixture(scope="function")
-def watch_history_data() -> dict[str, int]:
-    return create_watch_history_data()
-
-
-@pytest.fixture(scope="function")
-def watch_history_response_data() -> dict[str, str | int | datetime]:
-    return create_watch_history_response_data()
-
-
-@pytest.fixture(scope="function")
-def watch_history_response_list() -> list[WatchHistoryResponse]:
-    return create_watch_history_response_list(list_length=3)
-
-
 @pytest.mark.parametrize(
     "schema",
     [

@@ -2,8 +2,7 @@ import pytest
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models import Movie, User, WatchHistory, FavoriteMovie
-from tests.test_schemas.test_watch_history import watch_history_response_data
+from models import Movie, User, WatchHistory
 from tests.utils.data_generators.base import generate_number
 
 
@@ -37,9 +36,9 @@ class TestWatchHistoryModel:
         field: str,
         value: int,
         expected_error,
-        favorite_movie: FavoriteMovie,
+        watch_history: WatchHistory,
         session: AsyncSession,
     ) -> None:
-        setattr(favorite_movie, field, value)
+        setattr(watch_history, field, value)
         with pytest.raises(expected_error):
             await session.flush()
