@@ -15,12 +15,12 @@ class TestReviewModel:
     async def test_create_review(
         self,
         review_response_data: dict,
-        movie_model: Movie,
-        user_model: User,
+        movie: Movie,
+        user: User,
         session: AsyncSession,
     ) -> None:
-        review_response_data["movie_id"] = movie_model.id
-        review_response_data["user_id"] = user_model.id
+        review_response_data["movie_id"] = movie.id
+        review_response_data["user_id"] = user.id
         review = Review(**review_response_data)
         session.add(review)
         await session.flush()
@@ -65,11 +65,11 @@ class TestReviewModel:
     async def test_field_constraints_with_wrong_data(
         self,
         session: AsyncSession,
-        review_model: Review,
+        review: Review,
         field: str,
         value: str | int,
         expected_error,
     ) -> None:
-        setattr(review_model, field, value)
+        setattr(review, field, value)
         with pytest.raises(expected_error):
             await session.flush()

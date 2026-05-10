@@ -25,6 +25,7 @@ class FavoriteMovieResponse(FavoriteMovieBase):
     """
 
     id: int
+    user_id: int
 
 
 class FavoriteMovieResponseList(BaseModel):

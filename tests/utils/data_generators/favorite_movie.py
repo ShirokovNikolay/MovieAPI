@@ -12,6 +12,7 @@ def create_favorite_movie_data() -> dict[str, int]:
 def create_favorite_movie_response_data() -> dict[str, int]:
     data = create_favorite_movie_data()
     data["id"] = generate_number()
+    data["user_id"] = generate_number()
     return data
 
 
