@@ -11,6 +11,7 @@ from core.constants import (
     MOVIE_RATING_MAX_VALUE,
     MOVIE_RATING_MIN_VALUE,
 )
+from schemas.genre import GenreResponse
 
 NameConstraint = Annotated[
     str,
@@ -89,5 +90,23 @@ class MovieResponseList(BaseModel):
     """
 
     movie_list: list[MovieResponse]
+    size: int
+    page: int
+
+
+class MovieWithGenreResponse(MovieResponse):
+    """
+    Модель для вывода информации о фильме, включая данные о его жанре.
+    """
+
+    genre: GenreResponse
+
+
+class MovieWithGenreResponseList(BaseModel):
+    """
+    Модель для вывода информации о списке фильмов, включая их жанры.
+    """
+
+    movie_list: list[MovieWithGenreResponse]
     size: int
     page: int

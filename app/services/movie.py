@@ -17,6 +17,8 @@ from schemas.movie import (
     MovieResponse,
     MovieResponseList,
     MovieUpdate,
+    MovieWithGenreResponse,
+    MovieWithGenreResponseList,
 )
 from schemas.watch_history import WatchHistoryCreate
 
@@ -29,10 +31,10 @@ class MovieService:
         self.genre_repository = GenreRepository(session)
         self.watch_history_repository = WatchHistoryRepository(session)
 
-    async def get_movie_by_id(self, movie_id: int) -> MovieResponse:
+    async def get_movie_by_id(self, movie_id: int) -> MovieWithGenreResponse:
         movie = await self.movie_repository.get_movie_by_id(movie_id)
         if movie is not None:
-            return MovieResponse.model_validate(movie)
+            return MovieWithGenreResponse.model_validate(movie)
 
         raise MovieIdNotFoundError(movie_id)
 
@@ -40,7 +42,7 @@ class MovieService:
         self,
         user_id: int,
         create_watch_history_data: WatchHistoryCreate,
-    ) -> MovieResponse:
+    ) -> MovieWithGenreResponse:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
 
@@ -55,18 +57,18 @@ class MovieService:
             create_watch_history_data,
         )
         await self.session.refresh(movie)
-        return MovieResponse.model_validate(movie)
+        return MovieWithGenreResponse.model_validate(movie)
 
     async def get_movies(
         self,
         size: int = 10,
         page: int = 1,
-    ) -> MovieResponseList:
+    ) -> MovieWithGenreResponseList:
         movies = [
-            MovieResponse.model_validate(movie)
+            MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.get_movies(size, page)
         ]
-        return MovieResponseList(
+        return MovieWithGenreResponseList(
             movie_list=movies,
             size=size,
             page=page,
@@ -100,16 +102,16 @@ class MovieService:
         name: str,
         size: int = 10,
         page: int = 1,
-    ) -> MovieResponseList:
+    ) -> MovieWithGenreResponseList:
         movie_list = [
-            MovieResponse.model_validate(movie)
+            MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.search_movies_by_name(
                 name,
                 size,
                 page,
             )
         ]
-        return MovieResponseList(
+        return MovieWithGenreResponseList(
             movie_list=movie_list,
             size=size,
             page=page,
@@ -121,9 +123,9 @@ class MovieService:
         max_rating: int,
         size: int = 10,
         page: int = 1,
-    ) -> MovieResponseList:
+    ) -> MovieWithGenreResponseList:
         movies = [
-            MovieResponse.model_validate(movie)
+            MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.get_movies_by_rating_range(
                 min_rating,
                 max_rating,
@@ -131,27 +133,7 @@ class MovieService:
                 page,
             )
         ]
-        return MovieResponseList(
-            movie_list=movies,
-            size=size,
-            page=page,
-        )
-
-    async def get_movies_by_year(
-        self,
-        year: int,
-        size: int = 10,
-        page: int = 1,
-    ) -> MovieResponseList:
-        movies = [
-            MovieResponse.model_validate(movie)
-            for movie in await self.movie_repository.get_movies_by_year(
-                year,
-                size,
-                page,
-            )
-        ]
-        return MovieResponseList(
+        return MovieWithGenreResponseList(
             movie_list=movies,
             size=size,
             page=page,
@@ -163,9 +145,9 @@ class MovieService:
         release_date_end: datetime,
         size: int = 10,
         page: int = 1,
-    ) -> MovieResponseList:
+    ) -> MovieWithGenreResponseList:
         movies = [
-            MovieResponse.model_validate(movie)
+            MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.get_movies_by_release_date(
                 release_date_start,
                 release_date_end,
@@ -173,46 +155,61 @@ class MovieService:
                 page=page,
             )
         ]
-        return MovieResponseList(
+        return MovieWithGenreResponseList(
             movie_list=movies,
             size=size,
             page=page,
         )
 
-    async def get_top_rated_movies(self, size: int, page: int) -> MovieResponseList:
+    async def get_top_rated_movies(
+        self,
+        size: int,
+        page: int,
+    ) -> MovieWithGenreResponseList:
         movies = [
-            MovieResponse.model_validate(movie)
+            MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.get_top_rated_movies(size, page)
         ]
-        return MovieResponseList(
+        return MovieWithGenreResponseList(
             movie_list=movies,
             size=size,
             page=page,
         )
 
-    async def get_top_newest_movies(self, size: int, page: int) -> MovieResponseList:
+    async def get_top_newest_movies(
+        self,
+        size: int,
+        page: int,
+    ) -> MovieWithGenreResponseList:
         movies = [
-            MovieResponse.model_validate(movie)
+            MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.get_top_newest_movies(size, page)
         ]
-        return MovieResponseList(
+        return MovieWithGenreResponseList(
             movie_list=movies,
             size=size,
             page=page,
         )
 
-    async def get_top_oldest_movies(self, size: int, page: int) -> MovieResponseList:
+    async def get_top_oldest_movies(
+        self,
+        size: int,
+        page: int,
+    ) -> MovieWithGenreResponseList:
         movies = [
-            MovieResponse.model_validate(movie)
+            MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.get_top_oldest_movies(size, page)
         ]
-        return MovieResponseList(
+        return MovieWithGenreResponseList(
             movie_list=movies,
             size=size,
             page=page,
         )
 
-    async def create_movie(self, create_movie_data: MovieCreate) -> MovieResponse:
+    async def create_movie(
+        self,
+        create_movie_data: MovieCreate,
+    ) -> MovieWithGenreResponse:
         if await self.movie_repository.movie_name_exists(create_movie_data.name):
             raise MovieNameAlreadyExistsError(create_movie_data.name)
 
@@ -220,13 +217,13 @@ class MovieService:
             raise GenreIdNotFoundError(create_movie_data.genre_id)
 
         movie = await self.movie_repository.create_movie(create_movie_data)
-        return MovieResponse.model_validate(movie)
+        return MovieWithGenreResponse.model_validate(movie)
 
     async def update_movie(
         self,
         movie_id: int,
         update_movie_data: MovieUpdate,
-    ) -> MovieResponse:
+    ) -> MovieWithGenreResponse:
         movie = await self.movie_repository.get_movie_by_id(movie_id)
         if movie is None:
             raise MovieIdNotFoundError(movie_id)
@@ -244,13 +241,13 @@ class MovieService:
             movie_id,
             update_movie_data,
         )
-        return MovieResponse.model_validate(updated_movie)
+        return MovieWithGenreResponse.model_validate(updated_movie)
 
     async def partial_update_movie(
         self,
         movie_id: int,
         update_movie_data: MoviePartialUpdate,
-    ) -> MovieResponse:
+    ) -> MovieWithGenreResponse:
         movie = await self.movie_repository.get_movie_by_id(movie_id)
         if movie is None:
             raise MovieIdNotFoundError(movie_id)
@@ -278,7 +275,7 @@ class MovieService:
             movie_id,
             update_movie_data,
         )
-        return MovieResponse.model_validate(updated_movie)
+        return MovieWithGenreResponse.model_validate(updated_movie)
 
     async def delete_movie_by_id(self, movie_id: int) -> None:
         if not await self.movie_repository.delete_movie_by_id(movie_id):

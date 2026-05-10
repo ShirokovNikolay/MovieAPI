@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from sqlalchemy import and_, delete, desc, func, select
+from sqlalchemy import and_, delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 
 from models import Movie
 from schemas.movie import MovieCreate, MoviePartialUpdate, MovieUpdate
@@ -17,9 +17,6 @@ class MovieRepository:
             select(Movie)
             .options(
                 joinedload(Movie.genre),
-                selectinload(Movie.reviews),
-                selectinload(Movie.favorited_by_users),
-                selectinload(Movie.watch_history),
             )
             .where(Movie.id == movie_id)
         )
@@ -60,7 +57,6 @@ class MovieRepository:
     ) -> list[Movie]:
         stmt = (
             select(Movie)
-            .options(joinedload(Movie.genre))
             .where(Movie.genre_id == genre_id)
             .limit(size)
             .offset(size * (page - 1))
@@ -76,6 +72,7 @@ class MovieRepository:
     ) -> list[Movie]:
         stmt = (
             select(Movie)
+            .options(joinedload(Movie.genre))
             .where(Movie.name.ilike("%" + name + "%"))
             .limit(size)
             .offset(size * (page - 1))
@@ -95,24 +92,6 @@ class MovieRepository:
             .options(joinedload(Movie.genre))
             .where(
                 Movie.rating.between(min_rating, max_rating),
-            )
-            .limit(size)
-            .offset(size * (page - 1))
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_movies_by_year(
-        self,
-        year: int,
-        size: int = 10,
-        page: int = 1,
-    ) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .options(joinedload(Movie.genre))
-            .where(
-                func.extract("year", Movie.release_date) == year,
             )
             .limit(size)
             .offset(size * (page - 1))
@@ -181,7 +160,7 @@ class MovieRepository:
         self.session.add(movie)
         await self.session.commit()
         await self.session.refresh(movie)
-        return movie
+        return await self.get_movie_by_id(movie.id)
 
     async def update_movie(
         self,
@@ -197,7 +176,7 @@ class MovieRepository:
 
         await self.session.commit()
         await self.session.refresh(movie)
-        return movie
+        return await self.get_movie_by_id(movie.id)
 
     async def partial_update_movie(
         self,
@@ -213,7 +192,7 @@ class MovieRepository:
 
         await self.session.commit()
         await self.session.refresh(movie)
-        return movie
+        return await self.get_movie_by_id(movie.id)
 
     async def delete_movie_by_id(self, movie_id: int) -> bool:
         if await self.get_movie_by_id(movie_id) is None:
