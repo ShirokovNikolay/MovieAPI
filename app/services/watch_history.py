@@ -8,8 +8,8 @@ from repositories import UserRepository
 from repositories.watch_history import WatchHistoryRepository
 from schemas.watch_history import (
     WatchHistoryCreate,
-    WatchHistoryResponse,
-    WatchHistoryResponseList,
+    WatchHistoryWithMovieResponse,
+    WatchHistoryWithMovieResponseList,
 )
 
 
@@ -21,12 +21,12 @@ class WatchHistoryService:
     async def get_watch_history_by_id(
         self,
         watch_history_id: int,
-    ) -> WatchHistoryResponse:
+    ) -> WatchHistoryWithMovieResponse:
         watch_history = await self.watch_history_repository.get_watch_history_by_id(
             watch_history_id,
         )
         if watch_history is not None:
-            return WatchHistoryResponse.model_validate(watch_history)
+            return WatchHistoryWithMovieResponse.model_validate(watch_history)
         raise WatchHistoryIdNotFoundError(watch_history_id)
 
     async def watch_history_exists(self, watch_history_id: int) -> bool:
@@ -39,7 +39,10 @@ class WatchHistoryService:
         user_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> WatchHistoryResponseList:
+    ) -> WatchHistoryWithMovieResponseList:
+        if not await self.user_repository.user_id_exists(user_id):
+            raise UserIdNotFoundError(user_id)
+
         watch_history_models = (
             await self.watch_history_repository.get_watch_history_list(
                 user_id,
@@ -47,17 +50,15 @@ class WatchHistoryService:
                 page,
             )
         )
-        if await self.user_repository.user_id_exists(user_id):
-            watch_history_list = [
-                WatchHistoryResponse.model_validate(watch_history)
-                for watch_history in watch_history_models
-            ]
-            return WatchHistoryResponseList(
-                watch_history_list=watch_history_list,
-                size=size,
-                page=page,
-            )
-        raise UserIdNotFoundError(user_id)
+        watch_history_list = [
+            WatchHistoryWithMovieResponse.model_validate(watch_history)
+            for watch_history in watch_history_models
+        ]
+        return WatchHistoryWithMovieResponseList(
+            watch_history_list=watch_history_list,
+            size=size,
+            page=page,
+        )
 
     async def get_watch_history_by_date_range(
         self,
@@ -66,27 +67,28 @@ class WatchHistoryService:
         end_date: datetime,
         size: int = 10,
         page: int = 1,
-    ) -> WatchHistoryResponseList:
-        if await self.user_repository.user_id_exists(user_id):
-            watch_history_models = (
-                await self.watch_history_repository.get_watch_history_by_date_range(
-                    user_id,
-                    start_date,
-                    end_date,
-                    size,
-                    page,
-                )
+    ) -> WatchHistoryWithMovieResponseList:
+        if not await self.user_repository.user_id_exists(user_id):
+            raise UserIdNotFoundError(user_id)
+
+        watch_history_models = (
+            await self.watch_history_repository.get_watch_history_by_date_range(
+                user_id,
+                start_date,
+                end_date,
+                size,
+                page,
             )
-            watch_history_list = [
-                WatchHistoryResponse.model_validate(watch_history)
-                for watch_history in watch_history_models
-            ]
-            return WatchHistoryResponseList(
-                watch_history_list=watch_history_list,
-                size=size,
-                page=page,
-            )
-        raise UserIdNotFoundError(user_id)
+        )
+        watch_history_list = [
+            WatchHistoryWithMovieResponse.model_validate(watch_history)
+            for watch_history in watch_history_models
+        ]
+        return WatchHistoryWithMovieResponseList(
+            watch_history_list=watch_history_list,
+            size=size,
+            page=page,
+        )
 
     async def count_user_watch_history(self, user_id: int) -> int:
         if await self.user_repository.user_id_exists(user_id):
@@ -97,16 +99,15 @@ class WatchHistoryService:
         self,
         user_id: int,
         create_watch_history_data: WatchHistoryCreate,
-    ) -> WatchHistoryResponse:
-        if await self.user_repository.user_id_exists(user_id):
-            watch_history = (
-                await self.watch_history_repository.add_movie_to_watch_history(
-                    user_id,
-                    create_watch_history_data,
-                )
-            )
-            return WatchHistoryResponse.model_validate(watch_history)
-        raise UserIdNotFoundError(user_id)
+    ) -> WatchHistoryWithMovieResponse:
+        if not await self.user_repository.user_id_exists(user_id):
+            raise UserIdNotFoundError(user_id)
+
+        watch_history = await self.watch_history_repository.add_movie_to_watch_history(
+            user_id,
+            create_watch_history_data,
+        )
+        return WatchHistoryWithMovieResponse.model_validate(watch_history)
 
     async def delete_watch_history_by_id(self, watch_history_id: int) -> None:
         if not await self.watch_history_repository.delete_watch_history_by_id(

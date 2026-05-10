@@ -5,7 +5,7 @@ from fastapi import APIRouter, status
 from dependencies.annotations.cache_services import WatchHistoryCacheServiceDep
 from dependencies.annotations.security import AuthUserByAccessTokenDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
-from schemas.watch_history import WatchHistoryResponseList
+from schemas.watch_history import WatchHistoryWithMovieResponseList
 
 router = APIRouter(
     prefix="/about-me",
@@ -14,7 +14,7 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=WatchHistoryResponseList,
+    response_model=WatchHistoryWithMovieResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_watch_history_list(
@@ -22,13 +22,13 @@ async def get_watch_history_list(
     watch_history_cache_service: WatchHistoryCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> WatchHistoryResponseList:
+) -> WatchHistoryWithMovieResponseList:
     return await watch_history_cache_service.get_watch_history_list(user_id, size, page)
 
 
 @router.get(
     "/range-by-time",
-    response_model=WatchHistoryResponseList,
+    response_model=WatchHistoryWithMovieResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_watch_history_by_date_range(
@@ -38,7 +38,7 @@ async def get_watch_history_by_date_range(
     watch_history_cache_service: WatchHistoryCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> WatchHistoryResponseList:
+) -> WatchHistoryWithMovieResponseList:
     return await watch_history_cache_service.get_watch_history_by_date_range(
         user_id,
         start_date,
