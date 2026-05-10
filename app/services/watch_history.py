@@ -2,10 +2,12 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.exceptions.auth import PermissionDeniedError
 from core.exceptions.user import UserIdNotFoundError
 from core.exceptions.watch_history import WatchHistoryIdNotFoundError
 from repositories import UserRepository
 from repositories.watch_history import WatchHistoryRepository
+from schemas.user import UserResponse
 from schemas.watch_history import (
     WatchHistoryCreate,
     WatchHistoryWithMovieResponse,
@@ -17,6 +19,15 @@ class WatchHistoryService:
     def __init__(self, session: AsyncSession) -> None:
         self.user_repository = UserRepository(session)
         self.watch_history_repository = WatchHistoryRepository(session)
+
+    async def get_watch_history_owner(self, watch_history_id: int) -> UserResponse:
+        if not self.watch_history_repository.watch_history_exists(watch_history_id):
+            raise WatchHistoryIdNotFoundError(watch_history_id)
+
+        user = await self.watch_history_repository.get_watch_history_owner(
+            watch_history_id,
+        )
+        return UserResponse.model_validate(user)
 
     async def get_watch_history_by_id(
         self,
@@ -109,7 +120,17 @@ class WatchHistoryService:
         )
         return WatchHistoryWithMovieResponse.model_validate(watch_history)
 
-    async def delete_watch_history_by_id(self, watch_history_id: int) -> None:
+    async def delete_watch_history_by_id(
+        self,
+        user_id: int,
+        watch_history_id: int,
+    ) -> None:
+        if not self.user_repository.user_id_exists(user_id):
+            raise UserIdNotFoundError(user_id)
+
+        owner = await self.get_watch_history_owner(watch_history_id)
+        if owner.id != user_id:
+            raise PermissionDeniedError
         if not await self.watch_history_repository.delete_watch_history_by_id(
             watch_history_id,
         ):

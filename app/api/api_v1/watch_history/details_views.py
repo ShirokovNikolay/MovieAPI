@@ -2,14 +2,12 @@ from fastapi import APIRouter, Depends
 from starlette import status
 
 from dependencies.annotations.cache_services import WatchHistoryCacheServiceDep
+from dependencies.annotations.security import AuthUserByAccessTokenDep
 from dependencies.auth import get_admin_by_access_token
 from schemas.watch_history import WatchHistoryWithMovieResponse
 
 router = APIRouter(
     prefix="/{watch_history_id}",
-    dependencies=[
-        Depends(get_admin_by_access_token),
-    ],
 )
 
 
@@ -17,6 +15,9 @@ router = APIRouter(
     "/",
     response_model=WatchHistoryWithMovieResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(get_admin_by_access_token),
+    ],
 )
 async def get_watch_history_by_id(
     watch_history_id: int,
@@ -31,6 +32,10 @@ async def get_watch_history_by_id(
 )
 async def delete_watch_history_by_id(
     watch_history_id: int,
+    user_id: AuthUserByAccessTokenDep,
     watch_history_cache_service: WatchHistoryCacheServiceDep,
 ) -> None:
-    await watch_history_cache_service.delete_watch_history_by_id(watch_history_id)
+    await watch_history_cache_service.delete_watch_history_by_id(
+        user_id,
+        watch_history_id,
+    )

@@ -5,13 +5,22 @@ from sqlalchemy import and_, delete, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from models import WatchHistory
+from models import User, WatchHistory
 from schemas.watch_history import WatchHistoryCreate
 
 
 class WatchHistoryRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+
+    async def get_watch_history_owner(self, watch_history_id: int) -> User | None:
+        stmt = (
+            select(User)
+            .join(WatchHistory, User.id == WatchHistory.user_id)
+            .where(WatchHistory.id == watch_history_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def get_watch_history_by_id(
         self,
