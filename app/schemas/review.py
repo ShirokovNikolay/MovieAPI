@@ -9,6 +9,7 @@ from core.constants import (
     REVIEW_RATING_MIN_VALUE,
     REVIEW_TEXT_MAX_LENGTH,
 )
+from schemas.user import UserResponse
 
 ReviewTextConstraint = Annotated[
     str,
@@ -74,5 +75,23 @@ class ReviewResponseList(BaseModel):
     """
 
     review_list: list[ReviewResponse]
+    size: int
+    page: int
+
+
+class ReviewWithUserResponse(ReviewResponse):
+    """
+    Модель для вывода информации об отзыве вместе с пользователем.
+    """
+
+    user: UserResponse
+
+
+class ReviewWithUserResponseList(BaseModel):
+    """
+    Модель для вывода списка отзывов вместе с пользователем.
+    """
+
+    review_list: list[ReviewWithUserResponse]
     size: int
     page: int

@@ -9,8 +9,8 @@ from dependencies.auth import (
 from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.review import (
     ReviewCreate,
-    ReviewResponse,
-    ReviewResponseList,
+    ReviewWithUserResponse,
+    ReviewWithUserResponseList,
 )
 
 router = APIRouter(
@@ -22,7 +22,7 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=ReviewResponseList,
+    response_model=ReviewWithUserResponseList,
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
@@ -32,18 +32,18 @@ async def get_review_list(
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> ReviewResponseList:
+) -> ReviewWithUserResponseList:
     return await review_cache_service.get_reviews(size, page)
 
 
 @router.post(
     "/",
-    response_model=ReviewResponse,
+    response_model=ReviewWithUserResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_review(
     create_review_data: ReviewCreate,
     user_id: AuthUserByAccessTokenDep,
     review_cache_service: ReviewCacheServiceDep,
-) -> ReviewResponse:
+) -> ReviewWithUserResponse:
     return await review_cache_service.create_review(user_id, create_review_data)

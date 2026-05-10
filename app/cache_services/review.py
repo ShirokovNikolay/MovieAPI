@@ -8,6 +8,8 @@ from schemas.review import (
     ReviewResponse,
     ReviewResponseList,
     ReviewUpdate,
+    ReviewWithUserResponse,
+    ReviewWithUserResponseList,
 )
 from services import ReviewService
 
@@ -25,11 +27,14 @@ class ReviewCacheService:
         self,
         size: int = 10,
         page: int = 1,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         key = CacheService.create_cache_key("reviews", size=size, page=page)
-        cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
+        cached_reviews_response = await self.cache_service.get(
+            key,
+            ReviewWithUserResponseList,
+        )
         if cached_reviews_response is not None:
-            return cast(ReviewResponseList, cached_reviews_response)
+            return cast(ReviewWithUserResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_reviews(size, page)
         await self.cache_service.set(
@@ -39,11 +44,14 @@ class ReviewCacheService:
         )
         return reviews_response
 
-    async def get_review_by_id(self, review_id: int) -> ReviewResponse:
+    async def get_review_by_id(self, review_id: int) -> ReviewWithUserResponse:
         key = CacheService.create_cache_key("review", review_id=review_id)
-        cached_review_response = await self.cache_service.get(key, ReviewResponse)
+        cached_review_response = await self.cache_service.get(
+            key,
+            ReviewWithUserResponse,
+        )
         if cached_review_response is not None:
-            return cast(ReviewResponse, cached_review_response)
+            return cast(ReviewWithUserResponse, cached_review_response)
 
         review_response = await self.review_service.get_review_by_id(review_id)
         await self.cache_service.set(
@@ -111,16 +119,19 @@ class ReviewCacheService:
         movie_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         key = CacheService.create_cache_key(
             "reviews",
             movie_id=movie_id,
             size=size,
             page=page,
         )
-        cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
+        cached_reviews_response = await self.cache_service.get(
+            key,
+            ReviewWithUserResponseList,
+        )
         if cached_reviews_response is not None:
-            return cast(ReviewResponseList, cached_reviews_response)
+            return cast(ReviewWithUserResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_movie_reviews(
             movie_id,
@@ -139,16 +150,19 @@ class ReviewCacheService:
         movie_id: int,
         size: PaginationSizeDep = 10,
         page: PaginationPageDep = 1,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         key = CacheService.create_cache_key(
-            "reviews",
+            "reviews:top-rated",
             movie_id=movie_id,
             size=size,
             page=page,
         )
-        cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
+        cached_reviews_response = await self.cache_service.get(
+            key,
+            ReviewWithUserResponseList,
+        )
         if cached_reviews_response is not None:
-            return cast(ReviewResponseList, cached_reviews_response)
+            return cast(ReviewWithUserResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_top_rating_movie_reviews(
             movie_id,
@@ -167,16 +181,19 @@ class ReviewCacheService:
         movie_id: int,
         size: int,
         page: int,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         key = CacheService.create_cache_key(
-            "reviews",
+            "reviews:top-newest",
             movie_id=movie_id,
             size=size,
             page=page,
         )
-        cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
+        cached_reviews_response = await self.cache_service.get(
+            key,
+            ReviewWithUserResponseList,
+        )
         if cached_reviews_response is not None:
-            return cast(ReviewResponseList, cached_reviews_response)
+            return cast(ReviewWithUserResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_top_newest_movie_reviews(
             movie_id,
@@ -195,16 +212,16 @@ class ReviewCacheService:
         movie_id: int,
         size: int,
         page: int,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         key = CacheService.create_cache_key(
-            "reviews",
+            "reviews:top-oldest",
             movie_id=movie_id,
             size=size,
             page=page,
         )
         cached_reviews_response = cast(
-            ReviewResponseList,
-            await self.cache_service.get(key, ReviewResponseList),
+            ReviewWithUserResponseList,
+            await self.cache_service.get(key, ReviewWithUserResponseList),
         )
         if cached_reviews_response is not None:
             return cached_reviews_response
@@ -225,7 +242,7 @@ class ReviewCacheService:
         self,
         user_id: int,
         create_review_data: ReviewCreate,
-    ) -> ReviewResponse:
+    ) -> ReviewWithUserResponse:
         review_response = await self.review_service.create_review(
             user_id,
             create_review_data,
@@ -240,7 +257,7 @@ class ReviewCacheService:
         current_user_id: int,
         review_id: int,
         update_review_data: ReviewUpdate,
-    ) -> ReviewResponse:
+    ) -> ReviewWithUserResponse:
         review_response = await self.review_service.update_review(
             current_user_id,
             review_id,
@@ -256,7 +273,7 @@ class ReviewCacheService:
         current_user_id: int,
         review_id: int,
         update_review_data: ReviewPartialUpdate,
-    ) -> ReviewResponse:
+    ) -> ReviewWithUserResponse:
         review_response = await self.review_service.partial_update_review(
             current_user_id,
             review_id,

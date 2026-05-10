@@ -16,6 +16,8 @@ from schemas.review import (
     ReviewResponse,
     ReviewResponseList,
     ReviewUpdate,
+    ReviewWithUserResponse,
+    ReviewWithUserResponseList,
 )
 from schemas.user import UserResponse
 
@@ -31,21 +33,21 @@ class ReviewService:
         self,
         size: int = 10,
         page: int = 1,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         reviews = [
-            ReviewResponse.model_validate(movie)
+            ReviewWithUserResponse.model_validate(movie)
             for movie in await self.review_repository.get_all_reviews(size, page)
         ]
-        return ReviewResponseList(
+        return ReviewWithUserResponseList(
             review_list=reviews,
             size=size,
             page=page,
         )
 
-    async def get_review_by_id(self, review_id: int) -> ReviewResponse:
+    async def get_review_by_id(self, review_id: int) -> ReviewWithUserResponse:
         review = await self.review_repository.get_review_by_id(review_id)
         if review is not None:
-            return ReviewResponse.model_validate(review)
+            return ReviewWithUserResponse.model_validate(review)
         raise ReviewIdNotFoundError(review_id)
 
     async def get_user_reviews(
@@ -96,19 +98,19 @@ class ReviewService:
         movie_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
 
         reviews = [
-            ReviewResponse.model_validate(review)
+            ReviewWithUserResponse.model_validate(review)
             for review in await self.review_repository.get_movie_reviews(
                 movie_id,
                 size,
                 page,
             )
         ]
-        return ReviewResponseList(
+        return ReviewWithUserResponseList(
             review_list=reviews,
             size=size,
             page=page,
@@ -119,19 +121,19 @@ class ReviewService:
         movie_id: int,
         size: int,
         page: int,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
 
         reviews = [
-            ReviewResponse.model_validate(review)
+            ReviewWithUserResponse.model_validate(review)
             for review in await self.review_repository.get_top_rating_movie_reviews(
                 movie_id,
                 size,
                 page,
             )
         ]
-        return ReviewResponseList(
+        return ReviewWithUserResponseList(
             review_list=reviews,
             size=size,
             page=page,
@@ -142,19 +144,19 @@ class ReviewService:
         movie_id: int,
         size: int,
         page: int,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
 
         reviews = [
-            ReviewResponse.model_validate(review)
+            ReviewWithUserResponse.model_validate(review)
             for review in await self.review_repository.get_top_newest_movie_reviews(
                 movie_id,
                 size,
                 page,
             )
         ]
-        return ReviewResponseList(
+        return ReviewWithUserResponseList(
             review_list=reviews,
             size=size,
             page=page,
@@ -165,19 +167,19 @@ class ReviewService:
         movie_id: int,
         size: int,
         page: int,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithUserResponseList:
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
 
         reviews = [
-            ReviewResponse.model_validate(review)
+            ReviewWithUserResponse.model_validate(review)
             for review in await self.review_repository.get_top_oldest_movie_reviews(
                 movie_id,
                 size,
                 page,
             )
         ]
-        return ReviewResponseList(
+        return ReviewWithUserResponseList(
             review_list=reviews,
             size=size,
             page=page,
@@ -187,7 +189,7 @@ class ReviewService:
         self,
         user_id: int,
         create_review_data: ReviewCreate,
-    ) -> ReviewResponse:
+    ) -> ReviewWithUserResponse:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
 
@@ -204,14 +206,14 @@ class ReviewService:
             )
 
         review = await self.review_repository.create_review(user_id, create_review_data)
-        return ReviewResponse.model_validate(review)
+        return ReviewWithUserResponse.model_validate(review)
 
     async def update_review(
         self,
         current_user_id: int,
         review_id: int,
         update_review_data: ReviewUpdate,
-    ) -> ReviewResponse:
+    ) -> ReviewWithUserResponse:
         if not await self.user_repository.user_id_exists(current_user_id):
             raise UserIdNotFoundError(current_user_id)
 
@@ -223,14 +225,14 @@ class ReviewService:
             review_id,
             update_review_data,
         )
-        return ReviewResponse.model_validate(updated_review)
+        return ReviewWithUserResponse.model_validate(updated_review)
 
     async def partial_update_review(
         self,
         current_user_id: int,
         review_id: int,
         update_review_data: ReviewPartialUpdate,
-    ) -> ReviewResponse:
+    ) -> ReviewWithUserResponse:
         if not await self.user_repository.user_id_exists(current_user_id):
             raise UserIdNotFoundError(current_user_id)
 
@@ -242,7 +244,7 @@ class ReviewService:
             review_id,
             update_review_data,
         )
-        return ReviewResponse.model_validate(updated_review)
+        return ReviewWithUserResponse.model_validate(updated_review)
 
     async def delete_review(
         self,

@@ -1,6 +1,6 @@
 from sqlalchemy import and_, delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 
 from models import Review, User
 from schemas.review import ReviewCreate, ReviewPartialUpdate, ReviewUpdate
@@ -24,30 +24,26 @@ class ReviewRepository:
         size: int = 10,
         page: int = 1,
     ) -> list[Review]:
-        stmt = select(Review).limit(size).offset(size * (page - 1))
+        stmt = (
+            select(Review)
+            .options(joinedload(Review.user))
+            .limit(size)
+            .offset(size * (page - 1))
+        )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def get_review_by_id(self, review_id: int) -> Review | None:
-        stmt = select(Review).where(Review.id == review_id)
-        result = await self.session.execute(stmt)
-        return result.scalars().first()
-
-    async def get_review_by_user_id_and_movie_id(
-        self,
-        user_id: int,
-        movie_id: int,
-    ) -> Review | None:
-        stmt = select(Review).where(
-            and_(Review.user_id == user_id, Review.movie_id == movie_id),
+        stmt = (
+            select(Review)
+            .options(joinedload(Review.user))
+            .where(Review.id == review_id)
         )
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
     async def review_exists(self, movie_id: int, user_id: int) -> bool:
-        return (
-            await self.get_review_by_user_id_and_movie_id(user_id, movie_id) is not None
-        )
+        return await self.get_user_review_about_movie(user_id, movie_id) is not None
 
     async def review_id_exists(self, review_id: int) -> bool:
         return await self.get_review_by_id(review_id) is not None
@@ -60,9 +56,6 @@ class ReviewRepository:
     ) -> list[Review]:
         stmt = (
             select(Review)
-            .options(
-                joinedload(Review.user),
-            )
             .where(
                 Review.user_id == user_id,
             )
@@ -77,18 +70,11 @@ class ReviewRepository:
         user_id: int,
         movie_id: int,
     ) -> Review | None:
-        stmt = (
-            select(Review)
-            .options(
-                joinedload(Review.user),
-                joinedload(Review.movie),
-            )
-            .where(
-                and_(
-                    Review.user_id == user_id,
-                    Review.movie_id == movie_id,
-                ),
-            )
+        stmt = select(Review).where(
+            and_(
+                Review.user_id == user_id,
+                Review.movie_id == movie_id,
+            ),
         )
         result = await self.session.execute(stmt)
         return result.scalars().first()
@@ -101,10 +87,7 @@ class ReviewRepository:
     ) -> list[Review]:
         stmt = (
             select(Review)
-            .options(
-                selectinload(Review.user),
-                joinedload(Review.movie),
-            )
+            .options(joinedload(Review.user))
             .where(
                 Review.movie_id == movie_id,
             )
@@ -122,10 +105,7 @@ class ReviewRepository:
     ) -> list[Review]:
         stmt = (
             select(Review)
-            .options(
-                joinedload(Review.movie),
-                joinedload(Review.user),
-            )
+            .options(joinedload(Review.user))
             .where(Review.movie_id == movie_id)
             .order_by(desc(Review.rating))
             .limit(size)
@@ -142,10 +122,7 @@ class ReviewRepository:
     ) -> list[Review]:
         stmt = (
             select(Review)
-            .options(
-                joinedload(Review.movie),
-                joinedload(Review.user),
-            )
+            .options(joinedload(Review.user))
             .where(Review.movie_id == movie_id)
             .order_by(desc(Review.publication_date))
             .limit(size)
@@ -162,10 +139,7 @@ class ReviewRepository:
     ) -> list[Review]:
         stmt = (
             select(Review)
-            .options(
-                joinedload(Review.movie),
-                joinedload(Review.user),
-            )
+            .options(joinedload(Review.user))
             .where(Review.movie_id == movie_id)
             .order_by(Review.publication_date)
             .limit(size)
@@ -178,12 +152,12 @@ class ReviewRepository:
         self,
         user_id: int,
         create_review_data: ReviewCreate,
-    ) -> Review:
+    ) -> Review | None:
         review = Review(user_id=user_id, **create_review_data.model_dump())
         self.session.add(review)
         await self.session.commit()
         await self.session.refresh(review)
-        return review
+        return await self.get_review_by_id(review.id)
 
     async def update_review(
         self,
@@ -199,7 +173,7 @@ class ReviewRepository:
 
         await self.session.commit()
         await self.session.refresh(review)
-        return review
+        return await self.get_review_by_id(review.id)
 
     async def partial_update_review(
         self,
@@ -215,7 +189,7 @@ class ReviewRepository:
 
         await self.session.commit()
         await self.session.refresh(review)
-        return review
+        return await self.get_review_by_id(review.id)
 
     async def delete_review(self, review_id: int) -> bool:
         if await self.get_review_by_id(review_id) is None:
