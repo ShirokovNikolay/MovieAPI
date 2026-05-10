@@ -6,7 +6,7 @@ from dependencies.annotations.security import AuthUserByAccessTokenDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.auth import get_admin_by_access_token
 from dependencies.rate_limiter import check_rate_limit_auth
-from schemas.favorite_movie import FavoriteMovieResponseList
+from schemas.favorite_movie import FavoriteMovieWithMovieResponseList
 
 router = APIRouter(
     prefix="/users",
@@ -18,7 +18,7 @@ router = APIRouter(
 
 @router.get(
     "/about-me",
-    response_model=FavoriteMovieResponseList,
+    response_model=FavoriteMovieWithMovieResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_current_user_favorite_movies(
@@ -26,7 +26,7 @@ async def get_current_user_favorite_movies(
     favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> FavoriteMovieResponseList:
+) -> FavoriteMovieWithMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
         user_id,
         size,
@@ -36,7 +36,7 @@ async def get_current_user_favorite_movies(
 
 @router.get(
     "/{user_id}",
-    response_model=FavoriteMovieResponseList,
+    response_model=FavoriteMovieWithMovieResponseList,
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
@@ -47,7 +47,7 @@ async def get_user_favorite_movies(
     favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> FavoriteMovieResponseList:
+) -> FavoriteMovieWithMovieResponseList:
     return await favorite_movie_cache_service.get_favorite_movies_by_user_id(
         user_id,
         size,

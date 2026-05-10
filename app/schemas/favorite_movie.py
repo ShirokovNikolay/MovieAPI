@@ -2,6 +2,8 @@ from typing import ClassVar
 
 from pydantic import BaseModel, ConfigDict
 
+from schemas.movie import MovieResponse
+
 
 class FavoriteMovieBase(BaseModel):
     """
@@ -34,5 +36,24 @@ class FavoriteMovieResponseList(BaseModel):
     """
 
     favorite_movie_list: list[FavoriteMovieResponse]
+    size: int
+    page: int
+
+
+class FavoriteMovieWithMovieResponse(FavoriteMovieResponse):
+    """
+    Модель для вывода избранного фильма с подтягиванием данных о фильме.
+    """
+
+    movie: MovieResponse
+
+
+class FavoriteMovieWithMovieResponseList(BaseModel):
+    """
+    Модель для отображения списка избранных фильмов c
+    подтягиванием данных о фильме.
+    """
+
+    favorite_movie_list: list[FavoriteMovieWithMovieResponse]
     size: int
     page: int
