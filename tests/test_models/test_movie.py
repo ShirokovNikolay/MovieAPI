@@ -18,9 +18,9 @@ class TestMovieModel:
         self,
         session: AsyncSession,
         movie_data: dict[str, str | int],
-        genre_model: Genre,
+        genre: Genre,
     ) -> None:
-        movie_data["genre_id"] = genre_model.id
+        movie_data["genre_id"] = genre.id
         movie = Movie(**movie_data)
         session.add(movie)
         await session.flush()
@@ -30,7 +30,7 @@ class TestMovieModel:
         assert movie.rating == movie_data["rating"]
         assert movie.preview_url == movie_data["preview_url"]
         assert movie.source_url == movie_data["source_url"]
-        assert movie.genre_id == genre_model.id
+        assert movie.genre_id == genre.id
         assert movie.release_date == movie_data["release_date"]
 
     @pytest.mark.parametrize(
