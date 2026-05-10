@@ -20,23 +20,23 @@ class Review(Base):
             name="fk_reviews_user_id",
         ),
     )
-    user: Mapped["User"] = relationship(
-        "User",
-        back_populates="reviews",
-    )
     movie_id: Mapped[int] = mapped_column(
         ForeignKey(
             "movies.id",
             name="fk_reviews_movie_id",
         ),
     )
+    review_text: Mapped[str | None] = mapped_column(String(REVIEW_TEXT_MAX_LENGTH))
+    rating: Mapped[int]
+    publication_date: Mapped[datetime] = mapped_column(server_default=func.now())
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="reviews",
+    )
     movie: Mapped["Movie"] = relationship(
         "Movie",
         back_populates="reviews",
     )
-    review_text: Mapped[str | None] = mapped_column(String(REVIEW_TEXT_MAX_LENGTH))
-    rating: Mapped[int]
-    publication_date: Mapped[datetime] = mapped_column(server_default=func.now())
     __table_args__ = (
         CheckConstraint("rating >= 0 AND rating <= 10", name="ch_reviews_rating"),
     )

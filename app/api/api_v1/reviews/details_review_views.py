@@ -8,8 +8,8 @@ from dependencies.auth import (
 from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.review import (
     ReviewPartialUpdate,
-    ReviewResponse,
     ReviewUpdate,
+    ReviewWithUserResponse,
 )
 
 router = APIRouter(
@@ -22,7 +22,7 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=ReviewResponse,
+    response_model=ReviewWithUserResponse,
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(get_admin_by_access_token),
@@ -31,13 +31,13 @@ router = APIRouter(
 async def get_review(
     review_id: int,
     review_cache_service: ReviewCacheServiceDep,
-) -> ReviewResponse:
+) -> ReviewWithUserResponse:
     return await review_cache_service.get_review_by_id(review_id)
 
 
 @router.put(
     "/",
-    response_model=ReviewResponse,
+    response_model=ReviewWithUserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def update_review(
@@ -45,7 +45,7 @@ async def update_review(
     review_id: int,
     update_review_data: ReviewUpdate,
     review_cache_service: ReviewCacheServiceDep,
-) -> ReviewResponse:
+) -> ReviewWithUserResponse:
     return await review_cache_service.update_review(
         user_id,
         review_id,
@@ -55,7 +55,7 @@ async def update_review(
 
 @router.patch(
     "/",
-    response_model=ReviewResponse,
+    response_model=ReviewWithUserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_review(
@@ -63,7 +63,7 @@ async def partial_update_review(
     review_id: int,
     update_review_data: ReviewPartialUpdate,
     review_cache_service: ReviewCacheServiceDep,
-) -> ReviewResponse:
+) -> ReviewWithUserResponse:
     return await review_cache_service.partial_update_review(
         user_id,
         review_id,

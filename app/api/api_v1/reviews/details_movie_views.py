@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status
 from dependencies.annotations.cache_services import ReviewCacheServiceDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.rate_limiter import check_rate_limit_not_auth
-from schemas.review import ReviewResponseList
+from schemas.review import ReviewWithUserResponseList
 
 router = APIRouter(
     prefix="/{movie_id}",
@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=ReviewResponseList,
+    response_model=ReviewWithUserResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_movie_reviews(
@@ -23,13 +23,13 @@ async def get_movie_reviews(
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> ReviewResponseList:
+) -> ReviewWithUserResponseList:
     return await review_cache_service.get_movie_reviews(movie_id, size, page)
 
 
 @router.get(
     "/top-rated",
-    response_model=ReviewResponseList,
+    response_model=ReviewWithUserResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_top_rating_movie_reviews(
@@ -37,13 +37,13 @@ async def get_top_rating_movie_reviews(
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> ReviewResponseList:
+) -> ReviewWithUserResponseList:
     return await review_cache_service.get_top_rating_movie_reviews(movie_id, size, page)
 
 
 @router.get(
     "/top-newest",
-    response_model=ReviewResponseList,
+    response_model=ReviewWithUserResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_top_newest_movie_reviews(
@@ -51,7 +51,7 @@ async def get_top_newest_movie_reviews(
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> ReviewResponseList:
+) -> ReviewWithUserResponseList:
     return await review_cache_service.get_top_newest_movie_reviews(
         movie_id,
         size,
@@ -61,7 +61,7 @@ async def get_top_newest_movie_reviews(
 
 @router.get(
     "/top-oldest",
-    response_model=ReviewResponseList,
+    response_model=ReviewWithUserResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_top_oldest_movie_reviews(
@@ -69,7 +69,7 @@ async def get_top_oldest_movie_reviews(
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> ReviewResponseList:
+) -> ReviewWithUserResponseList:
     return await review_cache_service.get_top_oldest_movie_reviews(
         movie_id,
         size,
