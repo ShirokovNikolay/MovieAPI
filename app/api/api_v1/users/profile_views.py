@@ -18,7 +18,7 @@ router = APIRouter(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_profile(
+async def get_current_user_profile(
     current_user_id: AuthUserByAccessTokenDep,
     user_cache_service: UserCacheServiceDep,
 ) -> UserResponse:
@@ -30,7 +30,7 @@ async def get_user_profile(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def update_user_profile(
+async def update_current_user_profile(
     update_data: UserUpdate,
     current_user_id: AuthUserByAccessTokenDep,
     user_cache_service: UserCacheServiceDep,
@@ -43,7 +43,7 @@ async def update_user_profile(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def partial_update_user_profile(
+async def partial_update_current_user_profile(
     update_data: UserPartialUpdate,
     current_user_id: AuthUserByAccessTokenDep,
     user_cache_service: UserCacheServiceDep,
@@ -55,7 +55,7 @@ async def partial_update_user_profile(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def delete_user_profile(
+async def delete_current_user_profile(
     current_user_id: AuthUserByAccessTokenDep,
     user_cache_service: UserCacheServiceDep,
 ) -> None:
