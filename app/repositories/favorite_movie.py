@@ -4,7 +4,7 @@ from sqlalchemy import and_, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from models import FavoriteMovie
+from models import FavoriteMovie, User
 from schemas.favorite_movie import FavoriteMovieCreate
 
 
@@ -21,6 +21,15 @@ class FavoriteMovieRepository:
             .options(
                 joinedload(FavoriteMovie.movie),
             )
+            .where(FavoriteMovie.id == favorite_movie_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().first()
+
+    async def get_favorite_movie_owner(self, favorite_movie_id: int) -> User | None:
+        stmt = (
+            select(User)
+            .join(FavoriteMovie, User.id == FavoriteMovie.user_id)
             .where(FavoriteMovie.id == favorite_movie_id)
         )
         result = await self.session.execute(stmt)
