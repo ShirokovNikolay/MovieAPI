@@ -174,11 +174,64 @@
         window.TokenStore.clearTokens();
     }
 
+    function authFetchJson(path, options) {
+        options = options || {};
+        var headers = Object.assign({ Accept: "application/json" }, options.headers || {});
+        var body = options.body;
+        var method = options.method || "GET";
+        if (
+            body !== undefined &&
+            body !== null &&
+            typeof body === "object" &&
+            !(body instanceof FormData)
+        ) {
+            body = JSON.stringify(body);
+            headers["Content-Type"] = "application/json";
+        }
+        return authFetch(path, { method: method, headers: headers, body: body }).then(function (res) {
+            if (res.status === 204) {
+                if (!res.ok) {
+                    return parseResponseJson(res).then(function (data) {
+                        throw new Error(readErrorMessage(data));
+                    });
+                }
+                return null;
+            }
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data;
+            });
+        });
+    }
+
+    function getCurrentUserProfile() {
+        return authFetchJson("/api/v1/users/me/", { method: "GET" });
+    }
+
+    function updateCurrentUserProfile(payload) {
+        return authFetchJson("/api/v1/users/me/", { method: "PUT", body: payload });
+    }
+
+    function partialUpdateCurrentUserProfile(payload) {
+        return authFetchJson("/api/v1/users/me/", { method: "PATCH", body: payload });
+    }
+
+    function deleteCurrentUserProfile() {
+        return authFetchJson("/api/v1/users/me/", { method: "DELETE" });
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
         ensureValidAccessToken: ensureValidAccessToken,
         authFetch: authFetch,
+        authFetchJson: authFetchJson,
+        getCurrentUserProfile: getCurrentUserProfile,
+        updateCurrentUserProfile: updateCurrentUserProfile,
+        partialUpdateCurrentUserProfile: partialUpdateCurrentUserProfile,
+        deleteCurrentUserProfile: deleteCurrentUserProfile,
         registerUser: registerUser,
         loginUser: loginUser,
         logout: logout,
