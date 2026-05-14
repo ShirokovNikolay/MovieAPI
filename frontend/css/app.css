@@ -1,0 +1,12 @@
+body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0f172a 0%, #1e293b 45%, #0f172a 100%);
+}
+
+.auth-card {
+    max-width: 440px;
+}
+
+.navbar-brand {
+    letter-spacing: 0.02em;
+}
