@@ -30,7 +30,7 @@
         createApp({
         data: function () {
             return {
-                currentView: "login",
+                currentView: "catalog",
                 loginForm: { username: "", password: "" },
                 registerForm: {
                     surname: "",
@@ -68,6 +68,12 @@
                     email: "",
                     password: "",
                 },
+                genreList: [],
+                genrePage: 1,
+                genreSize: 10,
+                genreLoading: false,
+                genreSearchInput: "",
+                genreActiveSearch: "",
             };
         },
         computed: {
@@ -82,6 +88,12 @@
                 }
                 return true;
             },
+            genreHasNext: function () {
+                return this.genreList.length === this.genreSize && this.genreSize >= 1;
+            },
+            genreHasPrev: function () {
+                return this.genrePage > 1;
+            },
         },
         mounted: function () {
             var self = this;
@@ -93,15 +105,19 @@
         methods: {
             syncRoute: function () {
                 var hash = window.location.hash || "#/";
-                if (hash === "#/" || hash === "#/home") {
+                if (hash === "#/" || hash === "#/home" || hash === "#/catalog") {
+                    this.currentView = "catalog";
                     if (this.isAuthenticated) {
-                        this.currentView = "home";
                         this.displayLogin =
                             window.TokenStore.getLoginFromAccess() || this.loginForm.username;
-                        this.error = "";
-                    } else {
-                        this.goLogin();
                     }
+                    this.error = "";
+                    return;
+                }
+                if (hash === "#/genres") {
+                    this.currentView = "genres";
+                    this.error = "";
+                    this.loadGenres();
                     return;
                 }
                 if (hash === "#/register") {
@@ -127,9 +143,9 @@
                     this.loadProfile();
                     return;
                 }
-                this.currentView = "login";
+                window.location.hash = "#/";
             },
-            goHome: function () {
+            goCatalog: function () {
                 window.location.hash = "#/";
             },
             goLogin: function () {
@@ -146,7 +162,7 @@
                     .then(function () {
                         self.displayLogin =
                             window.TokenStore.getLoginFromAccess() || self.loginForm.username;
-                        self.goHome();
+                        self.goCatalog();
                     })
                     .catch(function (e) {
                         self.error = e.message || "Не удалось войти";
@@ -182,31 +198,7 @@
             onLogout: function () {
                 window.Api.logout();
                 this.loginForm.password = "";
-                this.goLogin();
-            },
-            /**
-             * Демонстрация: принудительно обновить access (как при истечении срока).
-             */
-            demoRefresh: function () {
-                var self = this;
-                this.error = "";
-                window.Api.refreshAccessToken().catch(function (e) {
-                    self.error = e.message || "Сессия истекла, войдите снова";
-                    if (e.message === "REFRESH_EXPIRED" || !window.TokenStore.getRefreshToken()) {
-                        self.goLogin();
-                    }
-                });
-            },
-            /**
-             * Проверка ensureValidAccessToken (например, перед вызовами защищённого API).
-             */
-            demoEnsureAccess: function () {
-                var self = this;
-                this.error = "";
-                window.Api.ensureValidAccessToken().catch(function (e) {
-                    self.error = "Нужен повторный вход";
-                    self.goLogin();
-                });
+                this.goCatalog();
             },
             formatRegistrationDate: function (iso) {
                 if (!iso) {
@@ -217,6 +209,51 @@
                 } catch (e) {
                     return iso;
                 }
+            },
+            loadGenres: function () {
+                var self = this;
+                this.genreLoading = true;
+                this.error = "";
+                var p = this.genrePage;
+                var s = this.genreSize;
+                var q = (this.genreActiveSearch || "").trim();
+                var req = q
+                    ? window.Api.searchGenresByName(q, p, s)
+                    : window.Api.getGenres(p, s);
+                req.then(function (data) {
+                    self.genreList = data.genre_list || [];
+                    if (typeof data.page === "number") {
+                        self.genrePage = data.page;
+                    }
+                    if (typeof data.size === "number") {
+                        self.genreSize = data.size;
+                    }
+                })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить жанры";
+                        self.genreList = [];
+                    })
+                    .finally(function () {
+                        self.genreLoading = false;
+                    });
+            },
+            applyGenreSearch: function () {
+                this.genreActiveSearch = (this.genreSearchInput || "").trim();
+                this.genrePage = 1;
+                this.loadGenres();
+            },
+            clearGenreSearch: function () {
+                this.genreSearchInput = "";
+                this.genreActiveSearch = "";
+                this.genrePage = 1;
+                this.loadGenres();
+            },
+            goGenrePage: function (nextPage) {
+                if (nextPage < 1) {
+                    return;
+                }
+                this.genrePage = nextPage;
+                this.loadGenres();
             },
             loadProfile: function () {
                 var self = this;
@@ -397,7 +434,7 @@
         },
         watch: {
             isAuthenticated: function (val) {
-                if (!val && (this.currentView === "home" || this.currentView === "profile")) {
+                if (!val && this.currentView === "profile") {
                     this.error = "Сессия истекла. Войдите снова.";
                     this.goLogin();
                 }

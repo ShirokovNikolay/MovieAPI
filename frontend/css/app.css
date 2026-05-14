@@ -32,3 +32,39 @@ body {
 .navbar-brand {
     letter-spacing: 0.02em;
 }
+
+/* Список жанров: прокрутка внутри текущей страницы пагинации */
+.genre-list-scroll {
+    max-height: min(72vh, 920px);
+    min-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+.genre-list-scroll .genre-row:last-child {
+    border-bottom: none !important;
+}
+
+.genre-row-description {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.genre-poster-slot {
+    width: clamp(140px, 32vw, 220px);
+    aspect-ratio: 2 / 3;
+    flex-shrink: 0;
+    border: 1px dashed #64748b;
+    border-radius: 0.5rem;
+    background: rgba(15, 23, 42, 0.55);
+    margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+    .genre-poster-slot {
+        margin-inline: 0;
+        width: clamp(160px, 20vw, 240px);
+    }
+}

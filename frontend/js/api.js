@@ -222,6 +222,41 @@
         return authFetchJson("/api/v1/users/me/", { method: "DELETE" });
     }
 
+    function publicGetJson(pathWithQuery) {
+        return fetch(apiUrl(pathWithQuery), {
+            method: "GET",
+            headers: { Accept: "application/json" },
+        }).then(function (res) {
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data;
+            });
+        });
+    }
+
+    function getGenres(page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 10;
+        return publicGetJson(
+            "/api/v1/genres/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s)
+        );
+    }
+
+    function searchGenresByName(name, page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 10;
+        var q =
+            "genre_name=" +
+            encodeURIComponent(name) +
+            "&page=" +
+            encodeURIComponent(p) +
+            "&size=" +
+            encodeURIComponent(s);
+        return publicGetJson("/api/v1/genres/search?" + q);
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
@@ -236,5 +271,7 @@
         loginUser: loginUser,
         logout: logout,
         readErrorMessage: readErrorMessage,
+        getGenres: getGenres,
+        searchGenresByName: searchGenresByName,
     };
 })();
