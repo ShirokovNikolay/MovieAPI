@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.exceptions.auth import PermissionDeniedError
 from core.exceptions.favorite_movie import (
     FavoriteMovieAlreadyExistsByUserAndMovieError,
     FavoriteMovieIdNotFoundError,
@@ -14,6 +15,7 @@ from schemas.favorite_movie import (
     FavoriteMovieWithMovieResponse,
     FavoriteMovieWithMovieResponseList,
 )
+from schemas.user import UserResponse
 
 
 class FavoriteMovieService:
@@ -94,11 +96,33 @@ class FavoriteMovieService:
         )
         return FavoriteMovieWithMovieResponse.model_validate(favorite_movie)
 
-    async def delete_favorite_movie_by_id(self, favorite_movie_id: int) -> None:
-        if not await self.favorite_movie_repository.delete_favorite_movie_by_id(
+    async def get_favorite_movie_owner(self, favorite_movie_id: int) -> UserResponse:
+        favorite_movie = await self.favorite_movie_repository.get_favorite_movie_by_id(
             favorite_movie_id,
-        ):
+        )
+        if favorite_movie is None:
             raise FavoriteMovieIdNotFoundError(favorite_movie_id)
+
+        user = await self.favorite_movie_repository.get_favorite_movie_owner(
+            favorite_movie_id,
+        )
+        return UserResponse.model_validate(user)
+
+    async def delete_favorite_movie_by_id(
+        self,
+        user_id: int,
+        favorite_movie_id: int,
+    ) -> None:
+        if not await self.user_repository.user_id_exists(user_id):
+            raise UserIdNotFoundError(user_id)
+
+        owner = await self.get_favorite_movie_owner(favorite_movie_id)
+        if owner.id != user_id:
+            raise PermissionDeniedError
+
+        await self.favorite_movie_repository.delete_favorite_movie_by_id(
+            favorite_movie_id,
+        )
 
     async def delete_user_favorite_movie(self, user_id: int, movie_id: int) -> None:
         if not await self.user_repository.user_id_exists(user_id):

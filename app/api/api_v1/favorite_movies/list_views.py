@@ -67,15 +67,18 @@ async def create_user_favorite_movie(
     "/{favorite_movie_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
-        Depends(get_admin_by_access_token),
         Depends(check_rate_limit_auth),
     ],
 )
 async def delete_favorite_movie_by_id(
     favorite_movie_id: int,
+    user_id: AuthUserByAccessTokenDep,
     favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
 ) -> None:
-    await favorite_movie_cache_service.delete_favorite_movie_by_id(favorite_movie_id)
+    await favorite_movie_cache_service.delete_favorite_movie_by_id(
+        user_id,
+        favorite_movie_id,
+    )
 
 
 @router.delete(
