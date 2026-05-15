@@ -32,6 +32,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#/genres" :class="{ active: currentView === 'genres' }">Жанры</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#/movies" :class="{ active: currentView === 'movies' }">Фильмы</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                         <template v-if="!isAuthenticated">
@@ -229,6 +232,85 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Секция фильмов -->
+            <div v-else-if="currentView === 'movies'" class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4">
+                            <h1 class="h3 mb-0">🎬 Список фильмов</h1>
+                        </div>
+                    </div>
+
+                    <div v-if="moviesLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+
+                    <div v-else-if="moviesList.length === 0" class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 Фильмы не найдены</h3>
+                        </div>
+                    </div>
+
+                    <div v-else class="row g-4">
+                        <div v-for="movie in moviesList" :key="movie.id" class="col-md-6 col-lg-4">
+                            <div class="card h-100 bg-dark text-light border-secondary hover-card">
+                                <!-- Постер сверху -->
+                                <img :src="movie.preview_url || 'https://via.placeholder.com/300x200?text=No+Image'"
+                                     class="card-img-top"
+                                     alt="Постер"
+                                     style="height: 200px; object-fit: cover;">
+
+                                <div class="card-body">
+                                    <!-- Название и жанр сверху -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title mb-0">{{ movie.name }}</h5>
+                                        <span class="badge bg-info text-dark">{{ movie.genre.name }}</span>
+                                    </div>
+
+                                    <!-- Рейтинг -->
+                                    <div class="mb-2">
+                                        <span class="text-warning">⭐</span>
+                                        <span class="ms-1">{{ movie.rating }}/10</span>
+                                    </div>
+
+                                    <!-- Дата релиза -->
+                                    <p class="card-text small text-secondary mb-2">
+                                        📅 {{ formatDate(movie.release_date) }}
+                                    </p>
+
+                                    <!-- Описание (обрезаем) -->
+                                    <p class="card-text small">
+                                        {{ truncateText(movie.description, 120) }}
+                                    </p>
+
+                                    <!-- Ссылка на источник -->
+                                    <a :href="movie.source_url" target="_blank" class="btn btn-sm btn-outline-info mt-2" @click.stop>
+                                        🔗 Подробнее
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Пагинация -->
+                    <nav v-if="!moviesLoading && moviesList.length" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" :class="{ disabled: !moviesHasPrev }">
+                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage - 1)">← Назад</button>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link bg-dark text-secondary border-secondary">Страница {{ moviesPage }}</span>
+                            </li>
+                            <li class="page-item" :class="{ disabled: !moviesHasNext }">
+                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage + 1)">Вперёд →</button>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
 

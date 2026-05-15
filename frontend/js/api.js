@@ -257,6 +257,13 @@
         return publicGetJson("/api/v1/genres/search?" + q);
     }
 
+    // ========== ФИЛЬМЫ ==========
+    function getMovies(page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 9;
+        return publicGetJson("/api/v1/movies/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
@@ -273,5 +280,6 @@
         readErrorMessage: readErrorMessage,
         getGenres: getGenres,
         searchGenresByName: searchGenresByName,
+        getMovies: getMovies,
     };
 })();
