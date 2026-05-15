@@ -264,6 +264,13 @@
         return publicGetJson("/api/v1/movies/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
     }
 
+    function searchMoviesByName(name, page, size) {
+    var p = page != null ? page : 1;
+    var s = size != null ? size : 9;
+    var q = encodeURIComponent(name.trim());
+    return publicGetJson("/api/v1/movies/search?movie_name=" + q + "&page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
@@ -281,5 +288,6 @@
         getGenres: getGenres,
         searchGenresByName: searchGenresByName,
         getMovies: getMovies,
+        searchMoviesByName: searchMoviesByName,
     };
 })();

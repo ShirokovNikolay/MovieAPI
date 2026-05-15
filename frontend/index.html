@@ -244,31 +244,70 @@
                         </div>
                     </div>
 
+                    <!-- Поиск фильмов -->
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4">
+                            <form class="row g-3 align-items-end" @submit.prevent="applyMovieSearch">
+                                <div class="col-12 col-md-8 col-lg-7 col-xl-6">
+                                    <label class="form-label text-secondary small mb-1" for="movie-search">Поиск по названию</label>
+                                    <input id="movie-search" v-model="movieSearchInput" type="text"
+                                           class="form-control bg-dark text-light border-secondary"
+                                           placeholder="Введите название фильма"
+                                           maxlength="100"
+                                           autocomplete="off"
+                                           @keyup.enter="applyMovieSearch">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-primary" :disabled="moviesLoading">
+                                        🔍 Найти
+                                    </button>
+                                </div>
+                                <div class="col-auto" v-if="movieActiveSearch">
+                                    <button type="button" class="btn btn-outline-secondary" :disabled="moviesLoading" @click="clearMovieSearch">
+                                        ❌ Сбросить поиск
+                                    </button>
+                                </div>
+                            </form>
+                            <p v-if="movieActiveSearch" class="small text-secondary mt-2 mb-0">
+                                                Результаты по запросу: «<span class="text-light">{{ movieActiveSearch }}</span>»
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Загрузка -->
                     <div v-if="moviesLoading" class="text-center py-5">
                         <div class="spinner-border text-info" role="status">
                             <span class="visually-hidden">Загрузка...</span>
                         </div>
                     </div>
 
+                    <!-- Нет результатов -->
                     <div v-else-if="moviesList.length === 0" class="card shadow text-bg-dark border-secondary">
                         <div class="card-body p-5 text-center text-secondary">
                             <h3 class="h5">😔 Фильмы не найдены</h3>
+                            <p class="mb-0" v-if="movieActiveSearch">Попробуйте изменить поисковый запрос</p>
+                            <p class="mb-0" v-else>В базе пока нет фильмов</p>
                         </div>
                     </div>
 
+                    <!-- Список фильмов -->
                     <div v-else class="row g-4">
                         <div v-for="movie in moviesList" :key="movie.id" class="col-md-6 col-lg-4">
-                            <div class="card h-100 bg-dark text-light border-secondary hover-card">
-                                <!-- Постер сверху -->
-                                <img :src="movie.preview_url || 'https://via.placeholder.com/300x200?text=No+Image'"
+                            <div class="card h-100 bg-dark text-light border-secondary hover-card" style="cursor: pointer; transition: transform 0.2s;"
+                                 @click="showMovieDetails(movie.id)"
+                                 @mouseenter="e => e.currentTarget.style.transform = 'translateY(-5px)'"
+                                 @mouseleave="e => e.currentTarget.style.transform = 'translateY(0)'">
+
+                                <!-- Постер -->
+                                <img :src="movie.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
                                      class="card-img-top"
                                      alt="Постер"
-                                     style="height: 200px; object-fit: cover;">
+                                     style="height: 300px; object-fit: cover;">
 
                                 <div class="card-body">
-                                    <!-- Название и жанр сверху -->
+                                    <!-- Название и жанр -->
                                     <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h5 class="card-title mb-0">{{ movie.name }}</h5>
+                                        <h5 class="card-title mb-0 text-truncate" style="max-width: 60%;">{{ movie.name }}</h5>
                                         <span class="badge bg-info text-dark">{{ movie.genre.name }}</span>
                                     </div>
 
@@ -284,12 +323,12 @@
                                     </p>
 
                                     <!-- Описание (обрезаем) -->
-                                    <p class="card-text small">
-                                        {{ truncateText(movie.description, 120) }}
+                                    <p class="card-text small text-secondary mb-3">
+                                        {{ truncateText(movie.description, 100) }}
                                     </p>
 
                                     <!-- Ссылка на источник -->
-                                    <a :href="movie.source_url" target="_blank" class="btn btn-sm btn-outline-info mt-2" @click.stop>
+                                    <a :href="movie.source_url" target="_blank" class="btn btn-sm btn-outline-info w-100" @click.stop>
                                         🔗 Подробнее
                                     </a>
                                 </div>
@@ -298,16 +337,22 @@
                     </div>
 
                     <!-- Пагинация -->
-                    <nav v-if="!moviesLoading && moviesList.length" class="mt-4">
+                    <nav v-if="!moviesLoading && moviesList.length > 0" class="mt-4">
                         <ul class="pagination justify-content-center">
                             <li class="page-item" :class="{ disabled: !moviesHasPrev }">
-                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage - 1)">← Назад</button>
+                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage - 1)" :disabled="moviesLoading">
+                                    ← Назад
+                                </button>
                             </li>
                             <li class="page-item disabled">
-                                <span class="page-link bg-dark text-secondary border-secondary">Страница {{ moviesPage }}</span>
+                                <span class="page-link bg-dark text-secondary border-secondary">
+                                    Страница {{ moviesPage }}
+                                </span>
                             </li>
                             <li class="page-item" :class="{ disabled: !moviesHasNext }">
-                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage + 1)">Вперёд →</button>
+                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage + 1)" :disabled="moviesLoading">
+                                    Вперёд →
+                                </button>
                             </li>
                         </ul>
                     </nav>
