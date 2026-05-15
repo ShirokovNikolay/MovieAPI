@@ -80,6 +80,9 @@
                 moviesPage: 1,
                 moviesSize: 9,
                 moviesLoading: false,
+
+                movieSearchInput: "",
+                movieActiveSearch: "",
             };
         },
         computed: {
@@ -279,23 +282,42 @@
                 this.moviesLoading = true;
                 this.error = "";
 
-                window.Api.getMovies(this.moviesPage, this.moviesSize)
-                    .then(function (data) {
-                        self.moviesList = data.movie_list || [];
-                        if (typeof data.page === "number") {
-                            self.moviesPage = data.page;
+                var searchQuery = this.movieActiveSearch || "";
+                var promise;
+
+                if (searchQuery) {
+                    promise = window.Api.searchMoviesByName(searchQuery, this.moviesPage, this.moviesSize);
+                } else {
+                    promise = window.Api.getMovies(this.moviesPage, this.moviesSize);
+                }
+
+                promise.then(function (data) {
+                    self.moviesList = (data.movie_list || []).map(function(movie) {
+                        if (!movie.preview_url || movie.preview_url === "string") {
+                            movie.preview_url = "https://via.placeholder.com/300x450?text=No+Poster";
                         }
-                        if (typeof data.size === "number") {
-                            self.moviesSize = data.size;
-                        }
-                    })
-                    .catch(function (e) {
-                        self.error = e.message || "Не удалось загрузить фильмы";
-                        self.moviesList = [];
-                    })
-                    .finally(function () {
-                        self.moviesLoading = false;
+                        return movie;
                     });
+                    console.log("Загружено фильмов:", self.moviesList.length);
+                    if (typeof data.page === "number") {
+                        self.moviesPage = data.page;
+                    }
+                    if (typeof data.size === "number") {
+                        self.moviesSize = data.size;
+                    }
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Не удалось загрузить фильмы";
+                    self.moviesList = [];
+                })
+                .finally(function () {
+                    self.moviesLoading = false;
+                });
+            },
+
+            showMovieDetails: function (movieId) {
+                console.log("Клик по фильму ID:", movieId);
+                // Позже можно добавить модальное окно или отдельную страницу
             },
 
             goMoviesPage: function (nextPage) {
@@ -303,8 +325,18 @@
                 this.moviesPage = nextPage;
                 this.loadMovies();
             },
+            applyMovieSearch: function () {
+                this.movieActiveSearch = (this.movieSearchInput || "").trim();
+                this.moviesPage = 1;
+                this.loadMovies();
+            },
 
-
+            clearMovieSearch: function () {
+                this.movieSearchInput = "";
+                this.movieActiveSearch = "";
+                this.moviesPage = 1;
+                this.loadMovies();
+            },
             formatDate: function (dateString) {
                 if (!dateString) return "—";
                 try {
