@@ -74,6 +74,12 @@
                 genreLoading: false,
                 genreSearchInput: "",
                 genreActiveSearch: "",
+
+                // Фильмы
+                moviesList: [],
+                moviesPage: 1,
+                moviesSize: 9,
+                moviesLoading: false,
             };
         },
         computed: {
@@ -93,6 +99,12 @@
             },
             genreHasPrev: function () {
                 return this.genrePage > 1;
+            },
+            moviesHasNext: function () {
+                return this.moviesList.length === this.moviesSize;
+            },
+            moviesHasPrev: function () {
+                return this.moviesPage > 1;
             },
         },
         mounted: function () {
@@ -118,6 +130,12 @@
                     this.currentView = "genres";
                     this.error = "";
                     this.loadGenres();
+                    return;
+                }
+                if (hash === "#/movies") {
+                    this.currentView = "movies";
+                    this.error = "";
+                    this.loadMovies();
                     return;
                 }
                 if (hash === "#/register") {
@@ -255,6 +273,54 @@
                 this.genrePage = nextPage;
                 this.loadGenres();
             },
+
+            loadMovies: function () {
+                var self = this;
+                this.moviesLoading = true;
+                this.error = "";
+
+                window.Api.getMovies(this.moviesPage, this.moviesSize)
+                    .then(function (data) {
+                        self.moviesList = data.movie_list || [];
+                        if (typeof data.page === "number") {
+                            self.moviesPage = data.page;
+                        }
+                        if (typeof data.size === "number") {
+                            self.moviesSize = data.size;
+                        }
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить фильмы";
+                        self.moviesList = [];
+                    })
+                    .finally(function () {
+                        self.moviesLoading = false;
+                    });
+            },
+
+            goMoviesPage: function (nextPage) {
+                if (nextPage < 1) return;
+                this.moviesPage = nextPage;
+                this.loadMovies();
+            },
+
+
+            formatDate: function (dateString) {
+                if (!dateString) return "—";
+                try {
+                    var date = new Date(dateString);
+                    return date.toLocaleDateString("ru-RU");
+                } catch (e) {
+                    return dateString;
+                }
+            },
+            truncateText: function (text, maxLength) {
+                if (!text) return "";
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + "...";
+            },
+
+
             loadProfile: function () {
                 var self = this;
                 this.profileLoading = true;
