@@ -450,9 +450,40 @@
                                             <div>
                                                 <span class="text-warning">⭐ {{ userReview.rating }}/10</span>
                                             </div>
-                                            <small class="text-secondary">{{ formatDate(userReview.publication_date) }}</small>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <button class="btn btn-sm btn-outline-info" @click="startEditReview(userReview)">
+                                                    ✏️ Редактировать
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" @click="confirmDeleteReview(userReview.id)">
+                                                    🗑️ Удалить
+                                                </button>
+                                                <small class="text-secondary">{{ formatDate(userReview.publication_date) }}</small>
+                                            </div>
                                         </div>
-                                        <p class="card-text text-light mb-0">{{ userReview.review_text }}</p>
+                                        <!-- Режим редактирования -->
+                                        <div v-if="editingReview && editingReview.id === userReview.id" class="mt-3">
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Оценка</label>
+                                                <select v-model="editReviewRating" class="form-select bg-dark text-light border-secondary" style="width: auto;">
+                                                    <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}/10</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Текст отзыва</label>
+                                                <textarea v-model="editReviewText" rows="4" class="form-control bg-dark text-light border-secondary"></textarea>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-primary" @click="submitEditReview" :disabled="reviewSubmitting">
+                                                    <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                                                    Сохранить
+                                                </button>
+                                                <button class="btn btn-secondary" @click="cancelEditReview">Отмена</button>
+                                            </div>
+                                        </div>
+                                        <!-- Обычный режим -->
+                                        <div v-else class="mt-2">
+                                            <p class="card-text text-light mb-0">{{ userReview.review_text }}</p>
+                                        </div>
                                     </div>
                                 </div>
 
