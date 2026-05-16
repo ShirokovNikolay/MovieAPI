@@ -808,6 +808,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Модальное окно подтверждения удаления отзыва -->
+    <div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить свой отзыв? Это действие нельзя отменить.
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteReviewConfirmed" :disabled="reviewSubmitting">
+                        <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
