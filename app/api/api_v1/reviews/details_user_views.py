@@ -5,15 +5,14 @@ from fastapi import (
 )
 
 from dependencies.annotations.cache_services import ReviewCacheServiceDep
+from dependencies.annotations.security import AuthUserByAccessTokenDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
-from dependencies.auth import get_admin_by_access_token
 from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.review import ReviewResponse, ReviewResponseList
 
 router = APIRouter(
-    prefix="/{user_id}",
+    prefix="/about-me",
     dependencies=[
-        Depends(get_admin_by_access_token),
         Depends(check_rate_limit_auth),
     ],
 )
@@ -24,8 +23,8 @@ router = APIRouter(
     response_model=ReviewResponseList,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_reviews(
-    user_id: int,
+async def get_current_user_reviews(
+    user_id: AuthUserByAccessTokenDep,
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
@@ -38,8 +37,8 @@ async def get_user_reviews(
     response_model=ReviewResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_review_about_movie(
-    user_id: int,
+async def get_current_user_review_about_movie(
+    user_id: AuthUserByAccessTokenDep,
     movie_id: int,
     review_cache_service: ReviewCacheServiceDep,
 ) -> ReviewResponse:

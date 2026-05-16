@@ -303,6 +303,31 @@
         return publicGetJson("/api/v1/reviews/movie/" + encodeURIComponent(movieId) + "/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
     }
 
+    function getUserReview(movieId) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) {
+            return Promise.reject(new Error("Не авторизован"));
+        }
+
+        return authFetchJson("/api/v1/reviews/about-me/movie/" + encodeURIComponent(movieId));
+    }
+
+    function createReview(movieId, rating, reviewText) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) {
+            return Promise.reject(new Error("Не авторизован"));
+        }
+
+        return authFetchJson("/api/v1/reviews/", {
+            method: "POST",
+            body: {
+                movie_id: movieId,
+                rating: rating,
+                review_text: reviewText
+            }
+        });
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
@@ -324,5 +349,7 @@
         getMovieById: getMovieById,
         watchMovie: watchMovie,
         getMovieReviews: getMovieReviews,
+        getUserReview: getUserReview,
+        createReview: createReview,
     };
 })();
