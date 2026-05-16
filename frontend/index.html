@@ -210,6 +210,10 @@
                                 v-for="g in genreList"
                                 :key="g.id"
                                 class="genre-row d-flex flex-column flex-md-row gap-3 gap-md-4 p-4 p-lg-5 border-bottom border-secondary"
+                                style="cursor: pointer; transition: background 0.2s;"
+                                @click="loadMoviesByGenre(g.id, g.name)"
+                                @mouseenter="e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'"
+                                @mouseleave="e => e.currentTarget.style.background = 'transparent'"
                             >
                                 <div class="genre-row-text flex-grow-1 min-w-0">
                                     <h3 class="h4 text-light mb-3 mb-md-2">{{ g.name }}</h3>
@@ -267,9 +271,17 @@
                                         ❌ Сбросить поиск
                                     </button>
                                 </div>
+                                <div class="col-auto" v-if="selectedGenreId">
+                                    <button type="button" class="btn btn-outline-warning" @click="clearGenreFilter" :disabled="moviesLoading">
+                                        🗑️ Сбросить жанр
+                                    </button>
+                                </div>
                             </form>
                             <p v-if="movieActiveSearch" class="small text-secondary mt-2 mb-0">
                                                 Результаты по запросу: «<span class="text-light">{{ movieActiveSearch }}</span>»
+                            </p>
+                            <p v-if="selectedGenreId && !movieActiveSearch" class="small text-secondary mt-2 mb-0">
+                                🎬 Фильмы жанра: «<span class="text-light">{{ selectedGenreName }}</span>»
                             </p>
                         </div>
                     </div>
@@ -308,7 +320,7 @@
                                     <!-- Название и жанр -->
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <h5 class="card-title mb-0 text-truncate" style="max-width: 60%;">{{ movie.name }}</h5>
-                                        <span class="badge bg-info text-dark">{{ movie.genre.name }}</span>
+                                        <span class="badge bg-info text-dark">{{ selectedGenreName || movie.genre?.name || 'Без жанра' }}</span>
                                     </div>
 
                                     <!-- Рейтинг -->
