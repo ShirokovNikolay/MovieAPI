@@ -104,6 +104,10 @@
                 selectedGenreName: null,
 
                 reviewsSortBy: "default",  // default, newest, oldest
+
+                editingReview: null,
+                editReviewRating: 5,
+                editReviewText: "",
             };
         },
         computed: {
@@ -529,6 +533,72 @@
                     .finally(function () {
                         self.reviewsLoading = false;
                     });
+            },
+
+            startEditReview: function (review) {
+                this.editingReview = review;
+                this.editReviewRating = review.rating;
+                this.editReviewText = review.review_text || "";
+            },
+
+            cancelEditReview: function () {
+                this.editingReview = null;
+                this.editReviewRating = 5;
+                this.editReviewText = "";
+            },
+
+            submitEditReview: function () {
+                var self = this;
+                if (!this.editReviewText.trim()) {
+                    this.error = "Введите текст отзыва";
+                    return;
+                }
+
+                this.reviewSubmitting = true;
+
+                window.Api.partialUpdateReview(this.editingReview.id, this.editReviewRating, this.editReviewText.trim())
+                    .then(function (updatedReview) {
+                        // Обновляем отзыв в списке
+                        var index = self.reviewsList.findIndex(r => r.id === updatedReview.id);
+                        if (index !== -1) {
+                            self.reviewsList[index] = updatedReview;
+                        }
+                        // Если редактируем свой отзыв
+                        if (self.userReview && self.userReview.id === updatedReview.id) {
+                            self.userReview = updatedReview;
+                            self.reviewRating = updatedReview.rating;
+                            self.reviewText = updatedReview.review_text || "";
+                        }
+                        self.cancelEditReview();
+                        // Перезагружаем список для обновления пагинации
+                        self.loadReviewsWithSort(self.currentMovie.id, self.reviewsSortBy);
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось обновить отзыв";
+                    })
+                    .finally(function () {
+                        self.reviewSubmitting = false;
+                    });
+            },
+
+            confirmDeleteReview: function (reviewId) {
+                var self = this;
+                if (confirm("Удалить отзыв? Это действие нельзя отменить.")) {
+                    window.Api.deleteReview(reviewId)
+                        .then(function () {
+                            // Удаляем из списка
+                            self.reviewsList = self.reviewsList.filter(r => r.id !== reviewId);
+                            // Если удаляем свой отзыв
+                            if (self.userReview && self.userReview.id === reviewId) {
+                                self.userReview = null;
+                            }
+                            // Перезагружаем список
+                            self.loadReviewsWithSort(self.currentMovie.id, self.reviewsSortBy);
+                        })
+                        .catch(function (e) {
+                            self.error = e.message || "Не удалось удалить отзыв";
+                        });
+                }
             },
 
             changeReviewsSort: function (sortOrder) {
