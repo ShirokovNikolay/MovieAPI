@@ -108,6 +108,8 @@
                 editingReview: null,
                 editReviewRating: 5,
                 editReviewText: "",
+
+                deleteReviewId: null
             };
         },
         computed: {
@@ -582,23 +584,42 @@
             },
 
             confirmDeleteReview: function (reviewId) {
-                var self = this;
-                if (confirm("Удалить отзыв? Это действие нельзя отменить.")) {
-                    window.Api.deleteReview(reviewId)
-                        .then(function () {
-                            // Удаляем из списка
-                            self.reviewsList = self.reviewsList.filter(r => r.id !== reviewId);
-                            // Если удаляем свой отзыв
-                            if (self.userReview && self.userReview.id === reviewId) {
-                                self.userReview = null;
-                            }
-                            // Перезагружаем список
-                            self.loadReviewsWithSort(self.currentMovie.id, self.reviewsSortBy);
-                        })
-                        .catch(function (e) {
-                            self.error = e.message || "Не удалось удалить отзыв";
-                        });
+                this.deleteReviewId = reviewId;
+                var modalEl = document.getElementById("deleteReviewModal");
+                if (modalEl && typeof bootstrap !== "undefined") {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
                 }
+            },
+
+            confirmDeleteReviewConfirmed: function () {
+                var self = this;
+                this.reviewSubmitting = true;
+
+                window.Api.deleteReview(this.deleteReviewId)
+                    .then(function () {
+                        // Удаляем из списка
+                        self.reviewsList = self.reviewsList.filter(r => r.id !== self.deleteReviewId);
+                        // Если удаляем свой отзыв
+                        if (self.userReview && self.userReview.id === self.deleteReviewId) {
+                            self.userReview = null;
+                        }
+                        // Закрываем модальное окно
+                        var modalEl = document.getElementById("deleteReviewModal");
+                        if (modalEl && typeof bootstrap !== "undefined") {
+                            var modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        }
+                        self.deleteReviewId = null;
+                        // Перезагружаем список
+                        self.loadReviewsWithSort(self.currentMovie.id, self.reviewsSortBy);
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось удалить отзыв";
+                    })
+                    .finally(function () {
+                        self.reviewSubmitting = false;
+                    });
             },
 
             changeReviewsSort: function (sortOrder) {
