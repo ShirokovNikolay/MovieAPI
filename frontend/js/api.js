@@ -271,6 +271,13 @@
     return publicGetJson("/api/v1/movies/search?movie_name=" + q + "&page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
     }
 
+    // ========== ФИЛЬМЫ ПО ЖАНРУ ==========
+    function getMoviesByGenre(genreId, page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 9;
+        return publicGetJson("/api/v1/movies/genre/" + encodeURIComponent(genreId) + "?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
     // ========== ДЕТАЛИ ФИЛЬМА ==========
     function getMovieById(movieId) {
         return publicGetJson("/api/v1/movies/" + encodeURIComponent(movieId) + "/");
@@ -351,5 +358,6 @@
         getMovieReviews: getMovieReviews,
         getUserReview: getUserReview,
         createReview: createReview,
+        getMoviesByGenre: getMoviesByGenre,
     };
 })();

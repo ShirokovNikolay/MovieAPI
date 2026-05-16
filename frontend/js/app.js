@@ -98,6 +98,10 @@
                 reviewText: "",
                 reviewSubmitting: false,
                 showReviewForm: false,
+
+                // Фильтры по жанру
+                selectedGenreId: null,
+                selectedGenreName: null,
             };
         },
         computed: {
@@ -322,7 +326,10 @@
                 var searchQuery = this.movieActiveSearch || "";
                 var promise;
 
-                if (searchQuery) {
+                if (this.selectedGenreId) {
+                    // Если выбран жанр — грузим по жанру
+                    promise = window.Api.getMoviesByGenre(this.selectedGenreId, this.moviesPage, this.moviesSize);
+                } else if (searchQuery) {
                     promise = window.Api.searchMoviesByName(searchQuery, this.moviesPage, this.moviesSize);
                 } else {
                     promise = window.Api.getMovies(this.moviesPage, this.moviesSize);
@@ -335,7 +342,6 @@
                         }
                         return movie;
                     });
-                    console.log("Загружено фильмов:", self.moviesList.length);
                     if (typeof data.page === "number") {
                         self.moviesPage = data.page;
                     }
@@ -350,6 +356,50 @@
                 .finally(function () {
                     self.moviesLoading = false;
                 });
+            },
+            loadMoviesByGenre: function (genreId, genreName) {
+                var self = this;
+                this.moviesLoading = true;
+                this.error = "";
+                this.selectedGenreId = genreId;
+                this.selectedGenreName = genreName;  // ← уже есть
+                this.moviesPage = 1;
+                this.movieActiveSearch = "";
+                this.movieSearchInput = "";
+
+                window.Api.getMoviesByGenre(genreId, this.moviesPage, this.moviesSize)
+                    .then(function (data) {
+                        self.moviesList = (data.movie_list || []).map(function(movie) {
+                            // Добавляем жанр к каждому фильму
+                            movie.genre = { name: genreName };  // ← добавить эту строку
+                            if (!movie.preview_url || movie.preview_url === "string") {
+                                movie.preview_url = "https://via.placeholder.com/300x450?text=No+Poster";
+                            }
+                            return movie;
+                        });
+                        if (typeof data.page === "number") {
+                            self.moviesPage = data.page;
+                        }
+                        if (typeof data.size === "number") {
+                            self.moviesSize = data.size;
+                        }
+                        self.currentView = "movies";
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить фильмы";
+                        self.moviesList = [];
+                    })
+                    .finally(function () {
+                        self.moviesLoading = false;
+                    });
+            },
+            clearGenreFilter: function () {
+                this.selectedGenreId = null;
+                this.selectedGenreName = null;
+                this.moviesPage = 1;
+                this.movieActiveSearch = "";
+                this.movieSearchInput = "";
+                this.loadMovies();
             },
 
             loadMovieDetails: function (movieId) {
