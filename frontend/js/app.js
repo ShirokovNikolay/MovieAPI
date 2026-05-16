@@ -102,6 +102,8 @@
                 // Фильтры по жанру
                 selectedGenreId: null,
                 selectedGenreName: null,
+
+                reviewsSortBy: "default",  // default, newest, oldest
             };
         },
         computed: {
@@ -499,6 +501,42 @@
                     .finally(function () {
                         self.reviewsLoading = false;
                     });
+            },
+
+            loadReviewsWithSort: function (movieId, sortOrder) {
+                var self = this;
+                this.reviewsLoading = true;
+
+                var promise;
+                if (sortOrder === "newest") {
+                    promise = window.Api.getMovieReviewsNewest(movieId, this.reviewsPage, this.reviewsSize);
+                } else if (sortOrder === "oldest") {
+                    promise = window.Api.getMovieReviewsOldest(movieId, this.reviewsPage, this.reviewsSize);
+                } else {
+                    promise = window.Api.getMovieReviews(movieId, this.reviewsPage, this.reviewsSize);
+                }
+
+                promise
+                    .then(function (data) {
+                        self.reviewsList = data.review_list || [];
+                        if (typeof data.page === "number") self.reviewsPage = data.page;
+                        if (typeof data.size === "number") self.reviewsSize = data.size;
+                    })
+                    .catch(function (e) {
+                        console.error("Ошибка загрузки отзывов:", e);
+                        self.reviewsList = [];
+                    })
+                    .finally(function () {
+                        self.reviewsLoading = false;
+                    });
+            },
+
+            changeReviewsSort: function (sortOrder) {
+                this.reviewsPage = 1;
+                this.reviewsSortBy = sortOrder;
+                if (this.currentMovie) {
+                    this.loadReviewsWithSort(this.currentMovie.id, sortOrder);
+                }
             },
 
             goReviewsPage: function (nextPage) {
