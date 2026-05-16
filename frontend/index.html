@@ -428,6 +428,59 @@
                         <!-- Отзывы -->
                         <div class="mt-5 pt-3 border-top border-secondary">
                             <h3 class="h4 mb-4">📝 Отзывы зрителей</h3>
+                            <!-- Мой отзыв -->
+                            <div v-if="isAuthenticated" class="mb-4">
+                                <h4 class="h5 mb-3">✍️ Мой отзыв</h4>
+
+                                <!-- Если отзыв уже есть -->
+                                <div v-if="userReview" class="card bg-primary bg-opacity-10 border-primary mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <span class="text-warning">⭐ {{ userReview.rating }}/10</span>
+                                            </div>
+                                            <small class="text-secondary">{{ formatDate(userReview.publication_date) }}</small>
+                                        </div>
+                                        <p class="card-text text-light mb-0">{{ userReview.review_text }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Форма для нового отзыва -->
+                                <div v-else class="card bg-dark border-secondary">
+                                    <div class="card-body">
+                                        <button v-if="!showReviewForm" class="btn btn-outline-info" @click="toggleReviewForm">
+                                            📝 Написать отзыв
+                                        </button>
+
+                                        <div v-else>
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Оценка</label>
+                                                <select v-model="reviewRating" class="form-select bg-dark text-light border-secondary" style="width: auto;">
+                                                    <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}/10</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Текст отзыва</label>
+                                                <textarea v-model="reviewText" rows="4" class="form-control bg-dark text-light border-secondary" placeholder="Поделитесь впечатлениями о фильме..."></textarea>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-primary" @click="submitReview" :disabled="reviewSubmitting">
+                                                    <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                                                    Отправить
+                                                </button>
+                                                <button class="btn btn-secondary" @click="toggleReviewForm">Отмена</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Неавторизованным показываем предложение войти -->
+                            <div v-else class="card bg-dark border-secondary mb-4">
+                                <div class="card-body text-center text-secondary">
+                                    <p class="mb-0">🔐 <a href="#/login" class="link-light">Войдите</a>, чтобы оставить отзыв</p>
+                                </div>
+                            </div>
 
                             <!-- Загрузка отзывов -->
                             <div v-if="reviewsLoading" class="text-center py-4">
@@ -450,7 +503,7 @@
                                                 </span>
                                                 <span class="text-warning ms-2">⭐ {{ review.rating }}/10</span>
                                             </div>
-                                            <small class="text-secondary">{{ formatDate(review.created_at) }}</small>
+                                            <small class="text-secondary fs-6">{{ formatDate(review.publication_date) }}</small>
                                         </div>
                                         <p class="card-text text-light mb-0">{{ review.review_text || 'Нет текста отзыва' }}</p>
                                     </div>

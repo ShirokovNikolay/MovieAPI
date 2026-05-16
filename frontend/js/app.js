@@ -92,6 +92,12 @@
                 reviewsSize: 10,
                 reviewsTotal: 0,
                 reviewsLoading: false,
+
+                userReview: null,
+                reviewRating: 5,
+                reviewText: "",
+                reviewSubmitting: false,
+                showReviewForm: false,
             };
         },
         computed: {
@@ -379,23 +385,21 @@
 
             showMovieDetails: function (movieId) {
                 var self = this;
-                console.log("Загружаем фильм ID:", movieId);
                 this.movieDetailsLoading = true;
                 this.error = "";
-                // Сбрасываем страницу отзывов
                 this.reviewsPage = 1;
                 this.reviewsList = [];
+                this.userReview = null;
+                this.showReviewForm = false;
 
                 window.Api.getMovieById(movieId)
                     .then(function (movie) {
-                        console.log("Получен фильм:", movie);
                         self.currentMovie = movie;
                         self.currentView = "movieDetails";
-                        // Загружаем отзывы
                         self.loadReviews(movie.id);
+                        self.loadUserReview(movie.id);  // ← добавить
                     })
                     .catch(function (e) {
-                        console.error("Ошибка:", e);
                         self.error = e.message || "Не удалось загрузить детали фильма";
                     })
                     .finally(function () {
@@ -480,6 +484,67 @@
                 if (!text) return "";
                 if (text.length <= maxLength) return text;
                 return text.substring(0, maxLength) + "...";
+            },
+
+            loadUserReview: function (movieId) {
+                var self = this;
+                if (!this.isAuthenticated) {
+                    this.userReview = null;
+                    return;
+                }
+
+                window.Api.getUserReview(movieId)
+                    .then(function (data) {
+                        self.userReview = data;
+                        if (data) {
+                            self.reviewRating = data.rating;
+                            self.reviewText = data.review_text || "";
+                        }
+                    })
+                    .catch(function () {
+                        self.userReview = null;
+                    });
+            },
+
+            toggleReviewForm: function () {
+                this.showReviewForm = !this.showReviewForm;
+                if (!this.showReviewForm) {
+                    this.reviewRating = 5;
+                    this.reviewText = "";
+                }
+            },
+
+            submitReview: function () {
+                var self = this;
+                if (!this.isAuthenticated) {
+                    this.error = "Для написания отзыва необходимо войти";
+                    return;
+                }
+
+                if (!this.reviewText.trim()) {
+                    this.error = "Введите текст отзыва";
+                    return;
+                }
+
+                this.reviewSubmitting = true;
+                this.error = "";
+
+                window.Api.createReview(this.currentMovie.id, this.reviewRating, this.reviewText.trim())
+                    .then(function (newReview) {
+                        self.userReview = newReview;
+                        self.showReviewForm = false;
+                        self.reviewRating = 5;
+                        self.reviewText = "";
+                        // Перезагружаем список отзывов
+                        self.reviewsPage = 1;
+                        self.loadReviews(self.currentMovie.id);
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось отправить отзыв";
+                    })
+                    .finally(function () {
+                        self.reviewSubmitting = false;
+                    });
             },
 
 
