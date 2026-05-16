@@ -327,10 +327,6 @@
                                         {{ truncateText(movie.description, 100) }}
                                     </p>
 
-                                    <!-- Ссылка на источник -->
-                                    <a :href="movie.source_url" target="_blank" class="btn btn-sm btn-outline-info w-100" @click.stop>
-                                        🔗 Подробнее
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -359,6 +355,88 @@
                 </div>
             </div>
 
+
+            <!-- Детали фильма -->
+            <div v-else-if="currentView === 'movieDetails'" class="row justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-12">
+                    <!-- Кнопка назад -->
+                    <div class="mb-3">
+                        <button class="btn btn-outline-secondary" @click="backToMovies">
+                            ← Назад к списку фильмов
+                        </button>
+                    </div>
+
+                    <!-- Загрузка -->
+                    <div v-if="movieDetailsLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+
+                    <!-- Детали фильма -->
+                    <div v-else-if="currentMovie" class="card shadow text-bg-dark border-secondary">
+                        <div class="row g-0">
+                            <!-- Постер -->
+                            <div class="col-md-5">
+                                <img :src="currentMovie.preview_url || 'https://via.placeholder.com/500x750?text=No+Poster'"
+                                     class="img-fluid rounded-start"
+                                     alt="Постер"
+                                     style="width: 100%; height: auto; object-fit: cover;">
+                            </div>
+
+                            <!-- Информация -->
+                            <div class="col-md-7">
+                                <div class="card-body p-4">
+                                    <h1 class="card-title h2 mb-3">{{ currentMovie.name || 'Без названия' }}</h1>
+
+                                    <div class="mb-3">
+                                        <span class="badge bg-info text-dark fs-6">{{ currentMovie.genre?.name || 'Без жанра' }}</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <span class="text-warning fs-5">⭐</span>
+                                        <span class="fs-4 ms-2">{{ currentMovie.rating || '—' }}/10</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong class="text-secondary">📅 Дата релиза:</strong>
+                                        <span class="ms-2">{{ formatDate(currentMovie.release_date) }}</span>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <strong class="text-secondary">📖 Описание:</strong>
+                                        <p class="mt-2 text-light">{{ currentMovie.description || 'Нет описания' }}</p>
+                                    </div>
+
+                                    <div class="d-flex gap-3">
+                                        <button class="btn btn-success btn-lg flex-grow-1" @click="watchMovieNow" :disabled="!isAuthenticated">
+                                            🎬 Смотреть фильм
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-3 text-secondary small" v-if="!isAuthenticated">
+                                        <span class="text-warning">⚠️ Для просмотра фильма необходимо войти в аккаунт</span>
+                                    </div>
+
+                                    <div class="mt-3 text-secondary small" v-if="currentMovie.source_url">
+                                        <span>URL источника: {{ truncateText(currentMovie.source_url, 50) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ошибка -->
+                    <div v-else class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 Фильм не найден</h3>
+                            <button class="btn btn-primary mt-3" @click="backToMovies">Вернуться к списку</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Профиль -->
             <div v-else-if="currentView === 'profile'" class="row justify-content-center">
                 <div class="col-12 col-xl-10">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
