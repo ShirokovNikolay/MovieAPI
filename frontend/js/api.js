@@ -264,6 +264,18 @@
         return publicGetJson("/api/v1/movies/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
     }
 
+    function getMovieReviewsNewest(movieId, page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 10;
+        return publicGetJson("/api/v1/reviews/movie/" + encodeURIComponent(movieId) + "/top-newest?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
+    function getMovieReviewsOldest(movieId, page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 10;
+        return publicGetJson("/api/v1/reviews/movie/" + encodeURIComponent(movieId) + "/top-oldest?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
     function searchMoviesByName(name, page, size) {
     var p = page != null ? page : 1;
     var s = size != null ? size : 9;
@@ -359,5 +371,7 @@
         getUserReview: getUserReview,
         createReview: createReview,
         getMoviesByGenre: getMoviesByGenre,
+        getMovieReviewsNewest: getMovieReviewsNewest,
+        getMovieReviewsOldest: getMovieReviewsOldest,
     };
 })();
