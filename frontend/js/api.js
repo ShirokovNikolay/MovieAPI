@@ -296,6 +296,13 @@
         return Promise.resolve({ success: true });
     }
 
+    // ========== ОТЗЫВЫ ==========
+    function getMovieReviews(movieId, page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 10;
+        return publicGetJson("/api/v1/reviews/movie/" + encodeURIComponent(movieId) + "/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
@@ -316,5 +323,6 @@
         searchMoviesByName: searchMoviesByName,
         getMovieById: getMovieById,
         watchMovie: watchMovie,
+        getMovieReviews: getMovieReviews,
     };
 })();
