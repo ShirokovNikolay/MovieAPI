@@ -271,6 +271,31 @@
     return publicGetJson("/api/v1/movies/search?movie_name=" + q + "&page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
     }
 
+    // ========== ДЕТАЛИ ФИЛЬМА ==========
+    function getMovieById(movieId) {
+        return publicGetJson("/api/v1/movies/" + encodeURIComponent(movieId) + "/");
+    }
+
+    function watchMovie(movieId) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) {
+            return Promise.reject(new Error("Не авторизован"));
+        }
+
+        // Просто отправляем запрос для записи истории, игнорируем ответ
+        fetch("/api/v1/movies/" + movieId + "/watch", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        }).catch(function(e) {
+            console.warn("Ошибка записи истории:", e);
+        });
+
+        // Сразу возвращаем успех, не ждём ответа
+        return Promise.resolve({ success: true });
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
@@ -289,5 +314,7 @@
         searchGenresByName: searchGenresByName,
         getMovies: getMovies,
         searchMoviesByName: searchMoviesByName,
+        getMovieById: getMovieById,
+        watchMovie: watchMovie,
     };
 })();

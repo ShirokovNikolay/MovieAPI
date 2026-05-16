@@ -83,6 +83,9 @@
 
                 movieSearchInput: "",
                 movieActiveSearch: "",
+
+                currentMovie: null,
+                movieDetailsLoading: false,
             };
         },
         computed: {
@@ -164,6 +167,16 @@
                     this.loadProfile();
                     return;
                 }
+                if (hash.startsWith("#/movie/")) {
+                    var movieId = parseInt(hash.split("/")[2]);
+                    if (!isNaN(movieId)) {
+                        this.currentView = "movieDetails";
+                        this.error = "";
+                        this.loadMovieDetails(movieId);
+                        return;
+                    }
+                }
+
                 window.location.hash = "#/";
             },
             goCatalog: function () {
@@ -315,10 +328,25 @@
                 });
             },
 
-            showMovieDetails: function (movieId) {
-                console.log("Клик по фильму ID:", movieId);
-                // Позже можно добавить модальное окно или отдельную страницу
+            loadMovieDetails: function (movieId) {
+                var self = this;
+                this.movieDetailsLoading = true;
+                this.error = "";
+
+                window.Api.getMovieById(movieId)
+                    .then(function (movie) {
+                        self.currentMovie = movie;
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить детали фильма";
+                        self.goMovies();
+                    })
+                    .finally(function () {
+                        self.movieDetailsLoading = false;
+                    });
             },
+
+
 
             goMoviesPage: function (nextPage) {
                 if (nextPage < 1) return;
@@ -329,6 +357,52 @@
                 this.movieActiveSearch = (this.movieSearchInput || "").trim();
                 this.moviesPage = 1;
                 this.loadMovies();
+            },
+
+            showMovieDetails: function (movieId) {
+                var self = this;
+                console.log("Загружаем фильм ID:", movieId);  // Добавь
+                this.movieDetailsLoading = true;
+                this.error = "";
+
+                window.Api.getMovieById(movieId)
+                    .then(function (movie) {
+                        console.log("Получен фильм:", movie);  // Добавь
+                        self.currentMovie = movie;
+                        self.currentView = "movieDetails";
+                    })
+                    .catch(function (e) {
+                        console.error("Ошибка:", e);  // Добавь
+                        self.error = e.message || "Не удалось загрузить детали фильма";
+                    })
+                    .finally(function () {
+                        self.movieDetailsLoading = false;
+                    });
+            },
+
+            watchMovieNow: function () {
+                var self = this;
+                if (!this.isAuthenticated) {
+                    this.error = "Для просмотра фильма необходимо войти в аккаунт";
+                    return;
+                }
+
+                if (!this.currentMovie || !this.currentMovie.source_url) {
+                    this.error = "Ссылка на источник не найдена";
+                    return;
+                }
+
+                // Отправляем запрос для записи истории (фоном)
+                window.Api.watchMovie(this.currentMovie.id);
+
+                // Сразу открываем ссылку
+                window.open(this.currentMovie.source_url, '_blank');
+            },
+
+            backToMovies: function () {
+                this.currentView = "movies";
+                this.currentMovie = null;
+                this.movieDetailsLoading = false;
             },
 
             clearMovieSearch: function () {
