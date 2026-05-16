@@ -86,6 +86,12 @@
 
                 currentMovie: null,
                 movieDetailsLoading: false,
+
+                reviewsList: [],
+                reviewsPage: 1,
+                reviewsSize: 10,
+                reviewsTotal: 0,
+                reviewsLoading: false,
             };
         },
         computed: {
@@ -112,6 +118,19 @@
             moviesHasPrev: function () {
                 return this.moviesPage > 1;
             },
+
+            reviewsHasNext: function () {
+                return this.reviewsList.length === this.reviewsSize;
+            },
+            reviewsHasPrev: function () {
+                return this.reviewsPage > 1;
+            },
+                userFullName: function () {
+                if (this.profileData && this.profileData.surname && this.profileData.name) {
+                    return this.profileData.surname + ' ' + this.profileData.name;
+                }
+                return this.displayLogin || 'Пользователь';
+            },
         },
         mounted: function () {
             var self = this;
@@ -125,9 +144,8 @@
                 var hash = window.location.hash || "#/";
                 if (hash === "#/" || hash === "#/home" || hash === "#/catalog") {
                     this.currentView = "catalog";
-                    if (this.isAuthenticated) {
-                        this.displayLogin =
-                            window.TokenStore.getLoginFromAccess() || this.loginForm.username;
+                    if (this.isAuthenticated && !this.profileData) {
+                        this.loadProfile();  // загружаем профиль для отображения ФИО
                     }
                     this.error = "";
                     return;
@@ -361,18 +379,23 @@
 
             showMovieDetails: function (movieId) {
                 var self = this;
-                console.log("Загружаем фильм ID:", movieId);  // Добавь
+                console.log("Загружаем фильм ID:", movieId);
                 this.movieDetailsLoading = true;
                 this.error = "";
+                // Сбрасываем страницу отзывов
+                this.reviewsPage = 1;
+                this.reviewsList = [];
 
                 window.Api.getMovieById(movieId)
                     .then(function (movie) {
-                        console.log("Получен фильм:", movie);  // Добавь
+                        console.log("Получен фильм:", movie);
                         self.currentMovie = movie;
                         self.currentView = "movieDetails";
+                        // Загружаем отзывы
+                        self.loadReviews(movie.id);
                     })
                     .catch(function (e) {
-                        console.error("Ошибка:", e);  // Добавь
+                        console.error("Ошибка:", e);
                         self.error = e.message || "Не удалось загрузить детали фильма";
                     })
                     .finally(function () {
@@ -397,6 +420,39 @@
 
                 // Сразу открываем ссылку
                 window.open(this.currentMovie.source_url, '_blank');
+            },
+
+            loadReviews: function (movieId) {
+                var self = this;
+                this.reviewsLoading = true;
+
+                window.Api.getMovieReviews(movieId, this.reviewsPage, this.reviewsSize)
+                    .then(function (data) {
+                        self.reviewsList = data.review_list || [];  // ← исправлено
+                        self.reviewsTotal = data.total || 0;
+                        if (typeof data.page === "number") {
+                            self.reviewsPage = data.page;
+                        }
+                        if (typeof data.size === "number") {
+                            self.reviewsSize = data.size;
+                        }
+                        console.log("Загружено отзывов:", self.reviewsList.length);  // для отладки
+                    })
+                    .catch(function (e) {
+                        console.error("Ошибка загрузки отзывов:", e);
+                        self.reviewsList = [];
+                    })
+                    .finally(function () {
+                        self.reviewsLoading = false;
+                    });
+            },
+
+            goReviewsPage: function (nextPage) {
+                if (nextPage < 1) return;
+                this.reviewsPage = nextPage;
+                if (this.currentMovie) {
+                    this.loadReviews(this.currentMovie.id);
+                }
             },
 
             backToMovies: function () {
