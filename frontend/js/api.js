@@ -490,6 +490,25 @@
         });
     }
 
+    // ========== ИСТОРИЯ ПРОСМОТРОВ ==========
+    function getWatchHistory(page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 10;
+        return authFetchJson("/api/v1/watch-history/about-me/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
+    function getWatchHistoryCount() {
+        return authFetchJson("/api/v1/watch-history/about-me/count");
+    }
+
+    function clearAllWatchHistory() {
+        return authFetchJson("/api/v1/watch-history/about-me/", { method: "DELETE" });
+    }
+
+    function deleteWatchHistoryItem(historyId) {
+        return authFetchJson("/api/v1/watch-history/" + encodeURIComponent(historyId) + "/", { method: "DELETE" });
+    }
+
     window.Api = {
         apiUrl: apiUrl,
         refreshAccessToken: refreshAccessToken,
@@ -527,5 +546,10 @@
         isFavorite: isFavorite,
         checkFavorite: checkFavorite,
         getFavorites: getFavorites,
+
+        getWatchHistory: getWatchHistory,
+        getWatchHistoryCount: getWatchHistoryCount,
+        clearAllWatchHistory: clearAllWatchHistory,
+        deleteWatchHistoryItem: deleteWatchHistoryItem,
     };
 })();

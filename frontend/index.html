@@ -61,6 +61,7 @@
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userMenu">
                                     <li><a class="dropdown-item" href="#/profile">👤 Профиль</a></li>
                                     <li><a class="dropdown-item" href="#/favorites">❤️ Избранное</a></li>
+                                    <li><a class="dropdown-item" href="#/history">📜 История просмотров</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item text-danger" href="#" @click.prevent="onLogout">🚪 Выйти</a></li>
                                 </ul>
@@ -637,6 +638,7 @@
                 </div>
             </div>
 
+            <!--Избранное-->
             <div v-else-if="currentView === 'favorites'" class="row justify-content-center">
                 <div class="col-12">
                     <div class="card shadow text-bg-dark border-secondary mb-4">
@@ -691,6 +693,104 @@
                             </li>
                         </ul>
                     </nav>
+                </div>
+            </div>
+
+
+            <!-- Секция истории просмотров -->
+            <div v-else-if="currentView === 'history'" class="row justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-8">
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <h1 class="h3 mb-0">📜 История просмотров</h1>
+                            <button class="btn btn-outline-danger" @click="confirmClearAllHistory" :disabled="watchHistoryList.length === 0">
+                                🗑️ Очистить всё
+                            </button>
+                        </div>
+                        <div class="card-body border-top border-secondary">
+                            <p class="text-secondary">Всего просмотрено: {{ watchHistoryCount }} фильмов</p>
+                        </div>
+                    </div>
+
+                    <!-- Загрузка -->
+                    <div v-if="watchHistoryLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status"></div>
+                    </div>
+
+                    <!-- Нет истории -->
+                    <div v-else-if="watchHistoryList.length === 0" class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 История просмотров пуста</h3>
+                            <p class="mb-0">Смотрите фильмы, они появятся здесь</p>
+                        </div>
+                    </div>
+
+                    <!-- Список истории (столбец) -->
+                    <div v-else>
+                        <div v-for="item in watchHistoryList" :key="item.id"
+                             class="card bg-dark text-light border-secondary mb-3 hover-card"
+                             style="cursor: pointer; transition: transform 0.2s;"
+                             @click="goToMovieFromHistory(item.movie.id)"
+                             @mouseenter="e => e.currentTarget.style.transform = 'translateX(5px)'"
+                             @mouseleave="e => e.currentTarget.style.transform = 'translateX(0)'">
+
+                            <div class="row g-0">
+                                <!-- Левая колонка: постер -->
+                                <div class="col-md-3">
+                                    <img :src="item.movie.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
+                                         class="img-fluid rounded-start"
+                                         alt="Постер"
+                                         style="height: 100%; object-fit: cover;">
+                                </div>
+
+                                <!-- Правая колонка: информация -->
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h5 class="card-title">{{ item.movie.name }}</h5>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    @click.stop="confirmDeleteHistoryItem(item.id, $event)"
+                                                    title="Удалить из истории">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                        <p class="text-warning mb-2">⭐ {{ item.movie.rating }}/10</p>
+                                        <p class="card-text small text-secondary mb-2">
+                                            📅 Просмотрено: {{ formatDate(item.watched_at) }}
+                                        </p>
+                                        <p class="card-text small text-secondary">
+                                            {{ truncateText(item.movie.description, 150) }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Пагинация -->
+                        <nav v-if="watchHistoryList.length > 0" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" :class="{ disabled: !watchHistoryHasPrev }">
+                                    <button class="page-link bg-dark text-light border-secondary"
+                                            @click="goWatchHistoryPage(watchHistoryPage - 1)"
+                                            :disabled="watchHistoryLoading">
+                                        ← Назад
+                                    </button>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link bg-dark text-secondary border-secondary">
+                                        Страница {{ watchHistoryPage }} (из {{ Math.ceil(watchHistoryCount / watchHistorySize) }})
+                                    </span>
+                                </li>
+                                <li class="page-item" :class="{ disabled: !watchHistoryHasNext }">
+                                    <button class="page-link bg-dark text-light border-secondary"
+                                            @click="goWatchHistoryPage(watchHistoryPage + 1)"
+                                            :disabled="watchHistoryLoading">
+                                        Вперёд →
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
 
@@ -927,6 +1027,40 @@
                         <span v-if="favoriteToggling" class="spinner-border spinner-border-sm me-1"></span>
                         Да, удалить
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно удаления записи из истории -->
+    <div class="modal fade" id="deleteHistoryItemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Удалить из истории</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">Удалить этот фильм из истории просмотров?</div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteHistoryItemConfirmed">Да, удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно очистки всей истории -->
+    <div class="modal fade" id="clearAllHistoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Очистить всю историю</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">Вы уверены, что хотите удалить всю историю просмотров? Это действие нельзя отменить.</div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmClearAllHistoryConfirmed">Да, очистить всё</button>
                 </div>
             </div>
         </div>
