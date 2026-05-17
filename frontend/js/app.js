@@ -255,9 +255,8 @@
                 this.loading = true;
                 window.Api.loginUser(this.loginForm.username, this.loginForm.password)
                     .then(function () {
-                        self.displayLogin =
-                            window.TokenStore.getLoginFromAccess() || self.loginForm.username;
-                        self.goCatalog();
+                        window.location.href = "#/";
+                        window.location.reload();
                     })
                     .catch(function (e) {
                         self.error = e.message || "Не удалось войти";
@@ -266,6 +265,7 @@
                         self.loading = false;
                     });
             },
+
             onRegister: function () {
                 var self = this;
                 this.error = "";
@@ -279,9 +279,8 @@
                     password: this.registerForm.password,
                 })
                     .then(function () {
-                        self.success =
-                            "Регистрация прошла успешно. Теперь можно войти, используя логин и пароль.";
-                        self.registerForm.password = "";
+                        window.location.href = "#/";
+                        window.location.reload();
                     })
                     .catch(function (e) {
                         self.error = e.message || "Ошибка регистрации";
@@ -292,8 +291,7 @@
             },
             onLogout: function () {
                 window.Api.logout();
-                this.loginForm.password = "";
-                this.goCatalog();
+                window.location.reload();
             },
             formatRegistrationDate: function (iso) {
                 if (!iso) {
