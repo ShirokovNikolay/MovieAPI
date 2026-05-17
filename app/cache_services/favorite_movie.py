@@ -93,6 +93,25 @@ class FavoriteMovieCacheService:
         await self.cache_service.set(key, favorite_movie_response, ttl=1800)
         return favorite_movie_response
 
+    async def check_favorite_movie_status(self, user_id: int, movie_id: int) -> bool:
+        # key = self.cache_service.create_cache_key(
+        #     "favorite movie:status",
+        #     user_id=user_id,
+        #     movie_id=movie_id,
+        # )
+        # cached_favorite_movie_response = await self.cache_service.get(key)
+        # if cached_favorite_movie_response is not None:
+        #     return cast(bool, cached_favorite_movie_response)
+
+        favorite_movie_response = (
+            await self.favorite_movie_service.check_favorite_movie_status(
+                user_id,
+                movie_id,
+            )
+        )
+        # await self.cache_service.set(key, favorite_movie_response, ttl=1800)
+        return favorite_movie_response
+
     async def create_user_favorite_movie(
         self,
         user_id: int,
