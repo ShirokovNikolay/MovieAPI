@@ -48,16 +48,25 @@
                         </template>
                         <template v-else>
                             <li class="nav-item d-none d-md-flex align-items-center me-lg-2">
-                                <span class="navbar-text text-secondary">{{ userFullName  }}</span>
+                                <span class="navbar-text text-secondary">{{ displayLogin }}</span>
                             </li>
                             <li class="nav-item me-lg-2">
                                 <a class="btn btn-outline-info btn-sm mt-1" href="#/profile">Профиль</a>
                             </li>
                             <li class="nav-item d-md-none me-lg-2">
-                                <span class="navbar-text text-secondary small">{{ userFullName }}</span>
+                                <span class="navbar-text text-secondary small">{{ displayLogin }}</span>
                             </li>
-                            <li class="nav-item">
-                                <button type="button" class="btn btn-outline-light btn-sm mt-1" @click="onLogout">Выйти</button>
+                            <!-- Меню с тремя чертами -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ☰
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userMenu">
+                                    <li><a class="dropdown-item" href="#/profile">👤 Профиль</a></li>
+                                    <li><a class="dropdown-item" href="#/favorites">❤️ Избранное</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#" @click.prevent="onLogout">🚪 Выйти</a></li>
+                                </ul>
                             </li>
                         </template>
                     </ul>
@@ -305,7 +314,8 @@
                     <!-- Список фильмов -->
                     <div v-else class="row g-4">
                         <div v-for="movie in moviesList" :key="movie.id" class="col-md-6 col-lg-4">
-                            <div class="card h-100 bg-dark text-light border-secondary hover-card" style="cursor: pointer; transition: transform 0.2s;"
+                            <div class="card h-100 bg-dark text-light border-secondary hover-card"
+                                 style="cursor: pointer; transition: transform 0.2s;"
                                  @click="showMovieDetails(movie.id)"
                                  @mouseenter="e => e.currentTarget.style.transform = 'translateY(-5px)'"
                                  @mouseleave="e => e.currentTarget.style.transform = 'translateY(0)'">
@@ -630,6 +640,63 @@
                 </div>
             </div>
 
+            <div v-else-if="currentView === 'favorites'" class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4">
+                            <h1 class="h3 mb-0">❤️ Моё избранное</h1>
+                        </div>
+                    </div>
+
+                    <div v-if="favoritesLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status"></div>
+                    </div>
+
+                    <div v-else-if="favoritesList.length === 0" class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 Нет фильмов в избранном</h3>
+                        </div>
+                    </div>
+
+                    <div v-else class="row g-4">
+                        <div v-for="movie in favoritesList" :key="movie.id" class="col-md-6 col-lg-4">
+                            <div class="card h-100 bg-dark text-light border-secondary hover-card"
+                                 style="cursor: pointer; transition: transform 0.2s;"
+                                 @click="goToMovieFromFavorites(movie.id)"
+                                 @mouseenter="e => e.currentTarget.style.transform = 'translateY(-5px)'"
+                                 @mouseleave="e => e.currentTarget.style.transform = 'translateY(0)'">
+                                <img :src="movie.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
+                                     class="card-img-top" style="height: 300px; object-fit: cover;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="card-title">{{ movie.name }}</h5>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @click.stop="confirmDeleteFavorite(movie.favorite_id, movie.id, $event)"
+                                                title="Удалить из избранного">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                    <p class="text-warning">⭐ {{ movie.rating }}/10</p>
+                                    <p class="card-text small text-secondary">{{ truncateText(movie.description, 100) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav v-if="favoritesList.length > 0" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" :class="{ disabled: !favoritesHasPrev }">
+                                <button class="page-link bg-dark text-light" @click="goFavoritesPage(favoritesPage - 1)">← Назад</button>
+                            </li>
+                            <li class="page-item disabled"><span class="page-link bg-dark text-secondary">Страница {{ favoritesPage }}</span></li>
+                            <li class="page-item" :class="{ disabled: !favoritesHasNext }">
+                                <button class="page-link bg-dark text-light" @click="goFavoritesPage(favoritesPage + 1)">Вперёд →</button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
             <!-- Профиль -->
             <div v-else-if="currentView === 'profile'" class="row justify-content-center">
                 <div class="col-12 col-xl-10">
@@ -839,6 +906,28 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     <button type="button" class="btn btn-danger" @click="confirmDeleteReviewConfirmed" :disabled="reviewSubmitting">
                         <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления из избранного -->
+    <div class="modal fade" id="deleteFavoriteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Удалить фильм из избранного?
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteFavoriteConfirmed" :disabled="favoriteToggling">
+                        <span v-if="favoriteToggling" class="spinner-border spinner-border-sm me-1"></span>
                         Да, удалить
                     </button>
                 </div>
