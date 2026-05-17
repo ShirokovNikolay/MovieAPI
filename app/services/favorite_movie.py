@@ -67,6 +67,17 @@ class FavoriteMovieService:
             )
         raise MovieIdNotFoundError(movie_id)
 
+    async def check_favorite_movie_status(self, user_id: int, movie_id: int) -> bool:
+        if not await self.user_repository.user_id_exists(user_id):
+            raise UserIdNotFoundError(user_id)
+        if not await self.movie_repository.movie_id_exists(movie_id):
+            raise MovieIdNotFoundError(movie_id)
+        favorite_movie = await self.favorite_movie_repository.get_user_favorite_movie(
+            user_id,
+            movie_id,
+        )
+        return favorite_movie is not None
+
     async def create_user_favorite_movie(
         self,
         user_id: int,

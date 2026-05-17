@@ -19,24 +19,6 @@ router = APIRouter(
 
 
 @router.get(
-    "/{favorite_movie_id}",
-    response_model=FavoriteMovieWithMovieResponse,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_auth),
-        Depends(get_admin_by_access_token),
-    ],
-)
-async def get_favorite_movie_by_id(
-    favorite_movie_id: int,
-    favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
-) -> FavoriteMovieWithMovieResponse:
-    return await favorite_movie_cache_service.get_favorite_movie_by_id(
-        favorite_movie_id,
-    )
-
-
-@router.get(
     "/about-me",
     response_model=FavoriteMovieWithMovieResponseList,
     status_code=status.HTTP_200_OK,
@@ -58,6 +40,24 @@ async def get_current_user_favorite_movies(
 
 
 @router.get(
+    "/{favorite_movie_id}",
+    response_model=FavoriteMovieWithMovieResponse,
+    status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_auth),
+        Depends(get_admin_by_access_token),
+    ],
+)
+async def get_favorite_movie_by_id(
+    favorite_movie_id: int,
+    favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
+) -> FavoriteMovieWithMovieResponse:
+    return await favorite_movie_cache_service.get_favorite_movie_by_id(
+        favorite_movie_id,
+    )
+
+
+@router.get(
     "/count/{movie_id}",
     status_code=status.HTTP_200_OK,
     response_model=int,
@@ -70,6 +70,24 @@ async def count_favorites_by_movie(
     favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
 ) -> int:
     return await favorite_movie_cache_service.count_favorites_by_movie(movie_id)
+
+
+@router.get(
+    "/check/{movie_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[
+        Depends(check_rate_limit_not_auth),
+    ],
+)
+async def check_favorite_movie_status(
+    user_id: AuthUserByAccessTokenDep,
+    movie_id: int,
+    favorite_movie_cache_service: FavoriteMovieCacheServiceDep,
+) -> bool:
+    return await favorite_movie_cache_service.check_favorite_movie_status(
+        user_id,
+        movie_id,
+    )
 
 
 @router.post(

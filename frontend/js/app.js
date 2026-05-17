@@ -109,7 +109,11 @@
                 editReviewRating: 5,
                 editReviewText: "",
 
-                deleteReviewId: null
+                deleteReviewId: null,
+
+                favoritesCount: 0,
+                isFavorite: false,
+                favoriteToggling: false,
             };
         },
         computed: {
@@ -163,7 +167,7 @@
                 if (hash === "#/" || hash === "#/home" || hash === "#/catalog") {
                     this.currentView = "catalog";
                     if (this.isAuthenticated && !this.profileData) {
-                        this.loadProfile();  // загружаем профиль для отображения ФИО
+                        this.loadProfile();
                     }
                     this.error = "";
                     return;
@@ -370,7 +374,7 @@
                 this.moviesLoading = true;
                 this.error = "";
                 this.selectedGenreId = genreId;
-                this.selectedGenreName = genreName;  // ← уже есть
+                this.selectedGenreName = genreName;
                 this.moviesPage = 1;
                 this.movieActiveSearch = "";
                 this.movieSearchInput = "";
@@ -441,6 +445,7 @@
                 this.loadMovies();
             },
 
+
             showMovieDetails: function (movieId) {
                 var self = this;
                 this.movieDetailsLoading = true;
@@ -455,7 +460,9 @@
                         self.currentMovie = movie;
                         self.currentView = "movieDetails";
                         self.loadReviews(movie.id);
-                        self.loadUserReview(movie.id);  // ← добавить
+                        self.loadUserReview(movie.id);
+                        console.log("showMovieDetails: вызов loadFavoritesData для movie.id =", movie.id);
+                        self.loadFavoritesData(movie.id);
                     })
                     .catch(function (e) {
                         self.error = e.message || "Не удалось загрузить детали фильма";
@@ -490,7 +497,7 @@
 
                 window.Api.getMovieReviews(movieId, this.reviewsPage, this.reviewsSize)
                     .then(function (data) {
-                        self.reviewsList = data.review_list || [];  // ← исправлено
+                        self.reviewsList = data.review_list || [];
                         self.reviewsTotal = data.total || 0;
                         if (typeof data.page === "number") {
                             self.reviewsPage = data.page;
@@ -498,7 +505,6 @@
                         if (typeof data.size === "number") {
                             self.reviewsSize = data.size;
                         }
-                        console.log("Загружено отзывов:", self.reviewsList.length);  // для отладки
                     })
                     .catch(function (e) {
                         console.error("Ошибка загрузки отзывов:", e);
@@ -902,6 +908,51 @@
                     .finally(function () {
                         self.loading = false;
                     });
+            },
+            loadFavoritesData: function (movieId) {
+                var self = this;
+                console.log("loadFavoritesData: начало, movieId =", movieId);
+
+                window.Api.getFavoritesCount(movieId)
+                    .then(function(data) {
+                        console.log("getFavoritesCount вернул:", data);
+                        // data уже число 3, не нужно брать data.count
+                        self.favoritesCount = data;
+                        console.log("self.favoritesCount теперь =", self.favoritesCount);
+                    })
+                    .catch(function(e) {
+                        console.error("Ошибка getFavoritesCount:", e);
+                    });
+
+                if (this.isAuthenticated) {
+                    window.Api.checkFavorite(movieId)
+                        .then(function(isFav) {
+                            console.log("checkFavorite вернул:", isFav);
+                            self.isFavorite = isFav;
+                        });
+                }
+            },
+
+            toggleFavorite: function () {
+                var self = this;
+                if (!this.isAuthenticated) {
+                    this.error = "Для добавления в избранное необходимо войти";
+                    return;
+                }
+
+                this.favoriteToggling = true;
+
+                if (this.isFavorite) {
+                    window.Api.removeFromFavorites(this.currentMovie.id)
+                        .then(() => { self.isFavorite = false; self.favoritesCount--; })
+                        .catch(e => console.error(e))
+                        .finally(() => self.favoriteToggling = false);
+                } else {
+                    window.Api.addToFavorites(this.currentMovie.id)
+                        .then(() => { self.isFavorite = true; self.favoritesCount++; })
+                        .catch(e => console.error(e))
+                        .finally(() => self.favoriteToggling = false);
+                }
             },
         },
         watch: {

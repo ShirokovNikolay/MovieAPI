@@ -410,6 +410,21 @@
                                         <span class="fs-4 ms-2">{{ currentMovie.rating || '—' }}/10</span>
                                     </div>
 
+                                    <!-- Строка с избранным -->
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <button class="btn"
+                                                :class="isFavorite ? 'btn-danger' : 'btn-outline-danger'"
+                                                @click="toggleFavorite"
+                                                :disabled="favoriteToggling">
+                                            <span v-if="favoriteToggling" class="spinner-border spinner-border-sm me-1"></span>
+                                            <span v-else>❤️</span>
+                                            {{ isFavorite ? 'В избранном' : 'В избранное' }}
+                                        </button>
+                                        <span class="text-secondary">
+                                            🧡 {{ favoritesCount }} {{ favoritesCount === 1 ? 'пользователь добавил' : 'пользователей добавили' }}
+                                        </span>
+                                    </div>
+
                                     <div class="mb-3">
                                         <strong class="text-secondary">📅 Дата релиза:</strong>
                                         <span class="ms-2">{{ formatDate(currentMovie.release_date) }}</span>
