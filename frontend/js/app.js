@@ -114,6 +114,11 @@
                 favoritesCount: 0,
                 isFavorite: false,
                 favoriteToggling: false,
+
+                favoritesList: [],
+                favoritesPage: 1,
+                favoritesSize: 12,
+                favoritesLoading: false,
             };
         },
         computed: {
@@ -139,6 +144,13 @@
             },
             moviesHasPrev: function () {
                 return this.moviesPage > 1;
+            },
+
+            favoritesHasNext: function () {
+                return this.favoritesList.length === this.favoritesSize;
+            },
+            favoritesHasPrev: function () {
+                return this.favoritesPage > 1;
             },
 
             reviewsHasNext: function () {
@@ -215,6 +227,15 @@
                         this.loadMovieDetails(movieId);
                         return;
                     }
+                }
+                if (hash === "#/favorites") {
+                    if (!this.isAuthenticated) {
+                        this.goLogin();
+                        return;
+                    }
+                    this.currentView = "favorites";
+                    this.loadFavorites();
+                    return;
                 }
 
                 window.location.hash = "#/";
@@ -418,14 +439,21 @@
                 var self = this;
                 this.movieDetailsLoading = true;
                 this.error = "";
+                this.reviewsPage = 1;
+                this.reviewsList = [];
+                this.userReview = null;
+                this.showReviewForm = false;
 
                 window.Api.getMovieById(movieId)
                     .then(function (movie) {
                         self.currentMovie = movie;
+                        self.currentView = "movieDetails";
+                        self.loadReviewsWithSort(movie.id, self.reviewsSortBy);
+                        self.loadUserReview(movie.id);
+                        self.loadFavoritesData(movie.id);
                     })
                     .catch(function (e) {
                         self.error = e.message || "Не удалось загрузить детали фильма";
-                        self.goMovies();
                     })
                     .finally(function () {
                         self.movieDetailsLoading = false;
@@ -648,6 +676,14 @@
                 this.currentView = "movies";
                 this.currentMovie = null;
                 this.movieDetailsLoading = false;
+                // Сбросить фильтры
+                this.selectedGenreId = null;
+                this.selectedGenreName = null;
+                this.movieActiveSearch = "";
+                this.movieSearchInput = "";
+                this.moviesPage = 1;
+                // Перезагрузить список фильмов
+                this.loadMovies();
             },
 
             clearMovieSearch: function () {
@@ -953,6 +989,79 @@
                         .catch(e => console.error(e))
                         .finally(() => self.favoriteToggling = false);
                 }
+            },
+
+            loadFavorites: function () {
+                console.log("1. loadFavorites начал");
+                var self = this;
+                this.favoritesLoading = true;
+
+                window.Api.getFavorites(this.favoritesPage, this.favoritesSize)
+                    .then(function (data) {
+                        console.log("2. getFavorites вернул:", data);
+                        var favoriteList = data.favorite_movie_list || [];
+                        console.log("3. favoriteList:", favoriteList);
+                        self.favoritesList = favoriteList.map(function(item) {
+                            var movie = item.movie;
+                            movie.favorite_id = item.id;
+                            return movie;
+                        });
+                        console.log("4. Итоговый favoritesList:", self.favoritesList);
+                    })
+                    .catch(function(e) {
+                        console.error("Ошибка:", e);
+                    })
+                    .finally(function() {
+                        self.favoritesLoading = false;
+                    });
+            },
+
+            goFavoritesPage: function (nextPage) {
+                if (nextPage < 1) return;
+                this.favoritesPage = nextPage;
+                this.loadFavorites();
+            },
+
+            goToMovieFromFavorites: function (movieId) {
+                window.location.hash = "#/movie/" + movieId;
+            },
+
+            confirmDeleteFavorite: function (favoriteId, movieId, event) {
+                console.log("Метод вызван, favoriteId:", favoriteId, "movieId:", movieId);
+                event.stopPropagation();
+                this.deletingFavoriteId = favoriteId;
+                this.deletingFavoriteMovieId = movieId;
+
+                // Показываем модальное окно через bootstrap
+                var modalEl = document.getElementById('deleteFavoriteModal');
+                if (modalEl) {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                } else {
+                    console.error("Модальное окно не найдено");
+                    // Если модального окна нет, сразу удаляем
+                    this.confirmDeleteFavoriteConfirmed();
+                }
+            },
+
+            confirmDeleteFavoriteConfirmed: function () {
+                var self = this;
+                window.Api.removeFavoriteById(this.deletingFavoriteId)
+                    .then(function() {
+                        self.favoritesList = self.favoritesList.filter(function(m) {
+                            return m.favorite_id !== self.deletingFavoriteId;
+                        });
+                        // Закрываем модальное окно
+                        var modalEl = document.getElementById('deleteFavoriteModal');
+                        if (modalEl) {
+                            var modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        }
+                        console.log("Удалено, новый список:", self.favoritesList);
+                    })
+                    .catch(function(e) {
+                        console.error("Ошибка удаления:", e);
+                    });
             },
         },
         watch: {

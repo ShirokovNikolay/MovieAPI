@@ -402,6 +402,12 @@
     }
 
     // ========== ИЗБРАННОЕ ==========
+    function getFavorites(page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 12;
+        return authFetchJson("/api/v1/favorite-movies/about-me?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
     function getFavoritesCount(movieId) {
         console.log("Запрос count для movieId:", movieId);
         return publicGetJson("/api/v1/favorite-movies/count/" + encodeURIComponent(movieId))
@@ -430,6 +436,17 @@
         }
 
         return authFetchJson("/api/v1/favorite-movies/movies/" + encodeURIComponent(movieId), {
+            method: "DELETE"
+        });
+    }
+
+    function removeFavoriteById(favoriteMovieId) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) {
+            return Promise.reject(new Error("Не авторизован"));
+        }
+
+        return authFetchJson("/api/v1/favorite-movies/" + encodeURIComponent(favoriteMovieId), {
             method: "DELETE"
         });
     }
@@ -506,7 +523,9 @@
         getFavoritesCount: getFavoritesCount,
         addToFavorites: addToFavorites,
         removeFromFavorites: removeFromFavorites,
+        removeFavoriteById: removeFavoriteById,
         isFavorite: isFavorite,
         checkFavorite: checkFavorite,
+        getFavorites: getFavorites,
     };
 })();
