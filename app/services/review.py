@@ -116,7 +116,29 @@ class ReviewService:
             page=page,
         )
 
-    async def get_top_rating_movie_reviews(
+    async def get_low_rated_movie_reviews(
+        self,
+        movie_id: int,
+        size: int,
+        page: int,
+    ) -> ReviewWithUserResponseList:
+        if not await self.movie_repository.movie_id_exists(movie_id):
+            raise MovieIdNotFoundError(movie_id)
+        reviews = [
+            ReviewWithUserResponse.model_validate(review)
+            for review in await self.review_repository.get_low_rated_movie_reviews(
+                movie_id,
+                size,
+                page,
+            )
+        ]
+        return ReviewWithUserResponseList(
+            review_list=reviews,
+            page=page,
+            size=size,
+        )
+
+    async def get_top_rated_movie_reviews(
         self,
         movie_id: int,
         size: int,
@@ -127,7 +149,7 @@ class ReviewService:
 
         reviews = [
             ReviewWithUserResponse.model_validate(review)
-            for review in await self.review_repository.get_top_rating_movie_reviews(
+            for review in await self.review_repository.get_top_rated_movie_reviews(
                 movie_id,
                 size,
                 page,
