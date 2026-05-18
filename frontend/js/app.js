@@ -127,8 +127,8 @@
                 watchHistoryCount: 0,
                 deletingHistoryId: null,
 
-                reviewsSortType: "date",
-                reviewsSortOrder: "desc",
+                reviewsSortType: "default",
+                reviewsSortOrder: "",
             };
         },
         computed: {
@@ -573,7 +573,9 @@
 
                 var promise;
 
-                if (sortType === "date") {
+                if (sortType === "default") {
+                    promise = window.Api.getMovieReviews(movieId, this.reviewsPage, this.reviewsSize);
+                } else if (sortType === "date") {
                     if (sortOrder === "desc") {
                         console.log("Вызов getMovieReviewsNewest");
                         promise = window.Api.getMovieReviewsNewest(movieId, this.reviewsPage, this.reviewsSize);
