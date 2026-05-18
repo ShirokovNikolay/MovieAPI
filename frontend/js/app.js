@@ -126,6 +126,9 @@
                 watchHistoryLoading: false,
                 watchHistoryCount: 0,
                 deletingHistoryId: null,
+
+                reviewsSortType: "date",
+                reviewsSortOrder: "desc",
             };
         },
         computed: {
@@ -507,7 +510,7 @@
                     .then(function (movie) {
                         self.currentMovie = movie;
                         self.currentView = "movieDetails";
-                        self.loadReviews(movie.id);
+                        self.loadReviewsWithSort(movie.id, self.reviewsSortType, self.reviewsSortOrder);
                         self.loadUserReview(movie.id);
                         console.log("showMovieDetails: вызов loadFavoritesData для movie.id =", movie.id);
                         self.loadFavoritesData(movie.id);
@@ -563,21 +566,34 @@
                     });
             },
 
-            loadReviewsWithSort: function (movieId, sortOrder) {
+            loadReviewsWithSort: function (movieId, sortType, sortOrder) {
+                console.log("loadReviewsWithSort вызван", movieId, sortType, sortOrder);
                 var self = this;
                 this.reviewsLoading = true;
 
                 var promise;
-                if (sortOrder === "newest") {
-                    promise = window.Api.getMovieReviewsNewest(movieId, this.reviewsPage, this.reviewsSize);
-                } else if (sortOrder === "oldest") {
-                    promise = window.Api.getMovieReviewsOldest(movieId, this.reviewsPage, this.reviewsSize);
+
+                if (sortType === "date") {
+                    if (sortOrder === "desc") {
+                        console.log("Вызов getMovieReviewsNewest");
+                        promise = window.Api.getMovieReviewsNewest(movieId, this.reviewsPage, this.reviewsSize);
+                    } else {
+                        console.log("Вызов getMovieReviewsOldest");
+                        promise = window.Api.getMovieReviewsOldest(movieId, this.reviewsPage, this.reviewsSize);
+                    }
                 } else {
-                    promise = window.Api.getMovieReviews(movieId, this.reviewsPage, this.reviewsSize);
+                    if (sortOrder === "desc") {
+                        console.log("Вызов getMovieReviewsTopRated");
+                        promise = window.Api.getMovieReviewsTopRated(movieId, this.reviewsPage, this.reviewsSize);
+                    } else {
+                        console.log("Вызов getMovieReviewsLowRated");
+                        promise = window.Api.getMovieReviewsLowRated(movieId, this.reviewsPage, this.reviewsSize);
+                    }
                 }
 
                 promise
                     .then(function (data) {
+                        console.log("Данные получены:", data);
                         self.reviewsList = data.review_list || [];
                         if (typeof data.page === "number") self.reviewsPage = data.page;
                         if (typeof data.size === "number") self.reviewsSize = data.size;
@@ -589,6 +605,25 @@
                     .finally(function () {
                         self.reviewsLoading = false;
                     });
+            },
+
+            changeReviewsSort: function (event) {
+                if (event) event.stopPropagation();
+                console.log("changeReviewsSort вызван", this.reviewsSortType, this.reviewsSortOrder);
+                this.reviewsPage = 1;
+                if (this.currentMovie) {
+                    this.loadReviewsWithSort(this.currentMovie.id, this.reviewsSortType, this.reviewsSortOrder);
+                }
+            },
+
+            changeReviewsSortWithValues: function (sortType, sortOrder) {
+                console.log("changeReviewsSortWithValues", sortType, sortOrder);
+                this.reviewsSortType = sortType;
+                this.reviewsSortOrder = sortOrder;
+                this.reviewsPage = 1;
+                if (this.currentMovie) {
+                    this.loadReviewsWithSort(this.currentMovie.id, sortType, sortOrder);
+                }
             },
 
             startEditReview: function (review) {

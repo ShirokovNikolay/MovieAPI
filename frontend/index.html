@@ -550,25 +550,23 @@
                             <!-- Заголовок с кнопками сортировки -->
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h3 class="h4 mb-0">📝 Отзывы зрителей</h3>
-                                <div class="btn-group btn-group-sm">
-                                    <button type="button"
-                                            class="btn"
-                                            :class="reviewsSortBy === 'default' ? 'btn-info' : 'btn-outline-secondary'"
-                                            @click="changeReviewsSort('default')">
-                                        📋 Без сортировки
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        🔽 Сортировка:
+                                        <span v-if="reviewsSortType === 'date' && reviewsSortOrder === 'desc'">сначала новые</span>
+                                        <span v-else-if="reviewsSortType === 'date' && reviewsSortOrder === 'asc'">сначала старые</span>
+                                        <span v-else-if="reviewsSortType === 'rating' && reviewsSortOrder === 'desc'">высокий рейтинг</span>
+                                        <span v-else-if="reviewsSortType === 'rating' && reviewsSortOrder === 'asc'">низкий рейтинг</span>
                                     </button>
-                                    <button type="button"
-                                            class="btn"
-                                            :class="reviewsSortBy === 'newest' ? 'btn-info' : 'btn-outline-secondary'"
-                                            @click="changeReviewsSort('newest')">
-                                        🆕 Сначала новые
-                                    </button>
-                                    <button type="button"
-                                            class="btn"
-                                            :class="reviewsSortBy === 'oldest' ? 'btn-info' : 'btn-outline-secondary'"
-                                            @click="changeReviewsSort('oldest')">
-                                        📅 Сначала старые
-                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark">
+                                        <li class="dropdown-header">📅 По дате</li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('date', 'desc')">🆕 Сначала новые</a></li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('date', 'asc')">📅 Сначала старые</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li class="dropdown-header">⭐ По рейтингу</li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('rating', 'desc')">🔥 Сначала высокие</a></li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('rating', 'asc')">❄️ Сначала низкие</a></li>
+                                    </ul>
                                 </div>
                             </div>
 
