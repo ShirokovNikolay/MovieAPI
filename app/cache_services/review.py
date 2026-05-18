@@ -145,7 +145,38 @@ class ReviewCacheService:
         )
         return reviews_response
 
-    async def get_top_rating_movie_reviews(
+    async def get_low_rated_movie_reviews(
+        self,
+        movie_id: int,
+        size: int,
+        page: int,
+    ) -> ReviewWithUserResponseList:
+        key = CacheService.create_cache_key(
+            "reviews:low-rated",
+            movie_id=movie_id,
+            size=size,
+            page=page,
+        )
+        cached_reviews_response = await self.cache_service.get(
+            key,
+            ReviewWithUserResponseList,
+        )
+        if cached_reviews_response is not None:
+            return cast(ReviewWithUserResponseList, cached_reviews_response)
+
+        reviews_response = await self.review_service.get_low_rated_movie_reviews(
+            movie_id,
+            size,
+            page,
+        )
+        await self.cache_service.set(
+            key,
+            reviews_response,
+            ttl=1800,
+        )
+        return reviews_response
+
+    async def get_top_rated_movie_reviews(
         self,
         movie_id: int,
         size: PaginationSizeDep = 10,
@@ -164,7 +195,7 @@ class ReviewCacheService:
         if cached_reviews_response is not None:
             return cast(ReviewWithUserResponseList, cached_reviews_response)
 
-        reviews_response = await self.review_service.get_top_rating_movie_reviews(
+        reviews_response = await self.review_service.get_top_rated_movie_reviews(
             movie_id,
             size,
             page,

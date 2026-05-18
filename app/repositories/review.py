@@ -97,7 +97,24 @@ class ReviewRepository:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def get_top_rating_movie_reviews(
+    async def get_low_rated_movie_reviews(
+        self,
+        movie_id: int,
+        size: int,
+        page: int,
+    ) -> list[Review]:
+        stmt = (
+            select(Review)
+            .options(joinedload(Review.user))
+            .where(Review.movie_id == movie_id)
+            .order_by(Review.rating)
+            .limit(size)
+            .offset(size * (page - 1))
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_top_rated_movie_reviews(
         self,
         movie_id: int,
         size: int,

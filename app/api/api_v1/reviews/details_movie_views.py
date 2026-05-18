@@ -28,17 +28,31 @@ async def get_movie_reviews(
 
 
 @router.get(
-    "/top-rated",
+    "/low-rated",
     response_model=ReviewWithUserResponseList,
     status_code=status.HTTP_200_OK,
 )
-async def get_top_rating_movie_reviews(
+async def get_low_rated_movie_reviews(
     movie_id: int,
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
 ) -> ReviewWithUserResponseList:
-    return await review_cache_service.get_top_rating_movie_reviews(movie_id, size, page)
+    return await review_cache_service.get_low_rated_movie_reviews(movie_id, size, page)
+
+
+@router.get(
+    "/top-rated",
+    response_model=ReviewWithUserResponseList,
+    status_code=status.HTTP_200_OK,
+)
+async def get_top_rated_movie_reviews(
+    movie_id: int,
+    review_cache_service: ReviewCacheServiceDep,
+    size: PaginationSizeDep = 10,
+    page: PaginationPageDep = 1,
+) -> ReviewWithUserResponseList:
+    return await review_cache_service.get_top_rated_movie_reviews(movie_id, size, page)
 
 
 @router.get(
