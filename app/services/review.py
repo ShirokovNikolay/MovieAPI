@@ -14,8 +14,9 @@ from schemas.review import (
     ReviewCreate,
     ReviewPartialUpdate,
     ReviewResponse,
-    ReviewResponseList,
     ReviewUpdate,
+    ReviewWithMovieResponse,
+    ReviewWithMovieResponseList,
     ReviewWithUserResponse,
     ReviewWithUserResponseList,
 )
@@ -55,19 +56,19 @@ class ReviewService:
         user_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithMovieResponseList:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
 
         reviews = [
-            ReviewResponse.model_validate(review)
+            ReviewWithMovieResponse.model_validate(review)
             for review in await self.review_repository.get_user_reviews(
                 user_id,
                 size,
                 page,
             )
         ]
-        return ReviewResponseList(
+        return ReviewWithMovieResponseList(
             review_list=reviews,
             size=size,
             page=page,

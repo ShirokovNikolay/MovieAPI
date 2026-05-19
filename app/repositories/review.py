@@ -1,6 +1,6 @@
 from sqlalchemy import and_, delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from models import Review, User
 from schemas.review import ReviewCreate, ReviewPartialUpdate, ReviewUpdate
@@ -56,6 +56,7 @@ class ReviewRepository:
     ) -> list[Review]:
         stmt = (
             select(Review)
+            .options(selectinload(Review.movie))
             .where(
                 Review.user_id == user_id,
             )

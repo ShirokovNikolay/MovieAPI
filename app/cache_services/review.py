@@ -6,8 +6,8 @@ from schemas.review import (
     ReviewCreate,
     ReviewPartialUpdate,
     ReviewResponse,
-    ReviewResponseList,
     ReviewUpdate,
+    ReviewWithMovieResponseList,
     ReviewWithUserResponse,
     ReviewWithUserResponseList,
 )
@@ -66,16 +66,19 @@ class ReviewCacheService:
         user_id: int,
         size: int = 10,
         page: int = 1,
-    ) -> ReviewResponseList:
+    ) -> ReviewWithMovieResponseList:
         key = CacheService.create_cache_key(
             "reviews",
             user_id=user_id,
             size=size,
             page=page,
         )
-        cached_reviews_response = await self.cache_service.get(key, ReviewResponseList)
+        cached_reviews_response = await self.cache_service.get(
+            key,
+            ReviewWithMovieResponseList,
+        )
         if cached_reviews_response is not None:
-            return cast(ReviewResponseList, cached_reviews_response)
+            return cast(ReviewWithMovieResponseList, cached_reviews_response)
 
         reviews_response = await self.review_service.get_user_reviews(
             user_id,
