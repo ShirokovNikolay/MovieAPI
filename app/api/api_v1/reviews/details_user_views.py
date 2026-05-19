@@ -8,7 +8,10 @@ from dependencies.annotations.cache_services import ReviewCacheServiceDep
 from dependencies.annotations.security import AuthUserByAccessTokenDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.rate_limiter import check_rate_limit_auth
-from schemas.review import ReviewResponse, ReviewResponseList
+from schemas.review import (
+    ReviewResponse,
+    ReviewWithMovieResponseList,
+)
 
 router = APIRouter(
     prefix="/about-me",
@@ -20,7 +23,7 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=ReviewResponseList,
+    response_model=ReviewWithMovieResponseList,
     status_code=status.HTTP_200_OK,
 )
 async def get_current_user_reviews(
@@ -28,7 +31,7 @@ async def get_current_user_reviews(
     review_cache_service: ReviewCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
-) -> ReviewResponseList:
+) -> ReviewWithMovieResponseList:
     return await review_cache_service.get_user_reviews(user_id, size, page)
 
 
