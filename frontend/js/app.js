@@ -92,12 +92,20 @@
                 reviewsSize: 10,
                 reviewsTotal: 0,
                 reviewsLoading: false,
+                deletingReviewSource: null,
 
                 userReview: null,
                 reviewRating: 5,
                 reviewText: "",
                 reviewSubmitting: false,
                 showReviewForm: false,
+
+                // Мои отзывы
+                myReviewsList: [],
+                myReviewsPage: 1,
+                myReviewsSize: 10,
+                myReviewsLoading: false,
+                myReviewsTotal: 0,
 
                 // Фильтры по жанру
                 selectedGenreId: null,
@@ -173,13 +181,19 @@
             reviewsHasPrev: function () {
                 return this.reviewsPage > 1;
             },
-                userFullName: function () {
+            userFullName: function () {
                 if (this.profileData && this.profileData.surname && this.profileData.name) {
                     return this.profileData.surname + ' ' + this.profileData.name;
                 }
                 return this.displayLogin || 'Пользователь';
             },
-                watchHistoryHasNext: function () {
+            myReviewsHasNext: function () {
+                return this.myReviewsList.length === this.myReviewsSize;
+            },
+            myReviewsHasPrev: function () {
+                return this.myReviewsPage > 1;
+            },
+            watchHistoryHasNext: function () {
                 return this.watchHistoryList.length === this.watchHistorySize;
             },
             watchHistoryHasPrev: function () {
@@ -268,6 +282,15 @@
                     } else {
                         this.loadWatchHistory();
                     }
+                    return;
+                }
+                if (hash === "#/my-reviews") {
+                    if (!this.isAuthenticated) {
+                        this.goLogin();
+                        return;
+                    }
+                    this.currentView = "myReviews";
+                    this.loadMyReviews();
                     return;
                 }
 
@@ -695,23 +718,32 @@
                 var self = this;
                 this.reviewSubmitting = true;
 
-                window.Api.deleteReview(this.deleteReviewId)
+                window.Api.deleteReview(this.deletingReviewId)
                     .then(function () {
-                        // Удаляем из списка
-                        self.reviewsList = self.reviewsList.filter(r => r.id !== self.deleteReviewId);
-                        // Если удаляем свой отзыв
-                        if (self.userReview && self.userReview.id === self.deleteReviewId) {
-                            self.userReview = null;
+                        if (self.deletingReviewSource === "myReviews") {
+                            // Удаляем из списка "Мои отзывы"
+                            self.myReviewsList = self.myReviewsList.filter(function(r) {
+                                return r.id !== self.deletingReviewId;
+                            });
+                            self.myReviewsTotal--;
+                        } else {
+                            // Удаляем из списка отзывов под фильмом
+                            self.reviewsList = self.reviewsList.filter(function(r) {
+                                return r.id !== self.deletingReviewId;
+                            });
+                            if (self.userReview && self.userReview.id === self.deletingReviewId) {
+                                self.userReview = null;
+                            }
+                            self.loadReviewsWithSort(self.currentMovie.id, self.reviewsSortType, self.reviewsSortOrder);
                         }
-                        // Закрываем модальное окно
+
                         var modalEl = document.getElementById("deleteReviewModal");
-                        if (modalEl && typeof bootstrap !== "undefined") {
+                        if (modalEl) {
                             var modal = bootstrap.Modal.getInstance(modalEl);
                             if (modal) modal.hide();
                         }
-                        self.deleteReviewId = null;
-                        // Перезагружаем список
-                        self.loadReviewsWithSort(self.currentMovie.id, self.reviewsSortBy);
+                        self.deletingReviewId = null;
+                        self.deletingReviewSource = null;
                     })
                     .catch(function (e) {
                         self.error = e.message || "Не удалось удалить отзыв";
@@ -726,6 +758,49 @@
                 this.reviewsSortBy = sortOrder;
                 if (this.currentMovie) {
                     this.loadReviewsWithSort(this.currentMovie.id, sortOrder);
+                }
+            },
+
+            loadMyReviews: function () {
+                var self = this;
+                this.myReviewsLoading = true;
+
+                window.Api.getMyReviews(this.myReviewsPage, this.myReviewsSize)
+                    .then(function (data) {
+                        self.myReviewsList = data.review_list || [];
+                        self.myReviewsTotal = data.total || 0;
+                        if (typeof data.page === "number") self.myReviewsPage = data.page;
+                        if (typeof data.size === "number") self.myReviewsSize = data.size;
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить отзывы";
+                        self.myReviewsList = [];
+                    })
+                    .finally(function () {
+                        self.myReviewsLoading = false;
+                    });
+            },
+
+            goMyReviewsPage: function (nextPage) {
+                if (nextPage < 1) return;
+                this.myReviewsPage = nextPage;
+                this.loadMyReviews();
+            },
+
+            editReviewFromList: function (review) {
+                // Открываем детальную страницу фильма с модалкой редактирования
+                window.location.hash = "#/movie/" + review.movie.id;
+                // Можно передать данные для открытия формы редактирования
+                this.pendingEditReview = review;
+            },
+
+            deleteMyReview: function (reviewId) {
+                this.deletingReviewId = reviewId;
+                this.deletingReviewSource = "myReviews";
+                var modalEl = document.getElementById("deleteReviewModal");
+                if (modalEl && typeof bootstrap !== "undefined") {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
                 }
             },
 
