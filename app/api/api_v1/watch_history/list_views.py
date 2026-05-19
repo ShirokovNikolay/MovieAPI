@@ -27,7 +27,7 @@ async def get_watch_history_list(
 
 
 @router.get(
-    "/range-by-time",
+    "/range-by-date",
     response_model=WatchHistoryWithMovieResponseList,
     status_code=status.HTTP_200_OK,
 )

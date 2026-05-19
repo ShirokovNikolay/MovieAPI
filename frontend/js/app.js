@@ -126,6 +126,10 @@
                 watchHistoryLoading: false,
                 watchHistoryCount: 0,
                 deletingHistoryId: null,
+                // Фильтрация истории по датам
+                historyStartDate: "",
+                historyEndDate: "",
+                historyFilterApplied: false,
 
                 reviewsSortType: "default",
                 reviewsSortOrder: "",
@@ -259,7 +263,11 @@
                         return;
                     }
                     this.currentView = "history";
-                    this.loadWatchHistory();
+                    if (this.historyFilterApplied) {
+                        this.loadWatchHistoryWithFilter();
+                    } else {
+                        this.loadWatchHistory();
+                    }
                     return;
                 }
 
@@ -1158,6 +1166,51 @@
                     })
                     .catch(function(e) {
                         console.error("Ошибка загрузки количества:", e);
+                    });
+            },
+
+            applyHistoryDateFilter: function () {
+                    this.historyFilterApplied = true;
+                    this.watchHistoryPage = 1;
+                    this.loadWatchHistoryWithFilter();
+                },
+
+            clearHistoryDateFilter: function () {
+                this.historyStartDate = "";
+                this.historyEndDate = "";
+                this.historyFilterApplied = false;
+                this.watchHistoryPage = 1;
+                this.loadWatchHistory();
+            },
+
+            loadWatchHistoryWithFilter: function () {
+                var self = this;
+                this.watchHistoryLoading = true;
+
+                window.Api.getWatchHistoryByDateRange(
+                    this.historyStartDate,
+                    this.historyEndDate,
+                    this.watchHistoryPage,
+                    this.watchHistorySize
+                )
+                    .then(function (data) {
+                        var historyList = data.watch_history_list || [];
+                        self.watchHistoryList = historyList.map(function(item) {
+                            return {
+                                id: item.id,
+                                watched_at: item.watched_at,
+                                movie: item.movie
+                            };
+                        });
+                        if (typeof data.page === "number") self.watchHistoryPage = data.page;
+                        if (typeof data.size === "number") self.watchHistorySize = data.size;
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить историю";
+                        self.watchHistoryList = [];
+                    })
+                    .finally(function () {
+                        self.watchHistoryLoading = false;
                     });
             },
 
