@@ -351,6 +351,17 @@
         });
     }
 
+    function getMyReviews(page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 10;
+        var token = window.TokenStore.getAccessToken();
+        if (!token) {
+            return Promise.reject(new Error("Не авторизован"));
+        }
+
+        return authFetchJson("/api/v1/reviews/about-me/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
+    }
+
     // ========== РЕДАКТИРОВАНИЕ И УДАЛЕНИЕ ОТЗЫВА ==========
     function partialUpdateReview(reviewId, rating, reviewText) {
         var token = window.TokenStore.getAccessToken();
@@ -557,6 +568,8 @@
 
         partialUpdateReview: partialUpdateReview,
         deleteReview: deleteReview,
+
+        getMyReviews: getMyReviews,
 
         getFavoritesCount: getFavoritesCount,
         addToFavorites: addToFavorites,
