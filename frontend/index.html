@@ -843,9 +843,10 @@
                     <!-- Список отзывов -->
                     <div v-else>
                         <div v-for="review in myReviewsList" :key="review.id"
-                             class="card bg-dark text-light border-secondary mb-3 hover-card"
-                             @click="goToMovieFromHistory(review.movie.id)"
-                             style="cursor: pointer;">
+                         class="card bg-dark text-light border-secondary mb-3"
+                         style="cursor: pointer; transition: transform 0.2s;"
+                         @mouseenter="e => e.currentTarget.style.transform = 'translateX(5px)'"
+                         @mouseleave="e => e.currentTarget.style.transform = 'translate(0)'">
 
                             <div class="row g-0">
                                 <!-- Левая колонка: постер -->
