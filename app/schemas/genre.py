@@ -30,6 +30,7 @@ class GenreBase(BaseModel):
 
     name: NameConstraint
     description: DescriptionConstraint
+    preview_url: str
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
@@ -52,6 +53,7 @@ class GenrePartialUpdate(BaseModel):
 
     name: NameConstraint | None = None
     description: DescriptionConstraint | None = None
+    preview_url: str | None = None
 
 
 class GenreResponse(GenreBase):
