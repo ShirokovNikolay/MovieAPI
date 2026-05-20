@@ -78,6 +78,7 @@
             <div v-if="success && currentView === 'register'" class="alert alert-success" role="alert">{{ success }}</div>
             <div v-if="profileSuccess && currentView === 'profile'" class="alert alert-success" role="alert">{{ profileSuccess }}</div>
 
+            <!--Секция аутентификации-->
             <div v-if="currentView === 'login'" class="row justify-content-center">
                 <div class="col-12 auth-card">
                     <div class="card shadow text-bg-dark border-secondary">
@@ -110,6 +111,7 @@
                 </div>
             </div>
 
+            <!--Секция регистрации-->
             <div v-else-if="currentView === 'register'" class="row justify-content-center">
                 <div class="col-12 col-lg-8">
                     <div class="card shadow text-bg-dark border-secondary">
@@ -175,6 +177,7 @@
                 </div>
             </div>
 
+            <!--Секция жанров-->
             <div v-else-if="currentView === 'genres'" class="row justify-content-center">
                 <div class="col-12 px-0 px-md-2">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -220,19 +223,21 @@
                                 class="genre-row d-flex flex-column flex-md-row gap-3 gap-md-4 p-4 p-lg-5 border-bottom border-secondary"
                                 style="cursor: pointer; transition: background 0.2s;"
                                 @click="loadMoviesByGenre(g.id, g.name)"
-                                @mouseenter="e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'"
-                                @mouseleave="e => e.currentTarget.style.background = 'transparent'"
-                            >
+                                >
+
                                 <div class="genre-row-text flex-grow-1 min-w-0">
                                     <h3 class="h4 text-light mb-3 mb-md-2">{{ g.name }}</h3>
                                     <p class="text-secondary mb-0 genre-row-description">{{ g.description }}</p>
                                 </div>
-                                <div
-                                    class="genre-poster-slot flex-shrink-0 align-self-stretch align-self-md-start"
-                                    role="img"
-                                    aria-label="Место для постера жанра"
-                                >
-                                    <span class="visually-hidden">Постер не загружен</span>
+                                <div class="genre-poster-slot flex-shrink-0 align-self-stretch align-self-md-start">
+                                    <img v-if="g.preview_url"
+                                         :src="g.preview_url"
+                                         class="img-fluid rounded"
+                                         alt="Постер жанра"
+                                         style="width: 100%; height: 100%; object-fit: cover;">
+                                    <div v-else class="d-flex align-items-center justify-content-center h-100 text-secondary">
+                                        🎬
+                                    </div>
                                 </div>
                             </article>
                         </div>
