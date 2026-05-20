@@ -2,8 +2,10 @@ from datetime import datetime
 from typing import cast
 
 from core.redis.cache_service import CacheService
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from schemas.movie import (
     MovieCreate,
+    MovieFilter,
     MoviePartialUpdate,
     MovieResponseList,
     MovieUpdate,
@@ -53,6 +55,33 @@ class MovieCacheService:
 
         movies_response = await self.movie_service.get_movies(size, page)
         await self.cache_service_for_movie.set(key, movies_response, ttl=60)
+        return movies_response
+
+    async def search_movies_with_filters(
+        self,
+        movie_filter: MovieFilter,
+        size: PaginationSizeDep = 10,
+        page: PaginationPageDep = 1,
+    ) -> MovieWithGenreResponseList:
+        key = CacheService.create_cache_key(
+            "movies",
+            size=size,
+            page=page,
+            **movie_filter.model_dump(),
+        )
+        cached_movies_response = await self.cache_service_for_movie.get(
+            key,
+            MovieWithGenreResponseList,
+        )
+        if cached_movies_response is not None:
+            return cast(MovieWithGenreResponseList, cached_movies_response)
+
+        movies_response = await self.movie_service.search_movies_with_filters(
+            movie_filter,
+            size,
+            page,
+        )
+        await self.cache_service_for_movie.set(key, movies_response, ttl=1800)
         return movies_response
 
     async def get_movies_by_genre_id(

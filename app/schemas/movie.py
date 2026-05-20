@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, ClassVar
 
 from annotated_types import Len, MaxLen
@@ -10,6 +10,8 @@ from core.constants import (
     MOVIE_NAME_MIN_LENGTH,
     MOVIE_RATING_MAX_VALUE,
     MOVIE_RATING_MIN_VALUE,
+    SortMonotony,
+    SortType,
 )
 from schemas.genre import GenreResponse
 
@@ -110,3 +112,18 @@ class MovieWithGenreResponseList(BaseModel):
     movie_list: list[MovieWithGenreResponse]
     size: int
     page: int
+
+
+class MovieFilter(BaseModel):
+    """
+    Модель для принятия данных о поиске, фильтрации и сортировке фильмов.
+    """
+
+    min_rating: RatingConstraint | None = None
+    max_rating: RatingConstraint | None = None
+    start_release_date: date | None = None
+    end_release_date: date | None = None
+    genre_id: int | None = None
+    search_query: str | None = None
+    sort_by: SortType | None = None
+    sorting_direction: SortMonotony = SortMonotony.ascending.value  # type: ignore # noqa: PGH003

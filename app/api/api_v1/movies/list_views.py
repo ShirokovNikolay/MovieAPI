@@ -10,6 +10,7 @@ from dependencies.auth import get_admin_by_access_token
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
 from schemas.movie import (
     MovieCreate,
+    MovieFilter,
     MovieResponseList,
     MovieWithGenreResponse,
     MovieWithGenreResponseList,
@@ -51,7 +52,25 @@ async def watch_movie(
     return RedirectResponse(url=movie.source_url)
 
 
-@router.get(
+# @router.get(
+#     "/search",
+#     response_model=MovieWithGenreResponseList,
+#     status_code=status.HTTP_200_OK,
+#     dependencies=[
+#         Depends(check_rate_limit_not_auth),
+#     ],
+# )
+# async def search_movies_by_name(
+#     movie_name: str,
+#     movie_cache_service: MovieCacheServiceDep,
+#     size: PaginationSizeDep = 10,
+#     page: PaginationPageDep = 1,
+# ) -> MovieWithGenreResponseList:
+#     return await movie_cache_service.search_movies_by_name(movie_name, size, page)
+
+
+# Пробный view !!!
+@router.post(
     "/search",
     response_model=MovieWithGenreResponseList,
     status_code=status.HTTP_200_OK,
@@ -59,13 +78,17 @@ async def watch_movie(
         Depends(check_rate_limit_not_auth),
     ],
 )
-async def search_movies_by_name(
-    movie_name: str,
+async def search_movies_with_filters(
+    movie_filter: MovieFilter,
     movie_cache_service: MovieCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
 ) -> MovieWithGenreResponseList:
-    return await movie_cache_service.search_movies_by_name(movie_name, size, page)
+    return await movie_cache_service.search_movies_with_filters(
+        movie_filter,
+        size,
+        page,
+    )
 
 
 @router.get(

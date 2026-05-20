@@ -9,10 +9,12 @@ from core.exceptions.movie import (
     MovieNameAlreadyExistsError,
 )
 from core.exceptions.user import UserIdNotFoundError
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from repositories import GenreRepository, MovieRepository, UserRepository
 from repositories.watch_history import WatchHistoryRepository
 from schemas.movie import (
     MovieCreate,
+    MovieFilter,
     MoviePartialUpdate,
     MovieResponse,
     MovieResponseList,
@@ -67,6 +69,26 @@ class MovieService:
         movies = [
             MovieWithGenreResponse.model_validate(movie)
             for movie in await self.movie_repository.get_movies(size, page)
+        ]
+        return MovieWithGenreResponseList(
+            movie_list=movies,
+            size=size,
+            page=page,
+        )
+
+    async def search_movies_with_filters(
+        self,
+        movie_filter: MovieFilter,
+        size: PaginationSizeDep = 10,
+        page: PaginationPageDep = 1,
+    ) -> MovieWithGenreResponseList:
+        movies = [
+            MovieWithGenreResponse.model_validate(movie)
+            for movie in await self.movie_repository.search_movies_with_filters(
+                movie_filter,
+                size,
+                page,
+            )
         ]
         return MovieWithGenreResponseList(
             movie_list=movies,
