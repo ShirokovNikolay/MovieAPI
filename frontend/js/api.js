@@ -264,6 +264,46 @@
         return publicGetJson("/api/v1/movies/?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s));
     }
 
+    function searchMoviesWithFilters(filters, page, size) {
+        var p = page != null ? page : 1;
+        var s = size != null ? size : 9;
+        var token = window.TokenStore.getAccessToken();
+
+        var body = {
+            search_query: filters.search_query || null,
+            min_rating: filters.min_rating || null,
+            max_rating: filters.max_rating || null,
+            start_release_date: filters.start_release_date || null,
+            end_release_date: filters.end_release_date || null,
+            genre_id: filters.genre_id || null,
+            sort_by: filters.sort_by || null,
+            sorting_direction: filters.sorting_direction || "ASC"
+        };
+
+        // Убираем null поля
+        Object.keys(body).forEach(key => {
+            if (body[key] === null || body[key] === undefined) {
+                delete body[key];
+            }
+        });
+
+        return fetch(apiUrl("/api/v1/movies/search?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s)), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(body)
+        }).then(function(res) {
+            return parseResponseJson(res).then(function(data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data;
+            });
+        });
+    }
+
     function getMovieReviewsNewest(movieId, page, size) {
         var p = page != null ? page : 1;
         var s = size != null ? size : 10;
@@ -556,6 +596,7 @@
         getGenres: getGenres,
         searchGenresByName: searchGenresByName,
         getMovies: getMovies,
+        searchMoviesWithFilters: searchMoviesWithFilters,
         searchMoviesByName: searchMoviesByName,
         getMovieById: getMovieById,
         watchMovie: watchMovie,

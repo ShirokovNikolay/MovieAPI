@@ -84,6 +84,19 @@
                 movieSearchInput: "",
                 movieActiveSearch: "",
 
+                // Фильтры для фильмов
+                movieFilters: {
+                    search_query: "",
+                    min_rating: null,
+                    max_rating: null,
+                    start_release_date: "",
+                    end_release_date: "",
+                    genre_id: null,
+                    sort_by: null,
+                    sorting_direction: "ASC"
+                },
+                showFilters: false,
+
                 currentMovie: null,
                 movieDetailsLoading: false,
 
@@ -203,6 +216,7 @@
         mounted: function () {
             var self = this;
             this.syncRoute();
+            this.loadGenres();
             window.addEventListener("hashchange", function () {
                 self.syncRoute();
             });
@@ -405,6 +419,70 @@
                 this.loadGenres();
             },
 
+            toggleFilters: function () {
+                this.showFilters = !this.showFilters;
+            },
+
+            applyFilters: function () {
+                this.moviesPage = 1;
+                this.loadMoviesWithFilters();
+            },
+
+            clearFilters: function () {
+                this.movieFilters = {
+                    search_query: "",
+                    min_rating: null,
+                    max_rating: null,
+                    start_release_date: "",
+                    end_release_date: "",
+                    genre_id: null,
+                    sort_by: null,
+                    sorting_direction: "ASC"
+                };
+                this.movieSearchInput = "";
+                this.movieActiveSearch = "";
+                this.selectedGenreId = null;
+                this.selectedGenreName = null;
+                this.moviesPage = 1;
+                this.loadMoviesWithFilters();
+            },
+
+            loadMoviesWithFilters: function () {
+                var self = this;
+                this.moviesLoading = true;
+                this.error = "";
+
+                var filters = {
+                    search_query: this.movieFilters.search_query || null,
+                    min_rating: this.movieFilters.min_rating,
+                    max_rating: this.movieFilters.max_rating,
+                    start_release_date: this.movieFilters.start_release_date || null,
+                    end_release_date: this.movieFilters.end_release_date || null,
+                    genre_id: this.selectedGenreId || this.movieFilters.genre_id,
+                    sort_by: this.movieFilters.sort_by,
+                    sorting_direction: this.movieFilters.sorting_direction
+                };
+
+                window.Api.searchMoviesWithFilters(filters, this.moviesPage, this.moviesSize)
+                    .then(function (data) {
+                        self.moviesList = (data.movie_list || []).map(function(movie) {
+                            if (!movie.preview_url || movie.preview_url === "string") {
+                                movie.preview_url = "https://via.placeholder.com/300x450?text=No+Poster";
+                            }
+                            return movie;
+                        });
+                        if (typeof data.page === "number") self.moviesPage = data.page;
+                        if (typeof data.size === "number") self.moviesSize = data.size;
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить фильмы";
+                        self.moviesList = [];
+                    })
+                    .finally(function () {
+                        self.moviesLoading = false;
+                    });
+            },
+
             loadMovies: function () {
                 var self = this;
                 this.moviesLoading = true;
@@ -454,22 +532,29 @@
                 this.movieActiveSearch = "";
                 this.movieSearchInput = "";
 
-                window.Api.getMoviesByGenre(genreId, this.moviesPage, this.moviesSize)
+                // Сбрасываем фильтры
+                this.movieFilters = {
+                    search_query: "",
+                    min_rating: null,
+                    max_rating: null,
+                    start_release_date: "",
+                    end_release_date: "",
+                    genre_id: genreId,
+                    sort_by: null,
+                    sorting_direction: "ASC"
+                };
+
+                // Используем новый эндпоинт
+                window.Api.searchMoviesWithFilters(this.movieFilters, this.moviesPage, this.moviesSize)
                     .then(function (data) {
                         self.moviesList = (data.movie_list || []).map(function(movie) {
-                            // Добавляем жанр к каждому фильму
-                            movie.genre = { name: genreName };  // ← добавить эту строку
                             if (!movie.preview_url || movie.preview_url === "string") {
                                 movie.preview_url = "https://via.placeholder.com/300x450?text=No+Poster";
                             }
                             return movie;
                         });
-                        if (typeof data.page === "number") {
-                            self.moviesPage = data.page;
-                        }
-                        if (typeof data.size === "number") {
-                            self.moviesSize = data.size;
-                        }
+                        if (typeof data.page === "number") self.moviesPage = data.page;
+                        if (typeof data.size === "number") self.moviesSize = data.size;
                         self.currentView = "movies";
                     })
                     .catch(function (e) {

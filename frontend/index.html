@@ -261,41 +261,75 @@
                         </div>
                     </div>
 
-                    <!-- Поиск фильмов -->
-                    <div class="card shadow text-bg-dark border-secondary mb-4">
+
+                    <!-- Кнопка фильтров -->
+                    <div class="mb-3">
+                        <button class="btn btn-outline-secondary" @click="toggleFilters">
+                            🔽 {{ showFilters ? 'Скрыть фильтры' : 'Показать фильтры' }}
+                        </button>
+                    </div>
+
+                    <!-- Панель фильтров -->
+                    <div v-if="showFilters" class="card shadow text-bg-dark border-secondary mb-4">
                         <div class="card-body p-4">
-                            <form class="row g-3 align-items-end" @submit.prevent="applyMovieSearch">
-                                <div class="col-12 col-md-8 col-lg-7 col-xl-6">
-                                    <label class="form-label text-secondary small mb-1" for="movie-search">Поиск по названию</label>
-                                    <input id="movie-search" v-model="movieSearchInput" type="text"
-                                           class="form-control bg-dark text-light border-secondary"
-                                           placeholder="Введите название фильма"
-                                           maxlength="100"
-                                           autocomplete="off"
-                                           @keyup.enter="applyMovieSearch">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Поиск по названию</label>
+                                    <input type="text" v-model="movieFilters.search_query" class="form-control bg-dark text-light border-secondary" placeholder="Название фильма">
                                 </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary" :disabled="moviesLoading">
-                                        🔍 Найти
-                                    </button>
+                                <div class="col-md-3">
+                                    <label class="form-label text-secondary small">Рейтинг от</label>
+                                    <select v-model="movieFilters.min_rating" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Любой</option>
+                                        <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}</option>
+                                    </select>
                                 </div>
-                                <div class="col-auto" v-if="movieActiveSearch">
-                                    <button type="button" class="btn btn-outline-secondary" :disabled="moviesLoading" @click="clearMovieSearch">
-                                        ❌ Сбросить поиск
-                                    </button>
+                                <div class="col-md-3">
+                                    <label class="form-label text-secondary small">Рейтинг до</label>
+                                    <select v-model="movieFilters.max_rating" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Любой</option>
+                                        <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}</option>
+                                    </select>
                                 </div>
-                                <div class="col-auto" v-if="selectedGenreId">
-                                    <button type="button" class="btn btn-outline-warning" @click="clearGenreFilter" :disabled="moviesLoading">
-                                        🗑️ Сбросить жанр
-                                    </button>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Дата релиза с</label>
+                                    <input type="date" v-model="movieFilters.start_release_date" class="form-control bg-dark text-light border-secondary">
                                 </div>
-                            </form>
-                            <p v-if="movieActiveSearch" class="small text-secondary mt-2 mb-0">
-                                                Результаты по запросу: «<span class="text-light">{{ movieActiveSearch }}</span>»
-                            </p>
-                            <p v-if="selectedGenreId && !movieActiveSearch" class="small text-secondary mt-2 mb-0">
-                                🎬 Фильмы жанра: «<span class="text-light">{{ selectedGenreName }}</span>»
-                            </p>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Дата релиза по</label>
+                                    <input type="date" v-model="movieFilters.end_release_date" class="form-control bg-dark text-light border-secondary">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">Жанр</label>
+                                    <select v-model="movieFilters.genre_id" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Все жанры</option>
+                                        <option v-for="genre in genreList" :key="genre.id" :value="genre.id">
+                                            {{ genre.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">Сортировка</label>
+                                    <select v-model="movieFilters.sort_by" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Без сортировки</option>
+                                        <option value="date">По дате релиза</option>
+                                        <option value="rating">По рейтингу</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">Направление</label>
+                                    <select v-model="movieFilters.sorting_direction" class="form-select bg-dark text-light border-secondary">
+                                        <option value="ASC">По возрастанию</option>
+                                        <option value="DESC">По убыванию</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 d-flex align-items-end">
+                                    <div class="d-flex gap-2 w-100">
+                                        <button class="btn btn-primary flex-grow-1" @click="applyFilters">Применить</button>
+                                        <button class="btn btn-outline-secondary" @click="clearFilters">Сбросить</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
