@@ -1,11 +1,13 @@
 from datetime import datetime
 
-from sqlalchemy import and_, delete, desc, select
+from sqlalchemy import Date, and_, cast, delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from core.constants import SortMonotony, SortType
+from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from models import Movie
-from schemas.movie import MovieCreate, MoviePartialUpdate, MovieUpdate
+from schemas.movie import MovieCreate, MovieFilter, MoviePartialUpdate, MovieUpdate
 
 
 class MovieRepository:
@@ -46,6 +48,51 @@ class MovieRepository:
             .limit(size)
             .offset(size * (page - 1))
         )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def search_movies_with_filters(  # noqa: C901
+        self,
+        movie_filter: MovieFilter,
+        size: PaginationSizeDep = 10,
+        page: PaginationPageDep = 1,
+    ) -> list[Movie]:
+        stmt = select(Movie).options(joinedload(Movie.genre))
+        if movie_filter.genre_id is not None:
+            stmt = stmt.where(Movie.genre_id == movie_filter.genre_id)
+
+        if movie_filter.min_rating is not None:
+            stmt = stmt.where(Movie.rating >= movie_filter.min_rating)
+
+        if movie_filter.max_rating is not None:
+            stmt = stmt.where(Movie.rating <= movie_filter.max_rating)
+
+        if movie_filter.start_release_date is not None:
+            stmt = stmt.where(
+                cast(Movie.release_date, Date) >= movie_filter.start_release_date,
+            )
+
+        if movie_filter.end_release_date is not None:
+            stmt = stmt.where(
+                cast(Movie.release_date, Date) <= movie_filter.end_release_date,
+            )
+
+        if movie_filter.search_query is not None:
+            stmt = stmt.where(Movie.name.ilike("%" + movie_filter.search_query + "%"))
+
+        if movie_filter.sort_by == SortType.date.value:
+            if movie_filter.sorting_direction == SortMonotony.ascending.value:
+                stmt = stmt.order_by(Movie.release_date)
+            else:
+                stmt = stmt.order_by(desc(Movie.release_date))
+
+        if movie_filter.sort_by == SortType.rating.value:
+            if movie_filter.sorting_direction == SortMonotony.ascending.value:
+                stmt = stmt.order_by(Movie.rating)
+            else:
+                stmt = stmt.order_by(desc(Movie.rating))
+
+        stmt = stmt.offset(size * (page - 1)).limit(size)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 

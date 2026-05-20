@@ -32,6 +32,16 @@ class UserRole(StrEnum):
     admin = "admin"
 
 
+class SortType(StrEnum):
+    date = "date"
+    rating = "rating"
+
+
+class SortMonotony(StrEnum):
+    ascending = "ASC"
+    descending = "DESC"
+
+
 TOKEN_TYPE: str = "type"
 ACCESS_TOKEN_TYPE: str = "access"
 REFRESH_TOKEN_TYPE: str = "refresh"
