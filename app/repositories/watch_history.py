@@ -1,7 +1,7 @@
-from datetime import datetime
-from typing import cast
+from datetime import date
+from typing import cast as typing_cast
 
-from sqlalchemy import and_, delete, desc, func, select
+from sqlalchemy import Date, and_, cast, delete, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -57,8 +57,8 @@ class WatchHistoryRepository:
     async def get_watch_history_by_date_range(
         self,
         user_id: int,
-        start_date: datetime,
-        end_date: datetime,
+        start_date: date,
+        end_date: date,
         size: int = 10,
         page: int = 1,
     ) -> list[WatchHistory]:
@@ -68,8 +68,8 @@ class WatchHistoryRepository:
             .where(
                 and_(
                     WatchHistory.user_id == user_id,
-                    start_date <= WatchHistory.watched_at,
-                    WatchHistory.watched_at <= end_date,
+                    start_date <= cast(WatchHistory.watched_at, Date),
+                    cast(WatchHistory.watched_at, Date) <= end_date,
                 ),
             )
             .order_by(desc(WatchHistory.watched_at))
@@ -86,7 +86,7 @@ class WatchHistoryRepository:
             WatchHistory.user_id == user_id,
         )
         result = await self.session.execute(stmt)
-        return cast(int, result.scalar())
+        return typing_cast(int, result.scalar())
 
     async def add_movie_to_watch_history(
         self,

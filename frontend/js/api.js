@@ -560,7 +560,7 @@
             return Promise.reject(new Error("Не авторизован"));
         }
 
-        var url = "/api/v1/watch-history/about-me/range-by-date?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s);
+        var url = "/api/v1/watch-history/about-me/by-date-range?page=" + encodeURIComponent(p) + "&size=" + encodeURIComponent(s);
         if (startDate) url += "&start_date=" + encodeURIComponent(startDate);
         if (endDate) url += "&end_date=" + encodeURIComponent(endDate);
 
