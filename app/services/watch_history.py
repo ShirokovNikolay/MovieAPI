@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -74,8 +74,8 @@ class WatchHistoryService:
     async def get_watch_history_by_date_range(
         self,
         user_id: int,
-        start_date: datetime,
-        end_date: datetime,
+        start_date: date,
+        end_date: date,
         size: int = 10,
         page: int = 1,
     ) -> WatchHistoryWithMovieResponseList:

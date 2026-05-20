@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import cast
 
 from core.redis.cache_service import CacheService
@@ -70,8 +70,8 @@ class WatchHistoryCacheService:
     async def get_watch_history_by_date_range(
         self,
         user_id: int,
-        start_date: datetime,
-        end_date: datetime,
+        start_date: date,
+        end_date: date,
         size: int = 10,
         page: int = 1,
     ) -> WatchHistoryWithMovieResponseList:
