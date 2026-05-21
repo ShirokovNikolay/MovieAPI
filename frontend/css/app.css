@@ -88,6 +88,16 @@ body {
     }
 }
 
+.dropdown-menu {
+    right: auto;
+    left: auto;
+}
+
+.dropdown-menu-end {
+    right: 0;
+    left: auto;
+}
+
 .dropdown-submenu {
     position: relative;
 }
@@ -100,4 +110,8 @@ body {
 
 .dropdown-submenu:hover > .dropdown-menu {
     display: block;
+}
+
+.navbar-toggler {
+    margin-left: auto;
 }
