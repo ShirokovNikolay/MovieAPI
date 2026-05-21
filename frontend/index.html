@@ -60,6 +60,15 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="userMenu">
                                     <li><a class="dropdown-item" href="#/profile">👤 Профиль</a></li>
+<!--                                    <li v-if="isAdmin" class="dropdown-submenu">-->
+<!--                                        <a class="dropdown-item dropdown-toggle" href="#" @click.prevent>👑 Админ-панель</a>-->
+<!--                                        <ul class="dropdown-menu dropdown-menu-dark">-->
+<!--                                            <li><a class="dropdown-item" href="#/admin/genres">🎭 Управление жанрами</a></li>-->
+<!--                                            <li><a class="dropdown-item" href="#/admin/movies">🎬 Управление фильмами</a></li>-->
+<!--                                        </ul>-->
+<!--                                    </li>-->
+                                    <li v-if="isAdmin"><a class="dropdown-item" href="#/admin/genres">👑 Управление жанрами</a></li>
+                                    <li v-if="isAdmin"><a class="dropdown-item" href="#/admin/movies">🎬 Управление фильмами</a></li>
                                     <li><a class="dropdown-item" href="#/favorites">❤️ Избранное</a></li>
                                     <li><a class="dropdown-item" href="#/history">📜 История просмотров</a></li>
                                     <li><a class="dropdown-item" href="#/my-reviews">📝 Мои отзывы</a></li>
@@ -185,7 +194,7 @@
                     </div>
                     <div class="card shadow text-bg-dark border-secondary mb-3">
                         <div class="card-body p-4 p-lg-5">
-                            <h2 class="h3 mb-4">Жанры</h2>
+                            <h2 class="h3 mb-4">🎭 Жанры</h2>
                             <form class="row g-3 align-items-end" @submit.prevent="applyGenreSearch">
                                 <div class="col-12 col-md-8 col-lg-7 col-xl-6">
                                     <label class="form-label text-secondary small mb-1" for="genre-search">Поиск по имени</label>
@@ -951,6 +960,96 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Админ панель - Жанры -->
+            <div v-else-if="currentView === 'adminGenres'" class="row justify-content-center">
+                <div class="col-12">
+                    <!-- Заголовок и кнопка -->
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <h1 class="h3 mb-0">🎭 Управление жанрами</h1>
+                            <button class="btn btn-success" @click="openCreateGenreForm">
+                                ➕ Создать жанр
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Форма создания/редактирования -->
+                    <div v-if="showGenreForm" class="card shadow text-bg-dark border-info mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-info mb-3">{{ editingGenre ? '✏️ Редактировать жанр' : '➕ Новый жанр' }}</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Название</label>
+                                    <input type="text" v-model="genreForm.name" class="form-control bg-dark text-light border-secondary">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">URL постера</label>
+                                    <input type="url" v-model="genreForm.preview_url" class="form-control bg-dark text-light border-secondary" placeholder="https://...">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-secondary small">Описание</label>
+                                    <textarea v-model="genreForm.description" rows="3" class="form-control bg-dark text-light border-secondary"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-primary me-2" @click="submitGenreForm" :disabled="genreFormSubmitting">
+                                        <span v-if="genreFormSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                                        {{ editingGenre ? 'Сохранить' : 'Создать' }}
+                                    </button>
+                                    <button class="btn btn-secondary" @click="closeGenreForm">Отмена</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Карточки жанров -->
+                    <div v-if="adminGenresLoading" class="text-center py-5">
+                        <div class="spinner-border text-info"></div>
+                    </div>
+
+                    <div v-else>
+                        <div class="row g-4">
+                            <div v-for="genre in adminGenresList" :key="genre.id" class="col-md-4 col-lg-3">
+                                <div class="card h-100 bg-dark text-light border-secondary hover-card"
+                                     style="cursor: pointer; transition: transform 0.2s;"
+                                     @click="openEditGenreForm(genre)"
+                                     @mouseenter="e => e.currentTarget.style.transform = 'translateY(-5px)'"
+                                     @mouseleave="e => e.currentTarget.style.transform = 'translateY(0)'">
+
+                                    <img :src="genre.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
+                                         class="card-img-top"
+                                         alt="Постер жанра"
+                                         style="height: 200px; object-fit: cover;"
+                                         @error="e => e.target.src='https://via.placeholder.com/300x450?text=No+Poster'">
+
+                                    <div class="card-body">
+                                        <h5 class="card-title text-truncate">{{ genre.name }}</h5>
+                                        <p class="card-text small text-secondary">{{ truncateText(genre.description, 80) }}</p>
+                                    </div>
+                                    <div class="card-footer bg-transparent border-secondary d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-info flex-grow-1" @click.stop="openEditGenreForm(genre)">✏️</button>
+                                        <button class="btn btn-sm btn-outline-danger" @click.stop="confirmDeleteGenre(genre)">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="adminGenresList.length === 0" class="col-12 text-center text-secondary py-5">
+                                Нет жанров
+                            </div>
+                        </div>
+
+                        <!-- Пагинация -->
+                        <div class="card-footer border-secondary d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 px-4 mt-4">
+                            <span class="text-secondary small">Страница {{ adminGenresPage }}</span>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-light btn-sm" :disabled="!adminGenresHasPrev" @click="goAdminGenresPage(adminGenresPage - 1)">Назад</button>
+                                <button class="btn btn-outline-light btn-sm" :disabled="!adminGenresHasNext" @click="goAdminGenresPage(adminGenresPage + 1)">Вперёд</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Профиль -->
             <div v-else-if="currentView === 'profile'" class="row justify-content-center">

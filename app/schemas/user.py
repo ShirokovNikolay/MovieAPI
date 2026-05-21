@@ -104,6 +104,7 @@ class UserResponse(UserBase):
     """
 
     id: int
+    role: str
     registration_date: datetime
 
 
