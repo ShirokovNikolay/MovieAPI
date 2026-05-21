@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from sqlalchemy import Date, and_, cast, delete, desc, select
+from sqlalchemy import Date, cast, delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -105,97 +103,6 @@ class MovieRepository:
         stmt = (
             select(Movie)
             .where(Movie.genre_id == genre_id)
-            .limit(size)
-            .offset(size * (page - 1))
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def search_movies_by_name(
-        self,
-        name: str,
-        size: int = 10,
-        page: int = 1,
-    ) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .options(joinedload(Movie.genre))
-            .where(Movie.name.ilike("%" + name + "%"))
-            .limit(size)
-            .offset(size * (page - 1))
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_movies_by_rating_range(
-        self,
-        min_rating: int,
-        max_rating: int,
-        size: int = 10,
-        page: int = 1,
-    ) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .options(joinedload(Movie.genre))
-            .where(
-                Movie.rating.between(min_rating, max_rating),
-            )
-            .limit(size)
-            .offset(size * (page - 1))
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_movies_by_release_date(
-        self,
-        release_date_start: datetime,
-        release_date_end: datetime,
-        size: int = 10,
-        page: int = 1,
-    ) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .options(joinedload(Movie.genre))
-            .where(
-                and_(
-                    release_date_start <= Movie.release_date,
-                    Movie.release_date <= release_date_end,
-                ),
-            )
-            .limit(size)
-            .offset(size * (page - 1))
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_top_rated_movies(self, size: int, page: int) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .options(joinedload(Movie.genre))
-            .order_by(desc(Movie.rating))
-            .limit(size)
-            .offset(size * (page - 1))
-        )
-
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_top_newest_movies(self, size: int, page: int) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .options(joinedload(Movie.genre))
-            .order_by(desc(Movie.release_date))
-            .limit(size)
-            .offset(size * (page - 1))
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def get_top_oldest_movies(self, size: int, page: int) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .options(joinedload(Movie.genre))
-            .order_by(Movie.release_date)
             .limit(size)
             .offset(size * (page - 1))
         )

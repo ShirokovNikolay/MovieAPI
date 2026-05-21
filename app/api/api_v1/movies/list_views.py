@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, status
 from starlette.responses import RedirectResponse
 
@@ -52,23 +50,6 @@ async def watch_movie(
     return RedirectResponse(url=movie.source_url)
 
 
-# @router.get(
-#     "/search",
-#     response_model=MovieWithGenreResponseList,
-#     status_code=status.HTTP_200_OK,
-#     dependencies=[
-#         Depends(check_rate_limit_not_auth),
-#     ],
-# )
-# async def search_movies_by_name(
-#     movie_name: str,
-#     movie_cache_service: MovieCacheServiceDep,
-#     size: PaginationSizeDep = 10,
-#     page: PaginationPageDep = 1,
-# ) -> MovieWithGenreResponseList:
-#     return await movie_cache_service.search_movies_by_name(movie_name, size, page)
-
-
 # Пробный view !!!
 @router.post(
     "/search",
@@ -106,100 +87,6 @@ async def get_movies_by_genre_id(
     page: PaginationPageDep = 1,
 ) -> MovieResponseList:
     return await movie_cache_service.get_movies_by_genre_id(genre_id, size, page)
-
-
-@router.get(
-    "/rating-range",
-    response_model=MovieWithGenreResponseList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_not_auth),
-    ],
-)
-async def get_movies_by_rating_range(
-    min_rating: int,
-    max_rating: int,
-    movie_cache_service: MovieCacheServiceDep,
-    size: PaginationSizeDep = 10,
-    page: PaginationPageDep = 1,
-) -> MovieWithGenreResponseList:
-    return await movie_cache_service.get_movies_by_rating_range(
-        min_rating,
-        max_rating,
-        size,
-        page,
-    )
-
-
-@router.get(
-    "/date-range",
-    response_model=MovieWithGenreResponseList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_not_auth),
-    ],
-)
-async def get_movies_by_release_date_range(
-    release_date_start: datetime,
-    release_date_end: datetime,
-    movie_cache_service: MovieCacheServiceDep,
-    size: PaginationSizeDep = 10,
-    page: PaginationPageDep = 1,
-) -> MovieWithGenreResponseList:
-    return await movie_cache_service.get_movies_by_release_date_range(
-        release_date_start,
-        release_date_end,
-        size,
-        page,
-    )
-
-
-@router.get(
-    "/top-rated",
-    response_model=MovieWithGenreResponseList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_not_auth),
-    ],
-)
-async def get_top_rated_movies(
-    movie_cache_service: MovieCacheServiceDep,
-    size: PaginationSizeDep = 10,
-    page: PaginationPageDep = 1,
-) -> MovieWithGenreResponseList:
-    return await movie_cache_service.get_top_rated_movies(size, page)
-
-
-@router.get(
-    "/top-oldest",
-    response_model=MovieWithGenreResponseList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_not_auth),
-    ],
-)
-async def get_top_oldest_movies(
-    movie_cache_service: MovieCacheServiceDep,
-    size: PaginationSizeDep = 10,
-    page: PaginationPageDep = 1,
-) -> MovieWithGenreResponseList:
-    return await movie_cache_service.get_top_oldest_movies(size, page)
-
-
-@router.get(
-    "/top-newest",
-    response_model=MovieWithGenreResponseList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_not_auth),
-    ],
-)
-async def get_top_newest_movies(
-    movie_cache_service: MovieCacheServiceDep,
-    size: PaginationSizeDep = 10,
-    page: PaginationPageDep = 1,
-) -> MovieWithGenreResponseList:
-    return await movie_cache_service.get_top_newest_movies(size, page)
 
 
 @router.post(
