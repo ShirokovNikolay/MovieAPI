@@ -30,7 +30,8 @@
                             <a class="nav-link" href="#/" :class="{ active: currentView === 'catalog' }">Главная</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#/genres" :class="{ active: currentView === 'genres' }">Жанры</a>
+                            <a class="nav-link" href="#/genres" @click="syncRoute">Жанры</a>
+<!--                            <a class="nav-link" href="#/genres" :class="{ active: currentView === 'genres' }">Жанры</a>-->
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#/movies" :class="{ active: currentView === 'movies' }">Фильмы</a>
@@ -1133,7 +1134,7 @@
                                     </div>
                                     <div class="card-footer bg-transparent border-secondary d-flex gap-2">
                                         <button class="btn btn-sm btn-outline-info flex-grow-1" @click="openEditMovieForm(movie)">✏️</button>
-                                        <button class="btn btn-sm btn-outline-danger" @click="confirmDeleteMovie(movie)">🗑️</button>
+                                        <button class="btn btn-sm btn-outline-danger" @click.stop="confirmDeleteMovie(movie)">🗑️</button>
                                     </div>
                                 </div>
                             </div>
@@ -1423,6 +1424,52 @@
                 <div class="modal-footer border-secondary">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     <button type="button" class="btn btn-danger" @click="confirmClearAllHistoryConfirmed">Да, очистить всё</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления жанра -->
+    <div class="modal fade" id="deleteGenreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить жанр <strong>{{ deletingGenreName }}</strong>?
+                    <br><small class="text-danger">Перед удалением убедитесь, что фильмов с таким жанром нет.</small>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteGenreConfirmed" :disabled="genreDeleting">
+                        <span v-if="genreDeleting" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления фильма -->
+    <div class="modal fade" id="deleteMovieModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить фильм <strong>{{ deletingMovieName }}</strong>?
+                    <br><small class="text-danger">Это действие нельзя отменить.</small>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteMovieConfirmed" :disabled="movieDeleting">
+                        <span v-if="movieDeleting" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
                 </div>
             </div>
         </div>
