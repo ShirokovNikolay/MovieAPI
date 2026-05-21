@@ -30,6 +30,10 @@
         if (!data) {
             return "Ошибка запроса";
         }
+        // Обработка ошибки 429
+        if (data.detail && data.detail.includes("Too Many Requests")) {
+            return "⚠️ Слишком много запросов. Пожалуйста, подождите немного.";
+        }
         if (typeof data.message === "string") {
             return data.message;
         }
@@ -179,16 +183,14 @@
         var headers = Object.assign({ Accept: "application/json" }, options.headers || {});
         var body = options.body;
         var method = options.method || "GET";
-        if (
-            body !== undefined &&
-            body !== null &&
-            typeof body === "object" &&
-            !(body instanceof FormData)
-        ) {
+        if (body !== undefined && body !== null && typeof body === "object" && !(body instanceof FormData)) {
             body = JSON.stringify(body);
             headers["Content-Type"] = "application/json";
         }
         return authFetch(path, { method: method, headers: headers, body: body }).then(function (res) {
+            if (res.status === 429) {
+                throw new Error("⚠️ Слишком много запросов. Подождите немного.");
+            }
             if (res.status === 204) {
                 if (!res.ok) {
                     return parseResponseJson(res).then(function (data) {
@@ -227,6 +229,9 @@
             method: "GET",
             headers: { Accept: "application/json" },
         }).then(function (res) {
+            if (res.status === 429) {
+                throw new Error("⚠️ Слишком много запросов. Подождите немного.");
+            }
             return parseResponseJson(res).then(function (data) {
                 if (!res.ok) {
                     throw new Error(readErrorMessage(data));
@@ -267,7 +272,6 @@
     function searchMoviesWithFilters(filters, page, size) {
         var p = page != null ? page : 1;
         var s = size != null ? size : 9;
-        var token = window.TokenStore.getAccessToken();
 
         var body = {
             search_query: filters.search_query || null,
@@ -280,7 +284,6 @@
             sorting_direction: filters.sorting_direction || "ASC"
         };
 
-        // Убираем null поля
         Object.keys(body).forEach(key => {
             if (body[key] === null || body[key] === undefined) {
                 delete body[key];
@@ -294,8 +297,11 @@
                 "Accept": "application/json"
             },
             body: JSON.stringify(body)
-        }).then(function(res) {
-            return parseResponseJson(res).then(function(data) {
+        }).then(function (res) {
+            if (res.status === 429) {
+                throw new Error("⚠️ Слишком много запросов. Подождите немного.");
+            }
+            return parseResponseJson(res).then(function (data) {
                 if (!res.ok) {
                     throw new Error(readErrorMessage(data));
                 }

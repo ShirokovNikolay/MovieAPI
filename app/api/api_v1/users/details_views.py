@@ -3,11 +3,13 @@ from fastapi import APIRouter, Depends, status
 from dependencies.annotations.cache_services import UserCacheServiceDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.auth import get_admin_by_access_token
+from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.user import UserResponse, UserResponseList
 
 router = APIRouter(
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 

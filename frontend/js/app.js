@@ -201,6 +201,9 @@
                 deletingMovieId: null,
                 deletingMovieName: null,
                 movieDeleting: false,
+
+                toastMessage: "",
+                toastVisible: false,
             };
         },
         computed: {
@@ -281,8 +284,18 @@
             if (this.isAuthenticated) {
                 this.loadProfile();
             }
+
             window.addEventListener("hashchange", function () {
                 self.syncRoute();
+            });
+
+            // Глобальный перехват ошибок 429
+            window.addEventListener('unhandledrejection', function(event) {
+                var error = event.reason;
+                if (error && error.message && error.message.includes("⚠️")) {
+                    event.preventDefault();
+                    self.showErrorToast(error.message);
+                }
             });
         },
         methods: {
@@ -1808,7 +1821,11 @@
                         self.deletingMovieName = null;
                     });
             },
-
+            showErrorToast: function (message) {
+                this.toastMessage = message;
+                this.toastVisible = true;
+                setTimeout(() => { this.toastVisible = false; }, 5000);
+            },
         },
         watch: {
             isAuthenticated: function (val) {
