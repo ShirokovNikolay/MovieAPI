@@ -1,7 +1,8 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
 from dependencies.annotations.cache_services import UserCacheServiceDep
 from dependencies.annotations.security import AuthUserByAccessTokenDep
+from dependencies.rate_limiter import check_rate_limit_auth
 from schemas.user import (
     UserPartialUpdate,
     UserResponse,
@@ -10,6 +11,9 @@ from schemas.user import (
 
 router = APIRouter(
     prefix="/me",
+    dependencies=[
+        Depends(check_rate_limit_auth),
+    ],
 )
 
 
