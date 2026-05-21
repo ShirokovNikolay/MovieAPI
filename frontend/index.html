@@ -1050,6 +1050,111 @@
                 </div>
             </div>
 
+            <!-- Админ панель - Фильмы -->
+            <div v-else-if="currentView === 'adminMovies'" class="row justify-content-center">
+                <div class="col-12 col-lg-12">
+                    <!-- Заголовок -->
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <h1 class="h3 mb-0">🎬 Управление фильмами</h1>
+                            <button class="btn btn-success" @click="openCreateMovieForm">
+                                ➕ Создать фильм
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Форма создания/редактирования -->
+                    <div v-if="showMovieForm" class="card shadow text-bg-dark border-info mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-info mb-3">{{ editingMovie ? '✏️ Редактировать фильм' : '➕ Новый фильм' }}</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Название</label>
+                                    <input type="text" v-model="movieForm.name" class="form-control bg-dark text-light border-secondary" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-secondary small">Рейтинг</label>
+                                    <select v-model="movieForm.rating" class="form-select bg-dark text-light border-secondary">
+                                        <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-secondary small">Жанр</label>
+                                    <select v-model="movieForm.genre_id" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Выберите жанр</option>
+                                        <option v-for="genre in genreList" :key="genre.id" :value="genre.id">{{ genre.name }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Дата релиза</label>
+                                    <input type="date" v-model="movieForm.release_date" class="form-control bg-dark text-light border-secondary">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">URL постера</label>
+                                    <input type="url" v-model="movieForm.preview_url" class="form-control bg-dark text-light border-secondary" placeholder="https://...">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label text-secondary small">URL источника</label>
+                                    <input type="url" v-model="movieForm.source_url" class="form-control bg-dark text-light border-secondary" placeholder="https://...">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-secondary small">Описание</label>
+                                    <textarea v-model="movieForm.description" rows="4" class="form-control bg-dark text-light border-secondary"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-primary me-2" @click="submitMovieForm" :disabled="movieFormSubmitting">
+                                        <span v-if="movieFormSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                                        {{ editingMovie ? 'Сохранить' : 'Создать' }}
+                                    </button>
+                                    <button class="btn btn-secondary" @click="closeMovieForm">Отмена</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Карточки фильмов -->
+                    <div v-if="adminMoviesLoading" class="text-center py-5">
+                        <div class="spinner-border text-info"></div>
+                    </div>
+
+                    <div v-else>
+                        <div class="row g-4">
+                            <div v-for="movie in adminMoviesList" :key="movie.id" class="col-md-4 col-lg-3">
+                                <div class="card h-100 bg-dark text-light border-secondary hover-card"
+                                     style="transition: transform 0.2s;">
+                                    <img :src="movie.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
+                                         class="card-img-top"
+                                         alt="Постер"
+                                         style="height: 200px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-truncate">{{ movie.name }}</h5>
+                                        <p class="card-text small text-secondary">⭐ {{ movie.rating }}/10</p>
+                                        <p class="card-text small text-secondary">{{ truncateText(movie.description, 80) }}</p>
+                                    </div>
+                                    <div class="card-footer bg-transparent border-secondary d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-info flex-grow-1" @click="openEditMovieForm(movie)">✏️</button>
+                                        <button class="btn btn-sm btn-outline-danger" @click="confirmDeleteMovie(movie)">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="adminMoviesList.length === 0" class="col-12 text-center text-secondary py-5">
+                                Нет фильмов
+                            </div>
+                        </div>
+
+                        <!-- Пагинация -->
+                        <div class="card-footer border-secondary d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 px-4 mt-4">
+                            <span class="text-secondary small">Страница {{ adminMoviesPage }}, всего {{ adminMoviesTotal }} фильмов</span>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-light btn-sm" :disabled="!adminMoviesHasPrev" @click="goAdminMoviesPage(adminMoviesPage - 1)">Назад</button>
+                                <button class="btn btn-outline-light btn-sm" :disabled="!adminMoviesHasNext" @click="goAdminMoviesPage(adminMoviesPage + 1)">Вперёд</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Профиль -->
             <div v-else-if="currentView === 'profile'" class="row justify-content-center">

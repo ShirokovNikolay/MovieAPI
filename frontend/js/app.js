@@ -172,6 +172,27 @@
                 },
                 genreFormSubmitting: false,
                 showGenreForm: false,
+
+                // Админ панель - фильмы
+                adminMoviesList: [],
+                adminMoviesPage: 1,
+                adminMoviesSize: 10,
+                adminMoviesLoading: false,
+                adminMoviesTotal: 0,
+
+                // Форма для фильма
+                editingMovie: null,
+                showMovieForm: false,
+                movieFormSubmitting: false,
+                movieForm: {
+                    name: "",
+                    description: "",
+                    rating: 5,
+                    preview_url: "",
+                    source_url: "",
+                    genre_id: null,
+                    release_date: ""
+                },
             };
         },
         computed: {
@@ -235,6 +256,12 @@
             },
             adminGenresHasPrev: function () {
                 return this.adminGenresPage > 1;
+            },
+            adminMoviesHasNext: function () {
+                return this.adminMoviesList.length === this.adminMoviesSize;
+            },
+            adminMoviesHasPrev: function () {
+                return this.adminMoviesPage > 1;
             },
         },
         mounted: function () {
@@ -348,7 +375,15 @@
                     this.loadAdminGenres();
                     return;
                 }
-
+                if (hash === "#/admin/movies") {
+                    if (!this.isAuthenticated || !this.isAdmin) {
+                        this.goLogin();
+                        return;
+                    }
+                    this.currentView = "adminMovies";
+                    this.loadAdminMovies();
+                    return;
+                }
                 window.location.hash = "#/";
             },
             goCatalog: function () {
@@ -1571,6 +1606,124 @@
                         })
                         .catch(function (e) {
                             self.error = e.message || "Не удалось удалить жанр";
+                        });
+                }
+            },
+
+            // Загрузка фильмов для админки
+            loadAdminMovies: function () {
+                var self = this;
+                this.adminMoviesLoading = true;
+
+                window.Api.getMovies(this.adminMoviesPage, this.adminMoviesSize)
+                    .then(function (data) {
+                        self.adminMoviesList = data.movie_list || [];
+                        self.adminMoviesTotal = data.total || 0;
+                        if (typeof data.page === "number") self.adminMoviesPage = data.page;
+                        if (typeof data.size === "number") self.adminMoviesSize = data.size;
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось загрузить фильмы";
+                    })
+                    .finally(function () {
+                        self.adminMoviesLoading = false;
+                    });
+            },
+
+            goAdminMoviesPage: function (nextPage) {
+                if (nextPage < 1) return;
+                this.adminMoviesPage = nextPage;
+                this.loadAdminMovies();
+            },
+
+            // Форма для фильма
+            openCreateMovieForm: function () {
+                this.editingMovie = null;
+                this.movieForm = {
+                    name: "",
+                    description: "",
+                    rating: 5,
+                    preview_url: "",
+                    source_url: "",
+                    genre_id: null,
+                    release_date: new Date().toISOString().split('T')[0]
+                };
+                this.showMovieForm = true;
+            },
+
+            openEditMovieForm: function (movie) {
+                this.editingMovie = movie;
+                this.movieForm = {
+                    name: movie.name,
+                    description: movie.description,
+                    rating: movie.rating,
+                    preview_url: movie.preview_url || "",
+                    source_url: movie.source_url || "",
+                    genre_id: movie.genre_id,
+                    release_date: movie.release_date ? movie.release_date.split('T')[0] : ""
+                };
+                this.showMovieForm = true;
+            },
+
+            closeMovieForm: function () {
+                this.showMovieForm = false;
+                this.editingMovie = null;
+            },
+
+            submitMovieForm: function () {
+                var self = this;
+                if (!this.movieForm.name.trim()) {
+                    this.error = "Название фильма обязательно";
+                    return;
+                }
+                if (!this.movieForm.genre_id) {
+                    this.error = "Выберите жанр";
+                    return;
+                }
+
+                this.movieFormSubmitting = true;
+
+                var data = {
+                    name: this.movieForm.name,
+                    description: this.movieForm.description,
+                    rating: parseFloat(this.movieForm.rating),
+                    preview_url: this.movieForm.preview_url,
+                    source_url: this.movieForm.source_url,
+                    genre_id: this.movieForm.genre_id,
+                    release_date: this.movieForm.release_date
+                };
+
+                var promise;
+                if (this.editingMovie) {
+                    promise = window.Api.updateMovie(this.editingMovie.id, data);
+                } else {
+                    promise = window.Api.createMovie(data);
+                }
+
+                promise
+                    .then(function () {
+                        self.closeMovieForm();
+                        self.loadAdminMovies();
+                        self.loadMovies(); // обновляем список на главной
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Ошибка сохранения фильма";
+                    })
+                    .finally(function () {
+                        self.movieFormSubmitting = false;
+                    });
+            },
+
+            confirmDeleteMovie: function (movie) {
+                var self = this;
+                if (confirm("Удалить фильм \"" + movie.name + "\"? Это действие нельзя отменить.")) {
+                    window.Api.deleteMovie(movie.id)
+                        .then(function () {
+                            self.loadAdminMovies();
+                            self.loadMovies();
+                        })
+                        .catch(function (e) {
+                            self.error = e.message || "Не удалось удалить фильм";
                         });
                 }
             },

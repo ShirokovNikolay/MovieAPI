@@ -50,7 +50,6 @@ async def watch_movie(
     return RedirectResponse(url=movie.source_url)
 
 
-# Пробный view !!!
 @router.post(
     "/search",
     response_model=MovieWithGenreResponseList,
