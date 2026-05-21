@@ -868,13 +868,7 @@
             },
 
             confirmDeleteReview: function (reviewId) {
-                console.log("confirmDeleteReview получил:", reviewId, "тип:", typeof reviewId);
                 var id = Number(reviewId);
-                console.log("После Number():", id, "тип:", typeof id);
-                if (isNaN(id)) {
-                    console.error("Невалидный ID");
-                    return;
-                }
                 this.deletingReviewId = id;
                 var modalEl = document.getElementById("deleteReviewModal");
                 if (modalEl && typeof bootstrap !== "undefined") {
