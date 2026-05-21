@@ -54,7 +54,7 @@
                     email: "",
                     password: "",
                 },
-                isAdmin: false,
+                // isAdmin: false,
                 partialFlags: {
                     surname: false,
                     name: false,
@@ -193,9 +193,20 @@
                     genre_id: null,
                     release_date: ""
                 },
+
+                deletingGenreId: null,
+                deletingGenreName: null,
+                genreDeleting: false,
+
+                deletingMovieId: null,
+                deletingMovieName: null,
+                movieDeleting: false,
             };
         },
         computed: {
+            isAdmin: function () {
+                return this.profileData && this.profileData.role === "admin";
+            },
             isAuthenticated: function () {
                 var access = window.TokenStore.getAccessToken();
                 var refresh = window.TokenStore.getRefreshToken();
@@ -267,7 +278,9 @@
         mounted: function () {
             var self = this;
             this.syncRoute();
-            this.loadGenres();
+            if (this.isAuthenticated) {
+                this.loadProfile();
+            }
             window.addEventListener("hashchange", function () {
                 self.syncRoute();
             });
@@ -401,9 +414,8 @@
                 this.loading = true;
                 window.Api.loginUser(this.loginForm.username, this.loginForm.password)
                     .then(function () {
-                        window.location.href = "#/";
                         self.loadProfile();
-                        window.location.reload();
+                        self.goCatalog();
                     })
                     .catch(function (e) {
                         self.error = e.message || "Не удалось войти";
@@ -524,6 +536,7 @@
                 this.loadMoviesWithFilters();
             },
 
+
             loadMoviesWithFilters: function () {
                 var self = this;
                 this.moviesLoading = true;
@@ -535,13 +548,16 @@
                     max_rating: this.movieFilters.max_rating,
                     start_release_date: this.movieFilters.start_release_date || null,
                     end_release_date: this.movieFilters.end_release_date || null,
-                    genre_id: this.selectedGenreId || this.movieFilters.genre_id,
+                    genre_id: this.movieFilters.genre_id,
                     sort_by: this.movieFilters.sort_by,
                     sorting_direction: this.movieFilters.sorting_direction
                 };
 
+                console.log("Отправляемые фильтры:", filters);
+
                 window.Api.searchMoviesWithFilters(filters, this.moviesPage, this.moviesSize)
                     .then(function (data) {
+                        console.log("Ответ:", data);  // ← добавить
                         self.moviesList = (data.movie_list || []).map(function(movie) {
                             if (!movie.preview_url || movie.preview_url === "string") {
                                 movie.preview_url = "https://via.placeholder.com/300x450?text=No+Poster";
@@ -600,6 +616,7 @@
                 });
             },
             loadMoviesByGenre: function (genreId, genreName) {
+                console.log("loadMoviesByGenre, genreId:", genreId);
                 var self = this;
                 this.moviesLoading = true;
                 this.error = "";
@@ -609,19 +626,11 @@
                 this.movieActiveSearch = "";
                 this.movieSearchInput = "";
 
-                // Сбрасываем фильтры
-                this.movieFilters = {
-                    search_query: "",
-                    min_rating: null,
-                    max_rating: null,
-                    start_release_date: "",
-                    end_release_date: "",
-                    genre_id: genreId,
-                    sort_by: null,
-                    sorting_direction: "ASC"
-                };
+                // ОБНОВЛЯЕМ ФИЛЬТРЫ
+                this.movieFilters.genre_id = genreId;
+                console.log("movieFilters.genre_id после установки:", this.movieFilters.genre_id);
+                this.movieFilters.search_query = "";
 
-                // Используем новый эндпоинт
                 window.Api.searchMoviesWithFilters(this.movieFilters, this.moviesPage, this.moviesSize)
                     .then(function (data) {
                         self.moviesList = (data.movie_list || []).map(function(movie) {
@@ -642,13 +651,23 @@
                         self.moviesLoading = false;
                     });
             },
-            clearGenreFilter: function () {
+            clearFilters: function () {
+                this.movieFilters = {
+                    search_query: "",
+                    min_rating: null,
+                    max_rating: null,
+                    start_release_date: "",
+                    end_release_date: "",
+                    genre_id: null,
+                    sort_by: null,
+                    sorting_direction: "ASC"
+                };
+                this.movieSearchInput = "";
+                this.movieActiveSearch = "";
                 this.selectedGenreId = null;
                 this.selectedGenreName = null;
                 this.moviesPage = 1;
-                this.movieActiveSearch = "";
-                this.movieSearchInput = "";
-                this.loadMovies();
+                this.loadMoviesWithFilters();
             },
 
             loadMovieDetails: function (movieId) {
@@ -684,6 +703,7 @@
                 this.loadMovies();
             },
             applyMovieSearch: function () {
+                console.log("applyFilters, movieFilters.genre_id:", this.movieFilters.genre_id);
                 this.movieActiveSearch = (this.movieSearchInput || "").trim();
                 this.moviesPage = 1;
                 this.loadMovies();
@@ -1715,18 +1735,78 @@
                     });
             },
 
-            confirmDeleteMovie: function (movie) {
-                var self = this;
-                if (confirm("Удалить фильм \"" + movie.name + "\"? Это действие нельзя отменить.")) {
-                    window.Api.deleteMovie(movie.id)
-                        .then(function () {
-                            self.loadAdminMovies();
-                            self.loadMovies();
-                        })
-                        .catch(function (e) {
-                            self.error = e.message || "Не удалось удалить фильм";
-                        });
+            confirmDeleteGenre: function (genre) {
+                this.deletingGenreId = genre.id;
+                this.deletingGenreName = genre.name;
+                var modalEl = document.getElementById("deleteGenreModal");
+                if (modalEl && typeof bootstrap !== "undefined") {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
                 }
+            },
+
+            confirmDeleteGenreConfirmed: function () {
+                var self = this;
+                this.genreDeleting = true;
+
+                window.Api.deleteGenre(this.deletingGenreId)
+                    .then(function () {
+                        self.loadAdminGenres();
+                        self.loadGenres();
+                        var modalEl = document.getElementById("deleteGenreModal");
+                        if (modalEl) {
+                            var modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        }
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось удалить жанр";
+                    })
+                    .finally(function () {
+                        self.genreDeleting = false;
+                        self.deletingGenreId = null;
+                        self.deletingGenreName = null;
+                    });
+            },
+
+            confirmDeleteMovie: function (movie) {
+                console.log("confirmDeleteMovie, movie.id:", movie.id, "тип:", typeof movie.id);
+                this.deletingMovieId = Number(movie.id);
+                this.deletingMovieName = movie.name;
+                if (isNaN(this.deletingMovieId)) {
+                    console.error("Невалидный ID фильма");
+                    this.error = "Ошибка ID фильма";
+                    return;
+                }
+                var modalEl = document.getElementById("deleteMovieModal");
+                if (modalEl && typeof bootstrap !== "undefined") {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            },
+
+            confirmDeleteMovieConfirmed: function () {
+                var self = this;
+                this.movieDeleting = true;
+
+                window.Api.deleteMovie(this.deletingMovieId)
+                    .then(function () {
+                        self.loadAdminMovies();
+                        self.loadMovies();
+                        var modalEl = document.getElementById("deleteMovieModal");
+                        if (modalEl) {
+                            var modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        }
+                    })
+                    .catch(function (e) {
+                        self.error = e.message || "Не удалось удалить фильм";
+                    })
+                    .finally(function () {
+                        self.movieDeleting = false;
+                        self.deletingMovieId = null;
+                        self.deletingMovieName = null;
+                    });
             },
 
         },
