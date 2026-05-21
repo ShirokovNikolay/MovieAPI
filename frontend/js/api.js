@@ -574,6 +574,9 @@
     function clearAllWatchHistory() {
         return authFetchJson("/api/v1/watch-history/about-me/", { method: "DELETE" });
     }
+    function deleteWatchHistoryItem(historyId) {
+        return authFetchJson("/api/v1/watch-history/" + encodeURIComponent(historyId) + "/", { method: "DELETE" });
+    }
 
     // ========== АДМИН: УПРАВЛЕНИЕ ЖАНРАМИ ==========
     function createGenre(data) {
@@ -585,11 +588,6 @@
             body: data
         });
     }
-    function deleteWatchHistoryItem(historyId) {
-        return authFetchJson("/api/v1/watch-history/" + encodeURIComponent(historyId) + "/", { method: "DELETE" });
-    }
-
-
 
     function updateGenre(genreId, data) {
         var token = window.TokenStore.getAccessToken();
@@ -616,6 +614,46 @@
         if (!token) return Promise.reject(new Error("Не авторизован"));
 
         return authFetchJson("/api/v1/genres/" + encodeURIComponent(genreId) + "/", {
+            method: "DELETE"
+        });
+    }
+
+    // ========== АДМИН: УПРАВЛЕНИЕ ФИЛЬМАМИ ==========
+    function createMovie(data) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/movies/", {
+            method: "POST",
+            body: data
+        });
+    }
+
+    function updateMovie(movieId, data) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/movies/" + encodeURIComponent(movieId) + "/", {
+            method: "PUT",
+            body: data
+        });
+    }
+
+    function partialUpdateMovie(movieId, data) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/movies/" + encodeURIComponent(movieId) + "/", {
+            method: "PATCH",
+            body: data
+        });
+    }
+
+    function deleteMovie(movieId) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/movies/" + encodeURIComponent(movieId) + "/", {
             method: "DELETE"
         });
     }
@@ -674,5 +712,10 @@
         updateGenre: updateGenre,
         partialUpdateGenre: partialUpdateGenre,
         deleteGenre: deleteGenre,
+
+        createMovie: createMovie,
+        updateMovie: updateMovie,
+        partialUpdateMovie: partialUpdateMovie,
+        deleteMovie: deleteMovie,
     };
 })();
