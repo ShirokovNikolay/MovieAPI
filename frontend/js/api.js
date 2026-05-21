@@ -575,8 +575,49 @@
         return authFetchJson("/api/v1/watch-history/about-me/", { method: "DELETE" });
     }
 
+    // ========== АДМИН: УПРАВЛЕНИЕ ЖАНРАМИ ==========
+    function createGenre(data) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/genres/", {
+            method: "POST",
+            body: data
+        });
+    }
     function deleteWatchHistoryItem(historyId) {
         return authFetchJson("/api/v1/watch-history/" + encodeURIComponent(historyId) + "/", { method: "DELETE" });
+    }
+
+
+
+    function updateGenre(genreId, data) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/genres/" + encodeURIComponent(genreId) + "/", {
+            method: "PUT",
+            body: data
+        });
+    }
+
+    function partialUpdateGenre(genreId, data) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/genres/" + encodeURIComponent(genreId) + "/", {
+            method: "PATCH",
+            body: data
+        });
+    }
+
+    function deleteGenre(genreId) {
+        var token = window.TokenStore.getAccessToken();
+        if (!token) return Promise.reject(new Error("Не авторизован"));
+
+        return authFetchJson("/api/v1/genres/" + encodeURIComponent(genreId) + "/", {
+            method: "DELETE"
+        });
     }
 
     window.Api = {
@@ -628,5 +669,10 @@
 
         getMovieReviewsTopRated: getMovieReviewsTopRated,
         getMovieReviewsLowRated: getMovieReviewsLowRated,
+
+        createGenre: createGenre,
+        updateGenre: updateGenre,
+        partialUpdateGenre: partialUpdateGenre,
+        deleteGenre: deleteGenre,
     };
 })();
