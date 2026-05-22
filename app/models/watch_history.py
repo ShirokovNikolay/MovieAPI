@@ -17,12 +17,14 @@ class WatchHistory(Base):
         ForeignKey(
             "users.id",
             name="fk_watch_history_user_id",
+            ondelete="CASCADE",
         ),
     )
     movie_id: Mapped[int] = mapped_column(
         ForeignKey(
             "movies.id",
             name="fk_watch_history_movie_id",
+            ondelete="CASCADE",
         ),
     )
     watched_at: Mapped[datetime] = mapped_column(server_default=func.now())
