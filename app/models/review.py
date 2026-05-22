@@ -18,12 +18,14 @@ class Review(Base):
         ForeignKey(
             "users.id",
             name="fk_reviews_user_id",
+            ondelete="CASCADE",
         ),
     )
     movie_id: Mapped[int] = mapped_column(
         ForeignKey(
             "movies.id",
             name="fk_reviews_movie_id",
+            ondelete="CASCADE",
         ),
     )
     review_text: Mapped[str | None] = mapped_column(String(REVIEW_TEXT_MAX_LENGTH))
