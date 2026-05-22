@@ -284,7 +284,8 @@
             if (this.isAuthenticated) {
                 this.loadProfile();
             }
-
+            // Загружаем жанры для всех форм
+            this.loadGenres();
             window.addEventListener("hashchange", function () {
                 self.syncRoute();
             });
@@ -427,8 +428,8 @@
                 this.loading = true;
                 window.Api.loginUser(this.loginForm.username, this.loginForm.password)
                     .then(function () {
-                        self.loadProfile();
-                        self.goCatalog();
+                        window.location.hash = "#/";
+                        window.location.reload();
                     })
                     .catch(function (e) {
                         self.error = e.message || "Не удалось войти";
