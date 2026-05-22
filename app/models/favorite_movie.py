@@ -16,12 +16,14 @@ class FavoriteMovie(Base):
         ForeignKey(
             "users.id",
             name="fk_favorite_movies_user_id",
+            ondelete="CASCADE",
         ),
     )
     movie_id: Mapped[int] = mapped_column(
         ForeignKey(
             "movies.id",
             name="fk_favorite_movies_movie_id",
+            ondelete="CASCADE",
         ),
     )
     user: Mapped["User"] = relationship(
