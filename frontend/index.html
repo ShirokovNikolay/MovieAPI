@@ -60,13 +60,6 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userMenu">
                                     <li><a class="dropdown-item" href="#/profile">👤 Профиль</a></li>
-<!--                                    <li v-if="isAdmin" class="dropdown-submenu">-->
-<!--                                        <a class="dropdown-item dropdown-toggle" href="#" @click.prevent>👑 Админ-панель</a>-->
-<!--                                        <ul class="dropdown-menu dropdown-menu-dark">-->
-<!--                                            <li><a class="dropdown-item" href="#/admin/genres">🎭 Управление жанрами</a></li>-->
-<!--                                            <li><a class="dropdown-item" href="#/admin/movies">🎬 Управление фильмами</a></li>-->
-<!--                                        </ul>-->
-<!--                                    </li>-->
                                     <li v-if="isAdmin"><a class="dropdown-item" href="#/admin/genres">👑 Управление жанрами</a></li>
                                     <li v-if="isAdmin"><a class="dropdown-item" href="#/admin/movies">🎬 Управление фильмами</a></li>
                                     <li><a class="dropdown-item" href="#/favorites">❤️ Избранное</a></li>
@@ -1145,7 +1138,7 @@
 
                         <!-- Пагинация -->
                         <div class="card-footer border-secondary d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 px-4 mt-4">
-                            <span class="text-secondary small">Страница {{ adminMoviesPage }}, всего {{ adminMoviesTotal }} фильмов</span>
+                            <span class="text-secondary small">Страница {{ adminMoviesPage }}</span>
                             <div class="btn-group">
                                 <button class="btn btn-outline-light btn-sm" :disabled="!adminMoviesHasPrev" @click="goAdminMoviesPage(adminMoviesPage - 1)">Назад</button>
                                 <button class="btn btn-outline-light btn-sm" :disabled="!adminMoviesHasNext" @click="goAdminMoviesPage(adminMoviesPage + 1)">Вперёд</button>

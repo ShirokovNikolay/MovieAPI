@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class DataBaseConfig(BaseModel):
     user: str = "postgres"
     password: str = "postgres"
-    host: str = "localhost"
+    host: str = "database"
     port: int = 5432
     db_name: str = "movie-catalog"
     echo: bool = False
@@ -20,7 +20,7 @@ class DataBaseConfig(BaseModel):
 
 
 class RedisConnectionConfig(BaseModel):
-    host: str = "localhost"
+    host: str = "redis"
     port: int = 6379
 
 
