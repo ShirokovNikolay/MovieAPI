@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, ForeignKey, String, UniqueConstraint
@@ -35,7 +35,7 @@ class Movie(Base):
             name="fk_movies_genre_id",
         ),
     )
-    release_date: Mapped[datetime]
+    release_date: Mapped[date]
     genre: Mapped["Genre"] = relationship(
         "Genre",
         back_populates="movies",
@@ -54,9 +54,12 @@ class Movie(Base):
     )
 
     __table_args__ = (
-        UniqueConstraint("name", name="uq_movies_name"),
+        UniqueConstraint(
+            "name",
+            name="uq_movies_name",
+        ),
         CheckConstraint(
-            "LENGTH(name) >= 3 AND LENGTH(name) <= 20",
+            "LENGTH(name) >= 3 AND LENGTH(name) <= 255",
             name="ch_movies_name",
         ),
         CheckConstraint(
