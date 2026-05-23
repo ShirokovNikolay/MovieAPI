@@ -18,7 +18,10 @@ if TYPE_CHECKING:
 class Genre(Base):
     __tablename__ = "genres"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(GENRE_NAME_MAX_LENGTH))
+    name: Mapped[str] = mapped_column(
+        String(GENRE_NAME_MAX_LENGTH),
+        unique=True,
+    )
     description: Mapped[str] = mapped_column(String(GENRE_DESCRIPTION_MAX_LENGTH))
     preview_url: Mapped[str] = mapped_column(String(GENRE_URL_MAX_LENGTH))
     movies: Mapped[list["Movie"]] = relationship(
