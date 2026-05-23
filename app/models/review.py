@@ -40,5 +40,8 @@ class Review(Base):
         back_populates="reviews",
     )
     __table_args__ = (
-        CheckConstraint("rating >= 0 AND rating <= 10", name="ch_reviews_rating"),
+        CheckConstraint(
+            "rating >= 1 AND rating <= 10",
+            name="ch_reviews_rating",
+        ),
     )
