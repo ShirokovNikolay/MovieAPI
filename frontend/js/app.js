@@ -394,19 +394,69 @@
                     return;
                 }
                 if (hash === "#/admin/genres") {
-                    if (!this.isAuthenticated || !this.isAdmin) {
+                    if (!this.isAuthenticated) {
                         this.goLogin();
                         return;
                     }
+
+                    if (!this.profileData) {
+                        this.loadProfile();
+                        var self = this;
+                        var interval = setInterval(function() {
+                            if (self.profileData) {
+                                clearInterval(interval);
+                                if (self.profileData.role === "admin") {
+                                    self.currentView = "adminGenres";
+                                    self.loadAdminGenres();
+                                } else {
+                                    self.goCatalog();
+                                    self.error = "Нет доступа";
+                                }
+                            }
+                        }, 100);
+                        return;
+                    }
+
+                    if (this.profileData.role !== "admin") {
+                        this.goCatalog();
+                        this.error = "Нет доступа";
+                        return;
+                    }
+
                     this.currentView = "adminGenres";
                     this.loadAdminGenres();
                     return;
                 }
                 if (hash === "#/admin/movies") {
-                    if (!this.isAuthenticated || !this.isAdmin) {
+                    if (!this.isAuthenticated) {
                         this.goLogin();
                         return;
                     }
+
+                    if (!this.profileData) {
+                        this.loadProfile();
+                        var self = this;
+                        var interval = setInterval(function() {
+                            if (self.profileData) {
+                                clearInterval(interval);
+                                if (self.profileData.role === "admin") {
+                                    self.currentView = "adminMovies";
+                                    self.loadAdminMovies();
+                                } else {
+                                    self.goCatalog();
+                                    self.error = "Нет доступа";
+                                }
+                            }
+                        }, 100);
+                        return;
+                    }
+
+                    if (this.profileData.role !== "admin") {
+                        this.goCatalog();
+                        this.error = "Нет доступа";
+                        return;
+                    }
+
                     this.currentView = "adminMovies";
                     this.loadAdminMovies();
                     return;
