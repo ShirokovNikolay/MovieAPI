@@ -115,3 +115,78 @@ body {
 .navbar-toggler {
     margin-left: auto;
 }
+
+
+textarea {
+    overflow-y: auto;
+    resize: vertical;
+    scrollbar-width: thin;
+}
+
+textarea::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+}
+
+textarea:hover::-webkit-scrollbar-thumb {
+    background: #4a5568;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Для Firefox */
+textarea {
+    scrollbar-color: transparent transparent;
+}
+
+textarea:hover {
+    scrollbar-color: #4a5568 #2d3748;
+}
+
+
+
+
+/* Для всей страницы */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+}
+
+:hover::-webkit-scrollbar-thumb {
+    background: #4a5568;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Для Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+*:hover {
+    scrollbar-color: #4a5568 #2d3748;
+}

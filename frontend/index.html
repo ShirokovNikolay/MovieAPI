@@ -377,7 +377,7 @@
                                     <!-- Название и жанр -->
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <h5 class="card-title mb-0 text-truncate" style="max-width: 60%;">{{ movie.name }}</h5>
-                                        <span class="badge bg-info text-dark">{{ selectedGenreName || movie.genre?.name || 'Без жанра' }}</span>
+                                        <span class="badge bg-info text-dark">{{ movie.genre.name }}</span>
                                     </div>
 
                                     <!-- Рейтинг -->
@@ -542,7 +542,7 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label text-secondary">Текст отзыва</label>
-                                                <textarea v-model="editReviewText" rows="4" class="form-control bg-dark text-light border-secondary"></textarea>
+                                                <textarea v-model="editReviewText" rows="6" class="form-control bg-dark text-light border-secondary"></textarea>
                                             </div>
                                             <div class="d-flex gap-2">
                                                 <button class="btn btn-primary" @click="submitEditReview" :disabled="reviewSubmitting">
@@ -575,7 +575,7 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label text-secondary">Текст отзыва</label>
-                                                <textarea v-model="reviewText" rows="4" class="form-control bg-dark text-light border-secondary" placeholder="Поделитесь впечатлениями о фильме..."></textarea>
+                                                <textarea v-model="reviewText" rows="6" class="form-control bg-dark text-light border-secondary" placeholder="Поделитесь впечатлениями о фильме..."></textarea>
                                             </div>
                                             <div class="d-flex gap-2">
                                                 <button class="btn btn-primary" @click="submitReview" :disabled="reviewSubmitting">
@@ -989,7 +989,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label text-secondary small">Описание</label>
-                                    <textarea v-model="genreForm.description" rows="3" class="form-control bg-dark text-light border-secondary"></textarea>
+                                    <textarea v-model="genreForm.description" rows="6" class="form-control bg-dark text-light border-secondary"></textarea>
                                 </div>
                                 <div class="col-12">
                                     <button class="btn btn-primary me-2" @click="submitGenreForm" :disabled="genreFormSubmitting">
@@ -1099,7 +1099,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label text-secondary small">Описание</label>
-                                    <textarea v-model="movieForm.description" rows="4" class="form-control bg-dark text-light border-secondary"></textarea>
+                                    <textarea v-model="movieForm.description" rows="6" class="form-control bg-dark text-light border-secondary"></textarea>
                                 </div>
                                 <div class="col-12">
                                     <button class="btn btn-primary me-2" @click="submitMovieForm" :disabled="movieFormSubmitting">
@@ -1208,7 +1208,6 @@
                         <div v-show="profileTab === 'full'" class="card shadow text-bg-dark border-secondary mb-4">
                             <div class="card-body p-4">
                                 <h2 class="h5 mb-3">Обновить все поля</h2>
-                                <p class="text-secondary small mb-4">Нужно указать и пароль (текущий или новый) — требование API.</p>
                                 <form @submit.prevent="onFullProfileUpdate">
                                     <div class="row g-3">
                                         <div class="col-md-6">
@@ -1313,7 +1312,7 @@
                                 <h2 class="h5 text-danger mb-3">Удаление аккаунта</h2>
                                 <p class="text-secondary mb-4">Будут удалены ваш профиль и связанные данные. Это действие нельзя отменить.</p>
                                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
-                                    Удалить мой аккаунт…
+                                    Удалить мой аккаунт
                                 </button>
                             </div>
                         </div>
