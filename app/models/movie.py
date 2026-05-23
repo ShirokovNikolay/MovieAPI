@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, ForeignKey, String
+from sqlalchemy import CheckConstraint, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.constants import (
@@ -18,7 +18,10 @@ if TYPE_CHECKING:
 class Movie(Base):
     __tablename__ = "movies"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(MOVIE_NAME_MAX_LENGTH))
+    name: Mapped[str] = mapped_column(
+        String(MOVIE_NAME_MAX_LENGTH),
+        unique=True,
+    )
     description: Mapped[str | None] = mapped_column(
         String(MOVIE_DESCRIPTION_MAX_LENGTH),
         nullable=True,
@@ -51,6 +54,7 @@ class Movie(Base):
     )
 
     __table_args__ = (
+        UniqueConstraint("name", name="uq_movies_name"),
         CheckConstraint(
             "LENGTH(name) >= 3 AND LENGTH(name) <= 20",
             name="ch_movies_name",
