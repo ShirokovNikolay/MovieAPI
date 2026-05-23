@@ -33,7 +33,7 @@ class Genre(Base):
     __table_args__ = (
         UniqueConstraint("name", name="uq_genres_name"),
         CheckConstraint(
-            "LENGTH(name) >= 3 AND LENGTH(name) <= 30",
+            "LENGTH(name) >= 3 AND LENGTH(name) <= 40",
             name="ch_genres_name",
         ),
     )
