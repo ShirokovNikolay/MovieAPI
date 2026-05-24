@@ -1,0 +1,200 @@
+
+
+            <!-- Детали фильма -->
+            <div v-else-if="currentView === 'movieDetails'" class="row justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-12">
+                    <!-- Кнопка назад -->
+                    <div class="mb-3">
+                        <button class="btn btn-outline-secondary" @click="backToMovies">
+                            ← Назад к списку фильмов
+                        </button>
+                    </div>
+
+                    <!-- Загрузка -->
+                    <div v-if="movieDetailsLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+
+                    <!-- Детали фильма -->
+                    <div v-else-if="currentMovie" class="card shadow text-bg-dark border-secondary">
+                        <div class="row g-0">
+                            <!-- Постер -->
+                            <div class="col-md-5">
+                                <img :src="currentMovie.preview_url || 'https://via.placeholder.com/500x750?text=No+Poster'"
+                                     class="img-fluid rounded-start"
+                                     alt="Постер"
+                                     style="width: 100%; height: auto; object-fit: cover;">
+                            </div>
+
+                            <!-- Информация -->
+                            <div class="col-md-7">
+                                <div class="card-body p-4">
+                                    <h1 class="card-title h2 mb-3">{{ currentMovie.name || 'Без названия' }}</h1>
+
+                                    <div class="mb-3">
+                                        <span class="badge bg-info text-dark fs-6">{{ currentMovie.genre?.name || 'Без жанра' }}</span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <span class="text-warning fs-5">⭐</span>
+                                        <span class="fs-4 ms-2">{{ currentMovie.rating || '—' }}/10</span>
+                                    </div>
+
+                                    <!-- Строка с избранным -->
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <button class="btn"
+                                                :class="isFavorite ? 'btn-danger' : 'btn-outline-danger'"
+                                                @click="toggleFavorite"
+                                                :disabled="favoriteToggling">
+                                            <span v-if="favoriteToggling" class="spinner-border spinner-border-sm me-1"></span>
+                                            <span v-else>❤️</span>
+                                            {{ isFavorite ? 'В избранном' : 'В избранное' }}
+                                        </button>
+                                        <span class="text-secondary">
+                                            🧡 {{ favoritesCount }} {{ favoritesCount === 1 ? 'пользователь добавил' : 'пользователей добавили' }}
+                                        </span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong class="text-secondary">📅 Дата релиза:</strong>
+                                        <span class="ms-2">{{ formatDate(currentMovie.release_date) }}</span>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <strong class="text-secondary">📖 Описание:</strong>
+                                        <p class="mt-2 text-light">{{ currentMovie.description || 'Нет описания' }}</p>
+                                    </div>
+
+                                    <div class="d-flex gap-3">
+                                        <button class="btn btn-success btn-lg flex-grow-1" @click="watchMovieNow" :disabled="!isAuthenticated">
+                                            🎬 Смотреть фильм
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-3 text-secondary small" v-if="!isAuthenticated">
+                                        <span class="text-warning">⚠️ Для просмотра фильма необходимо войти в аккаунт</span>
+                                    </div>
+
+                                    <div class="mt-3 text-secondary small" v-if="currentMovie.source_url">
+                                        <span>URL источника: {{ truncateText(currentMovie.source_url, 50) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Отзывы -->
+                        <div class="mt-5 pt-3 border-top border-secondary">
+                            <!-- Мой отзыв -->
+                            <div v-if="isAuthenticated" class="mb-4">
+                                <h4 class="h5 mb-3">✍️ Мой отзыв</h4>
+
+                                <!-- Если отзыв уже есть -->
+                                <div v-if="userReview" class="card bg-primary bg-opacity-10 border-primary mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <span class="text-warning">⭐ {{ userReview.rating }}/10</span>
+                                            </div>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <button class="btn btn-sm btn-outline-info" @click="startEditReview(userReview)">
+                                                    ✏️ Редактировать
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" @click="confirmDeleteReview(userReview.id)">
+                                                    🗑️ Удалить
+                                                </button>
+                                                <small class="text-secondary">{{ formatDate(userReview.publication_date) }}</small>
+                                            </div>
+                                        </div>
+                                        <!-- Режим редактирования -->
+                                        <div v-if="editingReview && editingReview.id === userReview.id" class="mt-3">
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Оценка</label>
+                                                <select v-model="editReviewRating" class="form-select bg-dark text-light border-secondary" style="width: auto;">
+                                                    <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}/10</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Текст отзыва</label>
+                                                <textarea v-model="editReviewText" rows="6" class="form-control bg-dark text-light border-secondary"></textarea>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-primary" @click="submitEditReview" :disabled="reviewSubmitting">
+                                                    <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                                                    Сохранить
+                                                </button>
+                                                <button class="btn btn-secondary" @click="cancelEditReview">Отмена</button>
+                                            </div>
+                                        </div>
+                                        <!-- Обычный режим -->
+                                        <div v-else class="mt-2">
+                                            <p class="card-text text-light mb-0">{{ userReview.review_text }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Форма для нового отзыва -->
+                                <div v-else class="card bg-dark border-secondary">
+                                    <div class="card-body">
+                                        <button v-if="!showReviewForm" class="btn btn-outline-info" @click="toggleReviewForm">
+                                            📝 Написать отзыв
+                                        </button>
+
+                                        <div v-else>
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Оценка</label>
+                                                <select v-model="reviewRating" class="form-select bg-dark text-light border-secondary" style="width: auto;">
+                                                    <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}/10</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label text-secondary">Текст отзыва</label>
+                                                <textarea v-model="reviewText" rows="6" class="form-control bg-dark text-light border-secondary" placeholder="Поделитесь впечатлениями о фильме..."></textarea>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-primary" @click="submitReview" :disabled="reviewSubmitting">
+                                                    <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                                                    Отправить
+                                                </button>
+                                                <button class="btn btn-secondary" @click="toggleReviewForm">Отмена</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Неавторизованным показываем предложение войти -->
+                            <div v-else class="card bg-dark border-secondary mb-4">
+                                <div class="card-body text-center text-secondary">
+                                    <p class="mb-0">🔐 <a href="#/login" class="link-light">Войдите</a>, чтобы оставить отзыв</p>
+                                </div>
+                            </div>
+
+                            <!-- Заголовок с кнопками сортировки -->
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h3 class="h4 mb-0">📝 Отзывы зрителей</h3>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        🔽 Сортировка:
+                                        <span v-if="reviewsSortType === 'date' && reviewsSortOrder === 'desc'">сначала новые</span>
+                                        <span v-else-if="reviewsSortType === 'date' && reviewsSortOrder === 'asc'">сначала старые</span>
+                                        <span v-else-if="reviewsSortType === 'rating' && reviewsSortOrder === 'desc'">высокий рейтинг</span>
+                                        <span v-else-if="reviewsSortType === 'rating' && reviewsSortOrder === 'asc'">низкий рейтинг</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark">
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('default', '')">📋 Без сортировки</a></li>
+                                        <li class="dropdown-header">📅 По дате</li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('date', 'desc')">🆕 Сначала новые</a></li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('date', 'asc')">📅 Сначала старые</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li class="dropdown-header">⭐ По рейтингу</li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('rating', 'desc')">🔥 Сначала высокие</a></li>
+                                        <li><a class="dropdown-item" @click.prevent="changeReviewsSortWithValues('rating', 'asc')">❄️ Сначала низкие</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Загрузка отзывов -->
+                            <div v-if="reviewsLoading" class="text-center py-4">
+                                <div class="spinner-border text-info spinner-border-sm" role="status">

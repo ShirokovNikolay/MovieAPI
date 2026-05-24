@@ -1,0 +1,60 @@
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления жанра -->
+    <div class="modal fade" id="deleteGenreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить жанр <strong>{{ deletingGenreName }}</strong>?
+                    <br><small class="text-danger">Перед удалением убедитесь, что фильмов с таким жанром нет.</small>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteGenreConfirmed" :disabled="genreDeleting">
+                        <span v-if="genreDeleting" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления фильма -->
+    <div class="modal fade" id="deleteMovieModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить фильм <strong>{{ deletingMovieName }}</strong>?
+                    <br><small class="text-danger">Это действие нельзя отменить.</small>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteMovieConfirmed" :disabled="movieDeleting">
+                        <span v-if="movieDeleting" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Toast уведомление -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>⚠️ Ошибка!</strong> <span id="toastMessage">Слишком много запросов. Подождите немного.</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>

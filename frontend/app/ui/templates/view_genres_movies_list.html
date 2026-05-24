@@ -1,0 +1,200 @@
+                            <div v-if="genreList.length === 0" class="text-secondary py-5 px-4 text-center">
+                                Нет данных на этой странице.
+                            </div>
+                            <article
+                                v-for="g in genreList"
+                                :key="g.id"
+                                class="genre-row d-flex flex-column flex-md-row gap-3 gap-md-4 p-4 p-lg-5 border-bottom border-secondary"
+                                style="cursor: pointer; transition: background 0.2s;"
+                                @click="loadMoviesByGenre(g.id, g.name)"
+                                >
+
+                                <div class="genre-row-text flex-grow-1 min-w-0">
+                                    <h3 class="h4 text-light mb-3 mb-md-2">{{ g.name }}</h3>
+                                    <p class="text-secondary mb-0 genre-row-description">{{ g.description }}</p>
+                                </div>
+                                <div class="genre-poster-slot flex-shrink-0 align-self-stretch align-self-md-start">
+                                    <img v-if="g.preview_url"
+                                         :src="g.preview_url"
+                                         class="img-fluid rounded"
+                                         alt="Постер жанра"
+                                         style="width: 100%; height: 100%; object-fit: cover;">
+                                    <div v-else class="d-flex align-items-center justify-content-center h-100 text-secondary">
+                                        🎬
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="card-footer border-secondary d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 px-4">
+                            <span class="text-secondary small">Страница {{ genrePage }}, по {{ genreSize }} записей</span>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-light btn-sm" :disabled="!genreHasPrev || genreLoading" @click="goGenrePage(genrePage - 1)">Назад</button>
+                                <button type="button" class="btn btn-outline-light btn-sm" :disabled="!genreHasNext || genreLoading" @click="goGenrePage(genrePage + 1)">Вперёд</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Секция фильмов -->
+            <div v-else-if="currentView === 'movies'" class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4">
+                            <h1 class="h3 mb-0">🎬 Список фильмов</h1>
+                        </div>
+                    </div>
+
+
+                    <!-- Кнопка фильтров -->
+                    <div class="mb-3">
+                        <button class="btn btn-outline-secondary" @click="toggleFilters">
+                            🔽 {{ showFilters ? 'Скрыть фильтры' : 'Показать фильтры' }}
+                        </button>
+                    </div>
+
+                    <!-- Панель фильтров -->
+                    <div v-if="showFilters" class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Поиск по названию</label>
+                                    <input type="text" v-model="movieFilters.search_query" class="form-control bg-dark text-light border-secondary" placeholder="Название фильма">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-secondary small">Рейтинг от</label>
+                                    <select v-model="movieFilters.min_rating" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Любой</option>
+                                        <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-secondary small">Рейтинг до</label>
+                                    <select v-model="movieFilters.max_rating" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Любой</option>
+                                        <option v-for="r in [1,2,3,4,5,6,7,8,9,10]" :value="r">{{ r }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Дата релиза с</label>
+                                    <input type="date" v-model="movieFilters.start_release_date" class="form-control bg-dark text-light border-secondary">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary small">Дата релиза по</label>
+                                    <input type="date" v-model="movieFilters.end_release_date" class="form-control bg-dark text-light border-secondary">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">Жанр</label>
+                                    <select v-model="movieFilters.genre_id" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Все жанры</option>
+                                        <option v-for="genre in genreList" :key="genre.id" :value="genre.id">
+                                            {{ genre.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">Сортировка</label>
+                                    <select v-model="movieFilters.sort_by" class="form-select bg-dark text-light border-secondary">
+                                        <option :value="null">Без сортировки</option>
+                                        <option value="date">По дате релиза</option>
+                                        <option value="rating">По рейтингу</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">Направление</label>
+                                    <select v-model="movieFilters.sorting_direction" class="form-select bg-dark text-light border-secondary">
+                                        <option value="ASC">По возрастанию</option>
+                                        <option value="DESC">По убыванию</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 d-flex align-items-end">
+                                    <div class="d-flex gap-2 w-100">
+                                        <button class="btn btn-primary flex-grow-1" @click="applyFilters">Применить</button>
+                                        <button class="btn btn-outline-secondary" @click="clearFilters">Сбросить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Загрузка -->
+                    <div v-if="moviesLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
+
+                    <!-- Нет результатов -->
+                    <div v-else-if="moviesList.length === 0" class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 Фильмы не найдены</h3>
+                            <p class="mb-0" v-if="movieActiveSearch">Попробуйте изменить поисковый запрос</p>
+                            <p class="mb-0" v-else>В базе пока нет фильмов</p>
+                        </div>
+                    </div>
+
+                    <!-- Список фильмов -->
+                    <div v-else class="row g-4">
+                        <div v-for="movie in moviesList" :key="movie.id" class="col-md-6 col-lg-4">
+                            <div class="card h-100 bg-dark text-light border-secondary hover-card"
+                                 style="cursor: pointer; transition: transform 0.2s;"
+                                 @click="showMovieDetails(movie.id)"
+                                 @mouseenter="e => e.currentTarget.style.transform = 'translateY(-5px)'"
+                                 @mouseleave="e => e.currentTarget.style.transform = 'translateY(0)'">
+
+                                <!-- Постер -->
+                                <img :src="movie.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
+                                     class="card-img-top"
+                                     alt="Постер"
+                                     style="height: 300px; object-fit: cover;">
+
+                                <div class="card-body">
+                                    <!-- Название и жанр -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="card-title mb-0 text-truncate" style="max-width: 60%;">{{ movie.name }}</h5>
+                                        <span class="badge bg-info text-dark">{{ movie.genre.name }}</span>
+                                    </div>
+
+                                    <!-- Рейтинг -->
+                                    <div class="mb-2">
+                                        <span class="text-warning">⭐</span>
+                                        <span class="ms-1">{{ movie.rating }}/10</span>
+                                    </div>
+
+                                    <!-- Дата релиза -->
+                                    <p class="card-text small text-secondary mb-2">
+                                        📅 {{ formatDate(movie.release_date) }}
+                                    </p>
+
+                                    <!-- Описание (обрезаем) -->
+                                    <p class="card-text small text-secondary mb-3">
+                                        {{ truncateText(movie.description, 100) }}
+                                    </p>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Пагинация -->
+                    <nav v-if="!moviesLoading && moviesList.length > 0" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" :class="{ disabled: !moviesHasPrev }">
+                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage - 1)" :disabled="moviesLoading">
+                                    ← Назад
+                                </button>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link bg-dark text-secondary border-secondary">
+                                    Страница {{ moviesPage }}
+                                </span>
+                            </li>
+                            <li class="page-item" :class="{ disabled: !moviesHasNext }">
+                                <button class="page-link bg-dark text-light border-secondary" @click="goMoviesPage(moviesPage + 1)" :disabled="moviesLoading">
+                                    Вперёд →
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
