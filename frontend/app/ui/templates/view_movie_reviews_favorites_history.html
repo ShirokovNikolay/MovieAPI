@@ -1,0 +1,200 @@
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                            </div>
+
+                            <!-- Список отзывов -->
+                            <div v-else-if="reviewsList.length > 0">
+                                <div v-for="review in reviewsList" :key="review.id" class="card bg-dark border-secondary mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <span class="fw-bold text-info">
+                                                    <span v-if="review.user?.surname && review.user?.name">{{ review.user.surname }} {{ review.user.name }}</span>
+                                                    <span v-else-if="review.user?.name">{{ review.user.name }}</span>
+                                                    <span v-else-if="review.user?.surname">{{ review.user.surname }}</span>
+                                                    <span v-else>{{ review.user?.login || 'Пользователь' }}</span>
+                                                </span>
+                                                <span class="text-warning ms-2">⭐ {{ review.rating }}/10</span>
+                                            </div>
+                                            <small class="text-secondary fs-6">{{ formatDate(review.publication_date) }}</small>
+                                        </div>
+                                        <p class="card-text text-light mb-0">{{ review.review_text || 'Нет текста отзыва' }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Пагинация отзывов -->
+                                <nav v-if="reviewsList.length > 0" class="mt-3">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item" :class="{ disabled: !reviewsHasPrev }">
+                                            <button class="page-link bg-dark text-light border-secondary" @click="goReviewsPage(reviewsPage - 1)" :disabled="reviewsLoading">
+                                                ← Назад
+                                            </button>
+                                        </li>
+                                        <li class="page-item disabled">
+                                            <span class="page-link bg-dark text-secondary border-secondary">
+                                                Страница {{ reviewsPage }}
+                                            </span>
+                                        </li>
+                                        <li class="page-item" :class="{ disabled: !reviewsHasNext }">
+                                            <button class="page-link bg-dark text-light border-secondary" @click="goReviewsPage(reviewsPage + 1)" :disabled="reviewsLoading">
+                                                Вперёд →
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+
+                            <!-- Нет отзывов -->
+                            <div v-else class="text-center text-secondary py-4">
+                                <p class="mb-0">😔 Пока нет отзывов. Будьте первым!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ошибка -->
+                    <div v-else class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 Фильм не найден</h3>
+                            <button class="btn btn-primary mt-3" @click="backToMovies">Вернуться к списку</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Избранное-->
+            <div v-else-if="currentView === 'favorites'" class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4">
+                            <h1 class="h3 mb-0">❤️ Моё избранное</h1>
+                        </div>
+                    </div>
+
+                    <div v-if="favoritesLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status"></div>
+                    </div>
+
+                    <div v-else-if="favoritesList.length === 0" class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 Нет фильмов в избранном</h3>
+                        </div>
+                    </div>
+
+                    <div v-else class="row g-4">
+                        <div v-for="movie in favoritesList" :key="movie.id" class="col-md-6 col-lg-4">
+                            <div class="card h-100 bg-dark text-light border-secondary hover-card"
+                                 style="cursor: pointer; transition: transform 0.2s;"
+                                 @click="goToMovieFromFavorites(movie.id)"
+                                 @mouseenter="e => e.currentTarget.style.transform = 'translateY(-5px)'"
+                                 @mouseleave="e => e.currentTarget.style.transform = 'translateY(0)'">
+                                <img :src="movie.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
+                                     class="card-img-top" style="height: 300px; object-fit: cover;">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h5 class="card-title">{{ movie.name }}</h5>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                @click.stop="confirmDeleteFavorite(movie.favorite_id, movie.id, $event)"
+                                                title="Удалить из избранного">
+                                            🗑️
+                                        </button>
+                                    </div>
+                                    <p class="text-warning">⭐ {{ movie.rating }}/10</p>
+                                    <p class="card-text small text-secondary">{{ truncateText(movie.description, 100) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav v-if="favoritesList.length > 0" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" :class="{ disabled: !favoritesHasPrev }">
+                                <button class="page-link bg-dark text-light" @click="goFavoritesPage(favoritesPage - 1)">← Назад</button>
+                            </li>
+                            <li class="page-item disabled"><span class="page-link bg-dark text-secondary">Страница {{ favoritesPage }}</span></li>
+                            <li class="page-item" :class="{ disabled: !favoritesHasNext }">
+                                <button class="page-link bg-dark text-light" @click="goFavoritesPage(favoritesPage + 1)">Вперёд →</button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+
+            <!-- Секция истории просмотров -->
+            <div v-else-if="currentView === 'history'" class="row justify-content-center">
+                <div class="col-12 col-lg-10 col-xl-8">
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">С даты</label>
+                                    <input type="date" v-model="historyStartDate" class="form-control bg-dark text-light border-secondary">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-secondary small">По дату</label>
+                                    <input type="date" v-model="historyEndDate" class="form-control bg-dark text-light border-secondary">
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex">
+                                        <button class="btn btn-primary" @click="applyHistoryDateFilter" :disabled="watchHistoryLoading">
+                                            🔍 Применить
+                                        </button>
+                                        <button class="btn btn-outline-secondary" @click="clearHistoryDateFilter" :disabled="watchHistoryLoading">
+                                            ❌ Сбросить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow text-bg-dark border-secondary mb-4">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <h1 class="h3 mb-0">📜 История просмотров</h1>
+                            <button class="btn btn-outline-danger" @click="confirmClearAllHistory" :disabled="watchHistoryList.length === 0">
+                                🗑️ Очистить всё
+                            </button>
+                        </div>
+                        <div class="card-body border-top border-secondary">
+                            <p class="text-secondary">Всего просмотрено: {{ watchHistoryCount }} фильмов</p>
+                        </div>
+                    </div>
+
+                    <!-- Загрузка -->
+                    <div v-if="watchHistoryLoading" class="text-center py-5">
+                        <div class="spinner-border text-info" role="status"></div>
+                    </div>
+
+                    <!-- Нет истории -->
+                    <div v-else-if="watchHistoryList.length === 0" class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-5 text-center text-secondary">
+                            <h3 class="h5">😔 История просмотров пуста</h3>
+                            <p class="mb-0">Смотрите фильмы, они появятся здесь</p>
+                        </div>
+                    </div>
+
+                    <!-- Список истории (столбец) -->
+                    <div v-else>
+                        <div v-for="item in watchHistoryList" :key="item.id"
+                             class="card bg-dark text-light border-secondary mb-3 hover-card"
+                             style="cursor: pointer; transition: transform 0.2s;"
+                             @click="goToMovieFromHistory(item.movie.id)"
+                             @mouseenter="e => e.currentTarget.style.transform = 'translateX(5px)'"
+                             @mouseleave="e => e.currentTarget.style.transform = 'translateX(0)'">
+
+                            <div class="row g-0">
+                                <!-- Левая колонка: постер -->
+                                <div class="col-md-3">
+                                    <img :src="item.movie.preview_url || 'https://via.placeholder.com/300x450?text=No+Poster'"
+                                         class="img-fluid rounded-start"
+                                         alt="Постер"
+                                         style="height: 100%; object-fit: cover;">
+                                </div>
+
+                                <!-- Правая колонка: информация -->
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h5 class="card-title">{{ item.movie.name }}</h5>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    @click.stop="confirmDeleteHistoryItem(item.id, $event)"
+                                                    title="Удалить из истории">

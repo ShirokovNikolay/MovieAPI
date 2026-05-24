@@ -1,0 +1,200 @@
+                                            <label class="form-label" for="full-login">Логин</label>
+                                            <input id="full-login" v-model="fullUpdateForm.login" type="text" required
+                                                   class="form-control bg-dark text-light border-secondary"
+                                                   minlength="3" maxlength="20">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label" for="full-email">Email</label>
+                                            <input id="full-email" v-model="fullUpdateForm.email" type="email" required
+                                                   class="form-control bg-dark text-light border-secondary"
+                                                   minlength="10" maxlength="40">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="full-password">Пароль</label>
+                                            <input id="full-password" v-model="fullUpdateForm.password" type="password" required
+                                                   class="form-control bg-dark text-light border-secondary"
+                                                   minlength="8" maxlength="30" autocomplete="new-password">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-4" :disabled="loading">
+                                        <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Сохранить всё
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div v-show="profileTab === 'partial'" class="card shadow text-bg-dark border-secondary mb-4">
+                            <div class="card-body p-4">
+                                <h2 class="h5 mb-3">Изменить выбранные поля</h2>
+                                <p class="text-secondary small mb-4">Отметьте галочками, что менять, и введите новое значение.</p>
+                                <form @submit.prevent="onPartialProfileUpdate">
+                                    <div class="mb-3 pb-3 border-bottom border-secondary">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="p-surname" v-model="partialFlags.surname">
+                                            <label class="form-check-label" for="p-surname">Фамилия</label>
+                                        </div>
+                                        <input v-if="partialFlags.surname" v-model="partialForm.surname" type="text"
+                                               class="form-control bg-dark text-light border-secondary"
+                                               minlength="3" maxlength="30" placeholder="Новая фамилия">
+                                    </div>
+                                    <div class="mb-3 pb-3 border-bottom border-secondary">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="p-name" v-model="partialFlags.name">
+                                            <label class="form-check-label" for="p-name">Имя</label>
+                                        </div>
+                                        <input v-if="partialFlags.name" v-model="partialForm.name" type="text"
+                                               class="form-control bg-dark text-light border-secondary"
+                                               minlength="3" maxlength="20" placeholder="Новое имя">
+                                    </div>
+                                    <div class="mb-3 pb-3 border-bottom border-secondary">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="p-login" v-model="partialFlags.login">
+                                            <label class="form-check-label" for="p-login">Логин</label>
+                                        </div>
+                                        <input v-if="partialFlags.login" v-model="partialForm.login" type="text"
+                                               class="form-control bg-dark text-light border-secondary"
+                                               minlength="3" maxlength="20" placeholder="Новый логин">
+                                    </div>
+                                    <div class="mb-3 pb-3 border-bottom border-secondary">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="p-email" v-model="partialFlags.email">
+                                            <label class="form-check-label" for="p-email">Email</label>
+                                        </div>
+                                        <input v-if="partialFlags.email" v-model="partialForm.email" type="email"
+                                               class="form-control bg-dark text-light border-secondary"
+                                               minlength="10" maxlength="40" placeholder="Новый email">
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="p-password" v-model="partialFlags.password">
+                                            <label class="form-check-label" for="p-password">Пароль</label>
+                                        </div>
+                                        <input v-if="partialFlags.password" v-model="partialForm.password" type="password"
+                                               class="form-control bg-dark text-light border-secondary"
+                                               minlength="8" maxlength="30" autocomplete="new-password" placeholder="Новый пароль">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                                        <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Применить изменения
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div v-show="profileTab === 'danger'" class="card shadow border-danger text-bg-dark mb-4">
+                            <div class="card-body p-4">
+                                <h2 class="h5 text-danger mb-3">Удаление аккаунта</h2>
+                                <p class="text-secondary mb-4">Будут удалены ваш профиль и связанные данные. Это действие нельзя отменить.</p>
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
+                                    Удалить мой аккаунт
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="card text-bg-dark border-secondary shadow">
+                        <div class="card-body p-4 text-secondary">
+                            Профиль не загружен.
+                            <button type="button" class="btn btn-sm btn-outline-info ms-2" @click="loadProfile">Повторить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="modal fade" id="deleteProfileModal" tabindex="-1" aria-labelledby="deleteProfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content text-bg-dark border-danger">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title" id="deleteProfileModalLabel">Подтверждение удаления</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        Удалить аккаунт без возможности восстановления? Все сохранённые данные профиля будут потеряны.
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="button" class="btn btn-danger" @click="confirmDeleteProfile" :disabled="loading">
+                            <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Да, удалить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления отзыва -->
+    <div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить свой отзыв? Это действие нельзя отменить.
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteReviewConfirmed" :disabled="reviewSubmitting">
+                        <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления из избранного -->
+    <div class="modal fade" id="deleteFavoriteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Подтверждение удаления</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    Удалить фильм из избранного?
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteFavoriteConfirmed" :disabled="favoriteToggling">
+                        <span v-if="favoriteToggling" class="spinner-border spinner-border-sm me-1"></span>
+                        Да, удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно удаления записи из истории -->
+    <div class="modal fade" id="deleteHistoryItemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Удалить из истории</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">Удалить этот фильм из истории просмотров?</div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDeleteHistoryItemConfirmed">Да, удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно очистки всей истории -->
+    <div class="modal fade" id="clearAllHistoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-bg-dark border-danger">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">🗑️ Очистить всю историю</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">Вы уверены, что хотите удалить всю историю просмотров? Это действие нельзя отменить.</div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" @click="confirmClearAllHistoryConfirmed">Да, очистить всё</button>
+                </div>
