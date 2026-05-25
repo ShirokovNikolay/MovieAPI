@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, ForeignKey, String, func
+from sqlalchemy import CheckConstraint, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.constants import REVIEW_TEXT_MAX_LENGTH
@@ -43,5 +43,10 @@ class Review(Base):
         CheckConstraint(
             "rating >= 1 AND rating <= 10",
             name="ch_reviews_rating",
+        ),
+        UniqueConstraint(
+            "user_id",
+            "movie_id",
+            name="uq_reviews_movie_id_user_id",
         ),
     )
