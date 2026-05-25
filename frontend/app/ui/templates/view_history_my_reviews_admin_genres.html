@@ -14,29 +14,13 @@
                         </div>
 
                         <!-- Пагинация -->
-                        <nav v-if="watchHistoryList.length > 0" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item" :class="{ disabled: !watchHistoryHasPrev }">
-                                    <button class="page-link bg-dark text-light border-secondary"
-                                            @click="goWatchHistoryPage(watchHistoryPage - 1)"
-                                            :disabled="watchHistoryLoading">
-                                        ← Назад
-                                    </button>
-                                </li>
-                                <li class="page-item disabled">
-                                    <span class="page-link bg-dark text-secondary border-secondary">
-                                        Страница {{ watchHistoryPage }} (из {{ Math.ceil(watchHistoryCount / watchHistorySize) }})
-                                    </span>
-                                </li>
-                                <li class="page-item" :class="{ disabled: !watchHistoryHasNext }">
-                                    <button class="page-link bg-dark text-light border-secondary"
-                                            @click="goWatchHistoryPage(watchHistoryPage + 1)"
-                                            :disabled="watchHistoryLoading">
-                                        Вперёд →
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
+                        <div class="card-footer border-secondary d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 px-4 mt-4">
+                            <span class="text-secondary small">Страница {{ watchHistoryPage }}</span>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-light btn-sm" :disabled="!watchHistoryHasPrev || watchHistoryLoading" @click="goWatchHistoryPage(watchHistoryPage - 1)">Назад</button>
+                                <button class="btn btn-outline-light btn-sm" :disabled="!watchHistoryHasNext || watchHistoryLoading" @click="goWatchHistoryPage(watchHistoryPage + 1)">Вперёд</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,29 +93,13 @@
                         </div>
 
                         <!-- Пагинация -->
-                        <nav v-if="myReviewsList.length > 0" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item" :class="{ disabled: !myReviewsHasPrev }">
-                                    <button class="page-link bg-dark text-light border-secondary"
-                                            @click="goMyReviewsPage(myReviewsPage - 1)"
-                                            :disabled="myReviewsLoading">
-                                        ← Назад
-                                    </button>
-                                </li>
-                                <li class="page-item disabled">
-                                    <span class="page-link bg-dark text-secondary border-secondary">
-                                        Страница {{ myReviewsPage }}
-                                    </span>
-                                </li>
-                                <li class="page-item" :class="{ disabled: !myReviewsHasNext }">
-                                    <button class="page-link bg-dark text-light border-secondary"
-                                            @click="goMyReviewsPage(myReviewsPage + 1)"
-                                            :disabled="myReviewsLoading">
-                                        Вперёд →
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
+                        <div class="card-footer border-secondary d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 px-4 mt-4">
+                            <span class="text-secondary small">Страница {{ myReviewsPage }}</span>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-light btn-sm" :disabled="!myReviewsHasPrev || myReviewsLoading" @click="goMyReviewsPage(myReviewsPage - 1)">Назад</button>
+                                <button class="btn btn-outline-light btn-sm" :disabled="!myReviewsHasNext || myReviewsLoading" @click="goMyReviewsPage(myReviewsPage + 1)">Вперёд</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

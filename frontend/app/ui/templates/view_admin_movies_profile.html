@@ -148,12 +148,9 @@
                             </li>
                             <li class="nav-item">
                                 <button type="button" class="nav-link" :class="{ active: profileTab === 'full' }"
-                                        @click="profileTab = 'full'">Полное обновление</button>
+                                        @click="profileTab = 'full'">Обновление</button>
                             </li>
-                            <li class="nav-item">
-                                <button type="button" class="nav-link" :class="{ active: profileTab === 'partial' }"
-                                        @click="profileTab = 'partial'">Частичное обновление</button>
-                            </li>
+
                             <li class="nav-item ms-auto">
                                 <button type="button" class="nav-link text-danger" :class="{ active: profileTab === 'danger' }"
                                         @click="profileTab = 'danger'">Удаление</button>
