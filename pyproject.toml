@@ -35,7 +35,8 @@ dev = [
 strict = true
 exclude = [
     "alembic",
-    "tests"
+    "tests",
+    "frontend",
 ]
 plugins = [
     "pydantic.mypy"
@@ -82,6 +83,7 @@ exclude = [
     ".venv",
     "alembic",
     "tests",
+    "frontend",
 ]
 
 # Same as Black.

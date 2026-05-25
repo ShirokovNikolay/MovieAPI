@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import Movie, User, FavoriteMovie

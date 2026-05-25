@@ -1,8 +1,10 @@
 from schemas.genre import GenreResponse
 from tests.utils.data_generators.base import generate_string, generate_number
+from faker import Faker
 
 
 def create_genre_data() -> dict[str, str]:
+    fake = Faker()
     data = {
         "name": generate_string(
             min_string_length=3,
@@ -12,6 +14,7 @@ def create_genre_data() -> dict[str, str]:
             min_string_length=0,
             max_string_length=200,
         ),
+        "preview_url": fake.url(),
     }
     return data
 
