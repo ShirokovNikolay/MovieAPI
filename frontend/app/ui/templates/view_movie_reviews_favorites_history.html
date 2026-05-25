@@ -105,17 +105,13 @@
                         </div>
                     </div>
 
-                    <nav v-if="favoritesList.length > 0" class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item" :class="{ disabled: !favoritesHasPrev }">
-                                <button class="page-link bg-dark text-light" @click="goFavoritesPage(favoritesPage - 1)">← Назад</button>
-                            </li>
-                            <li class="page-item disabled"><span class="page-link bg-dark text-secondary">Страница {{ favoritesPage }}</span></li>
-                            <li class="page-item" :class="{ disabled: !favoritesHasNext }">
-                                <button class="page-link bg-dark text-light" @click="goFavoritesPage(favoritesPage + 1)">Вперёд →</button>
-                            </li>
-                        </ul>
-                    </nav>
+                    <div class="card-footer border-secondary d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 px-4 mt-4">
+                        <span class="text-secondary small">Страница {{ favoritesPage }}</span>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-light btn-sm" :disabled="!favoritesHasPrev || favoritesLoading" @click="goFavoritesPage(favoritesPage - 1)">Назад</button>
+                            <button class="btn btn-outline-light btn-sm" :disabled="!favoritesHasNext || favoritesLoading" @click="goFavoritesPage(favoritesPage + 1)">Вперёд</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
