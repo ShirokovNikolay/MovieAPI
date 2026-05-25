@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from faker import Faker
 
@@ -14,7 +14,7 @@ from schemas.movie import MovieResponse
 from tests.utils.data_generators.base import generate_string, generate_number
 
 
-def create_movie_data() -> dict[str, str | datetime]:
+def create_movie_data() -> dict[str, str | date]:
     faker = Faker()
     data = {
         "name": generate_string(
@@ -25,11 +25,14 @@ def create_movie_data() -> dict[str, str | datetime]:
             min_string_length=MOVIE_DESCRIPTION_MIN_LENGTH,
             max_string_length=MOVIE_DESCRIPTION_MAX_LENGTH,
         ),
-        "rating": generate_number(MOVIE_RATING_MIN_VALUE, MOVIE_RATING_MAX_VALUE) / 10,
+        "rating": generate_number(
+            10 * MOVIE_RATING_MIN_VALUE, 10 * MOVIE_RATING_MAX_VALUE
+        )
+        / 10,
         "preview_url": faker.url(),
         "source_url": faker.url(),
         "genre_id": generate_number(0, 100),
-        "release_date": datetime(
+        "release_date": date(
             year=generate_number(2020, 2025),
             month=generate_number(1, 12),
             day=generate_number(1, 28),
@@ -38,7 +41,7 @@ def create_movie_data() -> dict[str, str | datetime]:
     return data
 
 
-def create_movie_response_data() -> dict[str, str | int | datetime]:
+def create_movie_response_data() -> dict[str, str | int | date]:
     data = create_movie_data()
     data["id"] = generate_number()
     return data

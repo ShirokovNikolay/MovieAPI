@@ -67,6 +67,7 @@ def create_user_response_data() -> dict[str, str | int | datetime]:
         month=generate_number(1, 12),
         day=generate_number(1, 28),
     )
+    data["role"] = "user"
     return data
 
 

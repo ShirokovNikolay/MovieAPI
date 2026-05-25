@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from typing import Annotated, ClassVar
 
 from annotated_types import Len, MaxLen
@@ -48,7 +48,7 @@ class MovieBase(BaseModel):
     preview_url: str
     source_url: str
     genre_id: int
-    release_date: datetime
+    release_date: date
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
 
@@ -75,7 +75,7 @@ class MoviePartialUpdate(BaseModel):
     preview_url: str | None = None
     source_url: str | None = None
     genre_id: int | None = None
-    release_date: datetime | None = None
+    release_date: date | None = None
 
 
 class MovieResponse(MovieBase):
