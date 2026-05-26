@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import (
@@ -125,4 +125,28 @@ class TestUserModel:
         user = User(**user_data_encrypted_password)
         session.add(user)
         with pytest.raises(expected_error):
+            await session.flush()
+
+    async def test_user_login_unique_constraint(
+        self,
+        session: AsyncSession,
+        user_data_encrypted_password: dict[str, str],
+        user: User,
+    ) -> None:
+        user_data_encrypted_password["login"] = user.login
+        user_candidate = User(**user_data_encrypted_password)
+        session.add(user_candidate)
+        with pytest.raises(IntegrityError):
+            await session.flush()
+
+    async def test_user_email_unique_constraint(
+        self,
+        session: AsyncSession,
+        user_data_encrypted_password: dict[str, str],
+        user: User,
+    ) -> None:
+        user_data_encrypted_password["email"] = user.email
+        user_candidate = User(**user_data_encrypted_password)
+        session.add(user_candidate)
+        with pytest.raises(IntegrityError):
             await session.flush()

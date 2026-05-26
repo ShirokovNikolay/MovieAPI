@@ -42,3 +42,16 @@ class TestFavoriteMovieModel:
         setattr(favorite_movie, field, value)
         with pytest.raises(expected_error):
             await session.flush()
+
+    async def test_favorite_movie_unique_constraint(
+        self,
+        session: AsyncSession,
+        favorite_movie_response_data: dict[str, int],
+        favorite_movie: FavoriteMovie,
+    ) -> None:
+        favorite_movie_response_data["movie_id"] = favorite_movie.movie_id
+        favorite_movie_response_data["user_id"] = favorite_movie.user_id
+        favorite_movie_candidate = FavoriteMovie(**favorite_movie_response_data)
+        session.add(favorite_movie_candidate)
+        with pytest.raises(IntegrityError):
+            await session.flush()
