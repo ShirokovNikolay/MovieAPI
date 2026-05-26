@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, Enum, String, func
+from sqlalchemy import CheckConstraint, Enum, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.constants import (
@@ -30,8 +30,8 @@ class User(Base):
     )
     surname: Mapped[str] = mapped_column(String(USER_SURNAME_MAX_LENGTH))
     name: Mapped[str] = mapped_column(String(USER_NAME_MAX_LENGTH))
-    login: Mapped[str] = mapped_column(String(USER_LOGIN_MAX_LENGTH))
-    email: Mapped[str] = mapped_column(String(USER_EMAIL_MAX_LENGTH))
+    login: Mapped[str] = mapped_column(String(USER_LOGIN_MAX_LENGTH), unique=True)
+    email: Mapped[str] = mapped_column(String(USER_EMAIL_MAX_LENGTH), unique=True)
     encrypted_password: Mapped[str] = mapped_column(
         String(USER_ENCRYPTED_PASSWORD_MAX_LENGTH),
     )
@@ -50,6 +50,14 @@ class User(Base):
     )
 
     __table_args__ = (
+        UniqueConstraint(
+            "login",
+            name="uq_users_login",
+        ),
+        UniqueConstraint(
+            "email",
+            name="uq_users_email",
+        ),
         CheckConstraint(
             "LENGTH(surname) >= 3 AND LENGTH(surname) <= 30",
             name="ch_users_surname",
