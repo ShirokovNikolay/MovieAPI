@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database.connection import Base
@@ -33,4 +33,12 @@ class FavoriteMovie(Base):
     movie: Mapped["Movie"] = relationship(
         "Movie",
         back_populates="favorited_by_users",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "movie_id",
+            name="uq_favorite_movies_movie_id_user_id",
+        ),
     )
