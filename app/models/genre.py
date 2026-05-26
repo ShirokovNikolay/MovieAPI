@@ -31,7 +31,10 @@ class Genre(Base):
     create_date: Mapped[datetime] = mapped_column(server_default=func.now())
 
     __table_args__ = (
-        UniqueConstraint("name", name="uq_genres_name"),
+        UniqueConstraint(
+            "name",
+            name="uq_genres_name",
+        ),
         CheckConstraint(
             "LENGTH(name) >= 3 AND LENGTH(name) <= 40",
             name="ch_genres_name",

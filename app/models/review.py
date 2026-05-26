@@ -40,13 +40,13 @@ class Review(Base):
         back_populates="reviews",
     )
     __table_args__ = (
-        CheckConstraint(
-            "rating >= 1 AND rating <= 10",
-            name="ch_reviews_rating",
-        ),
         UniqueConstraint(
             "user_id",
             "movie_id",
             name="uq_reviews_movie_id_user_id",
+        ),
+        CheckConstraint(
+            "rating >= 1 AND rating <= 10",
+            name="ch_reviews_rating",
         ),
     )
