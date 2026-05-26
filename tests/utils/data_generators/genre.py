@@ -1,3 +1,9 @@
+from core.constants import (
+    GENRE_NAME_MIN_LENGTH,
+    GENRE_NAME_MAX_LENGTH,
+    GENRE_DESCRIPTION_MAX_LENGTH,
+    GENRE_DESCRIPTION_MIN_LENGTH,
+)
 from schemas.genre import GenreResponse
 from tests.utils.data_generators.base import generate_string, generate_number
 from faker import Faker
@@ -7,12 +13,12 @@ def create_genre_data() -> dict[str, str]:
     fake = Faker()
     data = {
         "name": generate_string(
-            min_string_length=3,
-            max_string_length=15,
+            min_string_length=GENRE_NAME_MIN_LENGTH,
+            max_string_length=GENRE_NAME_MAX_LENGTH,
         ),
         "description": generate_string(
-            min_string_length=0,
-            max_string_length=200,
+            min_string_length=GENRE_DESCRIPTION_MIN_LENGTH,
+            max_string_length=GENRE_DESCRIPTION_MAX_LENGTH,
         ),
         "preview_url": fake.url(),
     }

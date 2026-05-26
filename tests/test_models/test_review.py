@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import (
@@ -72,4 +72,17 @@ class TestReviewModel:
     ) -> None:
         setattr(review, field, value)
         with pytest.raises(expected_error):
+            await session.flush()
+
+    async def test_review_unique_constraint(
+        self,
+        session: AsyncSession,
+        review_response_data: dict[str, str | int],
+        review: Review,
+    ) -> None:
+        review_response_data["movie_id"] = review.movie_id
+        review_response_data["user_id"] = review.user_id
+        review_candidate = Review(**review_response_data)
+        session.add(review_candidate)
+        with pytest.raises(IntegrityError):
             await session.flush()
