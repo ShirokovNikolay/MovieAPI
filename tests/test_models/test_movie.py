@@ -91,3 +91,15 @@ class TestMovieModel:
         session.add(movie)
         with pytest.raises(expected_error):
             await session.flush()
+
+    async def test_movie_name_unique_constraint(
+        self,
+        session: AsyncSession,
+        movie_data: dict[str, str],
+        movie: Movie,
+    ) -> None:
+        movie_data["name"] = movie.name
+        movie_candidate = Movie(**movie_data)
+        session.add(movie_candidate)
+        with pytest.raises(IntegrityError):
+            await session.flush()

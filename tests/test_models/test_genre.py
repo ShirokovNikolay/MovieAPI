@@ -59,3 +59,15 @@ class TestGenreModel:
         session.add(genre)
         with pytest.raises(expected_error):
             await session.flush()
+
+    async def test_genre_name_unique_constraint(
+        self,
+        session: AsyncSession,
+        genre_data: dict[str, str],
+        genre: Genre,
+    ) -> None:
+        genre_data["name"] = genre.name
+        genre_candidate = Genre(**genre_data)
+        session.add(genre_candidate)
+        with pytest.raises(IntegrityError):
+            await session.flush()
