@@ -1,6 +1,8 @@
 services:
   movie-catalog:
-    build: ./
+    build:
+      context: .
+      dockerfile: app/Dockerfile
     container_name: movie-catalog
     environment:
       DATABASE__HOST: database

@@ -2,7 +2,7 @@ services:
   tests:
     build:
       context: ./
-      dockerfile: Dockerfile.test
+      dockerfile: tests/Dockerfile
     container_name: run-tests
     environment:
       TESTING: 1
