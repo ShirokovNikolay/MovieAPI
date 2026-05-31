@@ -51,6 +51,7 @@ required-version = ">=0.15.11"
 
 src = [
     "app",
+    "mediaservice",
 ]
 
 # Exclude a variety of commonly ignored directories.
