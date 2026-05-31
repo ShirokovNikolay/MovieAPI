@@ -8,6 +8,8 @@ COPY pyproject.toml uv.lock ./
 
 RUN uv sync
 
+COPY packages ./packages
+
 COPY app .
 
 RUN chmod +x prestart.sh
