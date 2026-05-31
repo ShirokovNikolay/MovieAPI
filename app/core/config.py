@@ -39,6 +39,17 @@ class RedisConfig(BaseModel):
     db: RedisDataBaseConfig = RedisDataBaseConfig()
 
 
+class RabbitMQConfig(BaseModel):
+    host: str = "rabbitmq"
+    port: int = 5672
+    user: str = "guest"
+    password: str = "guest"
+
+    @property
+    def url_rabbitmq(self) -> str:
+        return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}/"
+
+
 class AuthJWTConfig(BaseModel):
     secret_key: str = "secret_key"
     algorithm: str = "HS256"
@@ -50,6 +61,7 @@ class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent.parent
     database: DataBaseConfig = DataBaseConfig()
     redis: RedisConfig = RedisConfig()
+    rabbitmq: RabbitMQConfig = RabbitMQConfig()
     auth_jwt: AuthJWTConfig = AuthJWTConfig()
     http_bearer: HTTPBearer = HTTPBearer()
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer("/api/v1/auth/login")
