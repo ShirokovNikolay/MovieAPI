@@ -6,7 +6,13 @@ services:
     container_name: movie-catalog
     environment:
       DATABASE__HOST: database
+      DATABASE__PORT: 5432
+
       REDIS__CONNECTION__HOST: redis
+      REDIS__CONNECTION__PORT: 6379
+
+      RABBITMQ__HOST: rabbitmq
+      RABBITMQ__PORT: 5672
     ports:
       - "8000:8000"
     depends_on:

@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
-from aio_pika import Channel
 from aio_pika.abc import (
+    AbstractChannel,
     AbstractExchange,
     AbstractMessage,
     AbstractQueue,
@@ -9,7 +9,7 @@ from aio_pika.abc import (
 
 
 class RabbitMQService:
-    def __init__(self, channel: Channel) -> None:
+    def __init__(self, channel: AbstractChannel) -> None:
         self.channel = channel
 
     async def declare_queue(
