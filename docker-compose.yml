@@ -136,6 +136,8 @@ services:
     environment:
       MINIO__HOST: minio
       MINIO__PORT: 9000
+      MINIO__ACCESS_KEY: admin
+      MINIO__SECRET_KEY: adminadmin
     ports:
       - "8001:8000"
     healthcheck:

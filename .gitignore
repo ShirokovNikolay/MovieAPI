@@ -219,6 +219,6 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-short-urls.json
 .secrets
 config.local.yaml
+mediaservice/.env
