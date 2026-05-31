@@ -8,6 +8,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class MinioConfig(BaseModel):
     host: str = "minio"
     port: int = 9000
+    access_key: str = "admin"
+    secret_key: str = "adminadmin"  # noqa: S105
 
 
 class Settings(BaseSettings):
@@ -18,3 +20,6 @@ class Settings(BaseSettings):
         env_file=BASE_DIR / ".env",
         env_nested_delimiter="__",
     )
+
+
+settings = Settings()
