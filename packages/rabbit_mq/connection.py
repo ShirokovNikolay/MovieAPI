@@ -1,3 +1,6 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+
 import aio_pika
 from aio_pika.abc import AbstractChannel
 
@@ -19,7 +22,12 @@ async def close_rabbit_mq() -> None:
         await RABBIT_MQ_CONNECTION.close()
 
 
-async def get_channel() -> AbstractChannel:
-    if RABBIT_MQ_CONNECTION is not None:
-        return await RABBIT_MQ_CONNECTION.channel()
-    raise aio_pika.exceptions.ConnectionClosed
+@asynccontextmanager
+async def get_channel() -> AsyncGenerator[AbstractChannel]:
+    if RABBIT_MQ_CONNECTION is None:
+        raise aio_pika.exceptions.ConnectionClosed
+    try:
+        channel = await RABBIT_MQ_CONNECTION.channel()
+        yield channel
+    finally:
+        await channel.close()
