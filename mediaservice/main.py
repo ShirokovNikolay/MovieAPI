@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from api import router as api_router
+from api.main_views import router as main_router
 
-
-@app.get("/health")
-async def check_health() -> dict[str, str]:
-    return {"status": "OK"}
+app = FastAPI(
+    title="Media Service",
+)
+app.include_router(main_router)
+app.include_router(api_router)
