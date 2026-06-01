@@ -28,11 +28,30 @@ class MinioService:
             },
         )
 
-    async def copy_file(self) -> None: ...
+    async def copy_file(
+        self,
+        bucket: str,
+        source_path: str,
+        destination_path: str,
+    ) -> None:
+        copy_source = {"Bucket": bucket, "Key": source_path}
+        await self.s3_client.copy_object(
+            Bucket=bucket,
+            CopySource=copy_source,  # type: ignore[arg-type]
+            Key=destination_path,
+        )
 
-    async def delete_file(self) -> None: ...
+    async def delete_file(self, bucket: str, key: str) -> None:
+        await self.s3_client.delete_object(Bucket=bucket, Key=key)
 
-    async def move_file(self) -> None: ...
+    async def move_file(
+        self,
+        bucket_name: str,
+        source_path: str,
+        destination_path: str,
+    ) -> None:
+        await self.copy_file(bucket_name, source_path, destination_path)
+        await self.delete_file(bucket_name, source_path)
 
     async def upload_file(
         self,
