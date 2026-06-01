@@ -30,13 +30,13 @@ class MinioService:
 
     async def copy_file(
         self,
-        bucket: str,
+        bucket_name: str,
         source_path: str,
         destination_path: str,
     ) -> None:
-        copy_source = {"Bucket": bucket, "Key": source_path}
+        copy_source = {"Bucket": bucket_name, "Key": source_path}
         await self.s3_client.copy_object(
-            Bucket=bucket,
+            Bucket=bucket_name,
             CopySource=copy_source,  # type: ignore[arg-type]
             Key=destination_path,
         )
@@ -55,12 +55,12 @@ class MinioService:
 
     async def upload_file(
         self,
-        bucket: str,
+        bucket_name: str,
         key: str,
         file: BinaryIO,
     ) -> None:
         await self.s3_client.put_object(
-            Bucket=bucket,
+            Bucket=bucket_name,
             Key=key,
             Body=file,
         )
