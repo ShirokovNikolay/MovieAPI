@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, status
+from packages.constants import S3Bucket
 
+from core.constants import BASE_MINIO_URL
 from dependencies.annotations.cache_services import GenreCacheServiceDep
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from dependencies.auth import get_admin_by_access_token
@@ -55,4 +57,11 @@ async def create_genre(
     create_genre_data: GenreCreate,
     genre_cache_service: GenreCacheServiceDep,
 ) -> GenreResponse:
+    create_genre_data.preview_url = (
+        BASE_MINIO_URL
+        + "/"
+        + S3Bucket.genre_posters.value
+        + "/"
+        + create_genre_data.preview_url
+    )
     return await genre_cache_service.create_genre(create_genre_data)

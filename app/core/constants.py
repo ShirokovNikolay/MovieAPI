@@ -26,6 +26,8 @@ from core.exceptions.review import ReviewAlreadyExistsError, ReviewNotFoundError
 from core.exceptions.user import UserAlreadyExistsError, UserNotFoundError
 from core.exceptions.watch_history import WatchHistoryNotFoundError
 
+BASE_MINIO_URL = "http://localhost:9000"
+
 
 class UserRole(StrEnum):
     user = "user"
