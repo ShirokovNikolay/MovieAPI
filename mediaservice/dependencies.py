@@ -24,7 +24,7 @@ async def get_client(
 ) -> AsyncGenerator[S3Client]:
     async with session.client(
         "s3",
-        endpoint_url=settings.minio.endpoint_url,
+        endpoint_url="http://localhost:9000",
         aws_access_key_id=settings.minio.access_key,
         aws_secret_access_key=settings.minio.secret_key,
     ) as client:

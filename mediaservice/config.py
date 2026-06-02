@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class MinioConfig(BaseModel):
-    host: str = "minio"
+    host: str = "localhost"
     port: int = 9000
     access_key: str = "admin"
     secret_key: str = "adminadmin"  # noqa: S105
