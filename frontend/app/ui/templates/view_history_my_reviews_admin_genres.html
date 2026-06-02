@@ -127,8 +127,16 @@
                                     <input type="text" v-model="genreForm.name" class="form-control bg-dark text-light border-secondary">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label text-secondary small">URL постера</label>
-                                    <input type="url" v-model="genreForm.preview_url" class="form-control bg-dark text-light border-secondary" placeholder="https://...">
+                                    <label class="form-label text-secondary small" for="genre-poster-file">Постер жанра</label>
+                                    <input id="genre-poster-file" type="file"
+                                           class="form-control bg-dark text-light border-secondary"
+                                           accept="image/jpeg,image/jpg,image/png,image/webp"
+                                           @change="onGenrePosterSelected">
+                                    <p v-if="genrePosterFileName" class="small text-info mb-0 mt-1">Выбран: {{ genrePosterFileName }}</p>
+                                    <p v-else-if="editingGenre && genreForm.preview_url" class="small text-secondary mb-0 mt-1">
+                                        Текущий постер сохранён. Выберите файл, чтобы заменить.
+                                    </p>
+                                    <p v-else class="small text-secondary mb-0 mt-1">JPEG, PNG или WebP</p>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label text-secondary small">Описание</label>

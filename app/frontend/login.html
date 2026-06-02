@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Вход — Movie API</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <div class="card">
+        <h1>Вход</h1>
+        <p class="sub">POST /api/v1/auth/login (OAuth2 password)</p>
+        <div id="msg" class="msg" role="alert"></div>
+        <form id="form" novalidate>
+          <label for="login">Логин</label>
+          <input
+            id="login"
+            name="login"
+            type="text"
+            required
+            minlength="3"
+            maxlength="20"
+            autocomplete="username"
+          />
+          <label for="password">Пароль</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            minlength="8"
+            maxlength="30"
+            autocomplete="current-password"
+          />
+          <button type="submit" id="submit">Войти</button>
+        </form>
+        <div id="tokenBlock" style="display: none">
+          <p class="sub" style="margin-bottom: 0.5rem">Токены сохранены в localStorage</p>
+          <div id="tokenPreview" class="token-preview"></div>
+        </div>
+        <p class="footer-nav">Нет аккаунта? <a href="register.html">Регистрация</a></p>
+        <p class="footer-nav"><a href="index.html">На главную</a></p>
+      </div>
+    </div>
+    <script src="auth.js"></script>
+    <script>
+      const form = document.getElementById("form");
+      const msg = document.getElementById("msg");
+      const submitBtn = document.getElementById("submit");
+      const tokenBlock = document.getElementById("tokenBlock");
+      const tokenPreview = document.getElementById("tokenPreview");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideMessage(msg);
+        tokenBlock.style.display = "none";
+        submitBtn.disabled = true;
+        const login = document.getElementById("login").value.trim();
+        const password = document.getElementById("password").value;
+        try {
+          const data = await loginUser(login, password);
+          storeTokens(data);
+          showMessage(msg, "Успешный вход. Токены записаны в браузер.", "success");
+          const preview =
+            (data.token_type || "Bearer") + " " + (data.access_token || "").slice(0, 48) + "…";
+          tokenPreview.textContent = preview;
+          tokenBlock.style.display = "block";
+        } catch (err) {
+          showMessage(msg, err.message || "Ошибка", "error");
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
