@@ -40,23 +40,23 @@
         return null;
     }
 
-    var MINIO_HOST = "minio";
+    // var MINIO_HOST = "minio";
 
-    function ensureMinioHost(presignedUrl) {
-        try {
-            var parsed = new URL(presignedUrl);
-            if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
-                parsed.hostname = MINIO_HOST;
-                return parsed.toString();
-            }
-        } catch (e) {
-            /* ignore */
-        }
-        return presignedUrl;
-    }
+    // function ensureMinioHost(presignedUrl) {
+    //     // try {
+    //     //     var parsed = new URL(presignedUrl);
+    //     //     if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+    //     //         parsed.hostname = MINIO_HOST;
+    //     //         return parsed.toString();
+    //     //     }
+    //     // } catch (e) {
+    //     //     /* ignore */
+    //     // }
+    //     return presignedUrl;
+    // }
 
     function uploadToPresignedUrl(presignedUrl, file, contentType) {
-        return fetch(ensureMinioHost(presignedUrl), {
+        return fetch(presignedUrl, {
             method: "PUT",
             headers: { "Content-Type": contentType },
             body: file,
@@ -79,7 +79,7 @@
             file_name: file.name,
             content_type: contentType,
         }).then(function (presign) {
-            var uploadUrl = ensureMinioHost(presign.url);
+            var uploadUrl = presign.url;
             return uploadToPresignedUrl(uploadUrl, file, contentType).then(function () {
                 return presign.path;
             });
