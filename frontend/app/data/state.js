@@ -143,6 +143,8 @@
                 },
                 genreFormSubmitting: false,
                 showGenreForm: false,
+                genrePosterFile: null,
+                genrePosterFileName: "",
 
                 // Админ панель - фильмы
                 adminMoviesList: [],
@@ -164,6 +166,10 @@
                     genre_id: null,
                     release_date: ""
                 },
+                moviePosterFile: null,
+                moviePosterFileName: "",
+                movieSourceFile: null,
+                movieSourceFileName: "",
 
                 deletingGenreId: null,
                 deletingGenreName: null,

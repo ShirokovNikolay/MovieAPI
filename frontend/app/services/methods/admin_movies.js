@@ -1,6 +1,5 @@
 (function () {
     window.AppMethodsAdminMovies = {
-            // Загрузка фильмов для админки
             loadAdminMovies: function () {
                 var self = this;
                 this.adminMoviesLoading = true;
@@ -26,7 +25,32 @@
                 this.loadAdminMovies();
             },
 
-            // Форма для фильма
+            resetMoviePosterInput: function () {
+                this.moviePosterFile = null;
+                this.moviePosterFileName = "";
+                var input = document.getElementById("movie-poster-file");
+                if (input) input.value = "";
+            },
+
+            resetMovieSourceInput: function () {
+                this.movieSourceFile = null;
+                this.movieSourceFileName = "";
+                var input = document.getElementById("movie-source-file");
+                if (input) input.value = "";
+            },
+
+            onMoviePosterSelected: function (event) {
+                var file = event.target.files && event.target.files[0];
+                this.moviePosterFile = file || null;
+                this.moviePosterFileName = file ? file.name : "";
+            },
+
+            onMovieSourceSelected: function (event) {
+                var file = event.target.files && event.target.files[0];
+                this.movieSourceFile = file || null;
+                this.movieSourceFileName = file ? file.name : "";
+            },
+
             openCreateMovieForm: function () {
                 this.editingMovie = null;
                 this.movieForm = {
@@ -36,8 +60,10 @@
                     preview_url: "",
                     source_url: "",
                     genre_id: null,
-                    release_date: new Date().toISOString().split('T')[0]
+                    release_date: new Date().toISOString().split("T")[0],
                 };
+                this.resetMoviePosterInput();
+                this.resetMovieSourceInput();
                 this.showMovieForm = true;
             },
 
@@ -50,14 +76,18 @@
                     preview_url: movie.preview_url || "",
                     source_url: movie.source_url || "",
                     genre_id: movie.genre_id,
-                    release_date: movie.release_date ? movie.release_date.split('T')[0] : ""
+                    release_date: movie.release_date ? movie.release_date.split("T")[0] : "",
                 };
+                this.resetMoviePosterInput();
+                this.resetMovieSourceInput();
                 this.showMovieForm = true;
             },
 
             closeMovieForm: function () {
                 this.showMovieForm = false;
                 this.editingMovie = null;
+                this.resetMoviePosterInput();
+                this.resetMovieSourceInput();
             },
 
             submitMovieForm: function () {
@@ -71,30 +101,52 @@
                     return;
                 }
 
-                this.movieFormSubmitting = true;
-
-                var data = {
-                    name: this.movieForm.name,
-                    description: this.movieForm.description,
-                    rating: parseFloat(this.movieForm.rating),
-                    preview_url: this.movieForm.preview_url,
-                    source_url: this.movieForm.source_url,
-                    genre_id: this.movieForm.genre_id,
-                    release_date: this.movieForm.release_date
-                };
-
-                var promise;
-                if (this.editingMovie) {
-                    promise = window.Api.updateMovie(this.editingMovie.id, data);
-                } else {
-                    promise = window.Api.createMovie(data);
+                if (!this.editingMovie) {
+                    if (!this.moviePosterFile) {
+                        this.error = "Выберите файл постера";
+                        return;
+                    }
+                    if (!this.movieSourceFile) {
+                        this.error = "Выберите видеофайл фильма";
+                        return;
+                    }
                 }
 
-                promise
-                    .then(function () {
-                        self.closeMovieForm();
-                        self.loadAdminMovies();
-                        self.loadMovies(); // обновляем список на главной
+                this.movieFormSubmitting = true;
+                this.error = "";
+
+                var posterPromise = this.moviePosterFile
+                    ? window.MediaUpload.uploadMoviePoster(this.moviePosterFile)
+                    : Promise.resolve(this.movieForm.preview_url);
+
+                var sourcePromise = this.movieSourceFile
+                    ? window.MediaUpload.uploadMovieSource(this.movieSourceFile)
+                    : Promise.resolve(this.movieForm.source_url);
+
+                Promise.all([posterPromise, sourcePromise])
+                    .then(function (paths) {
+                        var data = {
+                            name: self.movieForm.name.trim(),
+                            description: self.movieForm.description,
+                            rating: parseFloat(self.movieForm.rating),
+                            preview_url: paths[0],
+                            source_url: paths[1],
+                            genre_id: self.movieForm.genre_id,
+                            release_date: self.movieForm.release_date,
+                        };
+
+                        var promise;
+                        if (self.editingMovie) {
+                            promise = window.Api.updateMovie(self.editingMovie.id, data);
+                        } else {
+                            promise = window.Api.createMovie(data);
+                        }
+
+                        return promise.then(function () {
+                            self.closeMovieForm();
+                            self.loadAdminMovies();
+                            self.loadMovies();
+                        });
                     })
                     .catch(function (e) {
                         self.error = e.message || "Ошибка сохранения фильма";
@@ -139,11 +191,9 @@
             },
 
             confirmDeleteMovie: function (movie) {
-                console.log("confirmDeleteMovie, movie.id:", movie.id, "тип:", typeof movie.id);
                 this.deletingMovieId = Number(movie.id);
                 this.deletingMovieName = movie.name;
                 if (isNaN(this.deletingMovieId)) {
-                    console.error("Невалидный ID фильма");
                     this.error = "Ошибка ID фильма";
                     return;
                 }

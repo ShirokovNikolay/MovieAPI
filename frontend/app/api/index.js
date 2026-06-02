@@ -10,6 +10,7 @@
         },
         window.ApiAuth,
         window.ApiUsers,
+        window.ApiMedia,
         window.ApiGenres,
         window.ApiMovies,
         window.ApiReviews,

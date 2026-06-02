@@ -10,7 +10,10 @@ class MinioConfig(BaseModel):
     port: int = 9000
     access_key: str = "admin"
     secret_key: str = "adminadmin"  # noqa: S105
-    endpoint_url: str = "http://minio:9000"
+
+    @property
+    def endpoint_url(self) -> str:
+        return f"http://{self.host}:{self.port}"
 
 
 class Settings(BaseSettings):

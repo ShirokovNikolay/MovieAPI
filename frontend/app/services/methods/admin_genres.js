@@ -1,6 +1,5 @@
 (function () {
     window.AppMethodsAdminGenres = {
-            // Загрузка жанров для админки
             loadAdminGenres: function () {
                 var self = this;
                 this.adminGenresLoading = true;
@@ -26,10 +25,23 @@
                 this.loadAdminGenres();
             },
 
-            // Форма для жанра
+            resetGenrePosterInput: function () {
+                this.genrePosterFile = null;
+                this.genrePosterFileName = "";
+                var input = document.getElementById("genre-poster-file");
+                if (input) input.value = "";
+            },
+
+            onGenrePosterSelected: function (event) {
+                var file = event.target.files && event.target.files[0];
+                this.genrePosterFile = file || null;
+                this.genrePosterFileName = file ? file.name : "";
+            },
+
             openCreateGenreForm: function () {
                 this.editingGenre = null;
                 this.genreForm = { name: "", description: "", preview_url: "" };
+                this.resetGenrePosterInput();
                 this.showGenreForm = true;
             },
 
@@ -38,8 +50,9 @@
                 this.genreForm = {
                     name: genre.name,
                     description: genre.description,
-                    preview_url: genre.preview_url || ""
+                    preview_url: genre.preview_url || "",
                 };
+                this.resetGenrePosterInput();
                 this.showGenreForm = true;
             },
 
@@ -47,6 +60,7 @@
                 this.showGenreForm = false;
                 this.editingGenre = null;
                 this.genreForm = { name: "", description: "", preview_url: "" };
+                this.resetGenrePosterInput();
             },
 
             submitGenreForm: function () {
@@ -56,24 +70,50 @@
                     return;
                 }
 
-                this.genreFormSubmitting = true;
-
-                var promise;
-                if (this.editingGenre) {
-                    promise = window.Api.updateGenre(this.editingGenre.id, this.genreForm);
-                } else {
-                    promise = window.Api.createGenre(this.genreForm);
+                if (!this.editingGenre && !this.genrePosterFile) {
+                    this.error = "Выберите файл постера";
+                    return;
                 }
 
-                promise
-                    .then(function () {
-                        self.closeGenreForm();
-                        self.loadAdminGenres();
-                        self.loadGenres(); // обновляем список жанров на главной
-                    })
-                    .catch(function (e) {
-                        self.error = e.message || "Ошибка сохранения жанра";
-                    })
+                this.genreFormSubmitting = true;
+                this.error = "";
+
+                var buildPayload = function (previewUrl) {
+                    return {
+                        name: self.genreForm.name.trim(),
+                        description: self.genreForm.description,
+                        preview_url: previewUrl,
+                    };
+                };
+
+                var saveGenre = function (previewUrl) {
+                    var payload = buildPayload(previewUrl);
+                    var promise;
+                    if (self.editingGenre) {
+                        promise = window.Api.updateGenre(self.editingGenre.id, payload);
+                    } else {
+                        promise = window.Api.createGenre(payload);
+                    }
+                    return promise
+                        .then(function () {
+                            self.closeGenreForm();
+                            self.loadAdminGenres();
+                            self.loadGenres();
+                        })
+                        .catch(function (e) {
+                            self.error = e.message || "Ошибка сохранения жанра";
+                        });
+                };
+
+                var uploadPromise;
+                if (this.genrePosterFile) {
+                    uploadPromise = window.MediaUpload.uploadGenrePoster(this.genrePosterFile);
+                } else {
+                    uploadPromise = Promise.resolve(this.genreForm.preview_url);
+                }
+
+                uploadPromise
+                    .then(saveGenre)
                     .finally(function () {
                         self.genreFormSubmitting = false;
                     });
