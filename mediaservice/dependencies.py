@@ -41,3 +41,9 @@ async def get_minio_service(
         client=client,
     )
     yield minio_service
+
+
+MinioServiceDep = Annotated[
+    MinioService,
+    Depends(get_minio_service),
+]

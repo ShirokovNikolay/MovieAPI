@@ -1,58 +1,24 @@
 import uuid
-from enum import StrEnum
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, UploadFile, status
-from pydantic import BaseModel
+from fastapi import APIRouter, UploadFile, status
+from packages.schemas import (
+    ConfirmUploadRequest,
+    PresignUrlCreate,
+    PresignUrlResponse,
+)
 
-from dependencies import get_minio_service
-from service import MinioService
+from dependencies import MinioServiceDep
 
 router = APIRouter()
 
 
-class ConfirmUploadRequest(BaseModel):
-    temp_path: str
-    dest_path: str
-
-
-class S3Bucket(StrEnum):
-    genre_posters = "genre-posters"
-    movie_posters = "movie-posters"
-    movies = "movies"
-
-
-class S3ContentType(StrEnum):
-    jpeg = "image/jpeg"
-    jpg = "image/jpg"
-    pngr = "image/png"
-    webp = "image/webp"
-    mp4 = "video/mp4"
-
-
-class CreatePresignedUrlRequest(BaseModel):
-    bucket_name: S3Bucket
-    file_name: str
-    content_type: S3ContentType
-
-
-class PresignUrlResponse(BaseModel):
-    url: str
-    path: str
-
-
-MinioServiceDep = Annotated[
-    MinioService,
-    Depends(get_minio_service),
-]
-
-
 @router.post(
     "/presign-url",
+    response_model=PresignUrlResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_presign_url(
-    presign_request: CreatePresignedUrlRequest,
+    presign_request: PresignUrlCreate,
     minio_service: MinioServiceDep,
 ) -> PresignUrlResponse:
     file_path = f"tmp/genre/{uuid.uuid4()}_{presign_request.file_name}"
