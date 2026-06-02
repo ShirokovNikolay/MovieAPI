@@ -21,7 +21,7 @@ async def get_presign_url(
     presign_request: PresignUrlCreate,
     minio_service: MinioServiceDep,
 ) -> PresignUrlResponse:
-    file_path = f"tmp/genre/{uuid.uuid4()}_{presign_request.file_name}"
+    file_path = f"tmp/{uuid.uuid4()}_{presign_request.file_name}"
     url = await minio_service.create_presigned_url(
         bucket_name=presign_request.bucket_name.value,
         object_name=file_path,
