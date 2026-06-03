@@ -1,66 +1,64 @@
-from typing import BinaryIO
+from typing import cast
+from uuid import uuid4
 
-from types_aiobotocore_s3 import S3Client
+from fastapi import UploadFile
+from packages.constants import S3Bucket
+from packages.schemas import ConfirmUploadRequest, PresignUrlCreate, PresignUrlResponse
+
+from config import settings
+from minio_client import MinioClient
 
 
 class MinioService:
-    def __init__(
-        self,
-        client: S3Client,
-    ) -> None:
-        self.s3_client = client
+    def __init__(self, minio_client: MinioClient) -> None:
+        self.minio_client = minio_client
 
-    async def create_presigned_url(
+    @staticmethod
+    def generate_name_object(file_name: str) -> str:
+        temporary_prefix = settings.minio.temporary_prefix
+        object_name = f"{temporary_prefix}{uuid4()}_{file_name}"
+        return object_name
+
+    async def create_presign_url(
         self,
-        bucket_name: str,
-        object_name: str,
-        expires_in: int,
-        client_method: str,
-        content_type: str,
-    ) -> str:
-        return await self.s3_client.generate_presigned_url(
-            ClientMethod=client_method,
-            ExpiresIn=expires_in,
-            Params={
-                "Bucket": bucket_name,
-                "Key": object_name,
-                "ContentType": content_type,
-            },
+        presign_url_create: PresignUrlCreate,
+    ) -> PresignUrlResponse:
+        file_name = presign_url_create.file_name
+        temporary_prefix = settings.minio.temporary_prefix
+        object_name = f"{temporary_prefix}{uuid4()}_{file_name}"
+        presign_url = await self.minio_client.create_presign_url(
+            bucket_name=presign_url_create.bucket_name,
+            object_name=object_name,
+            expires_in=settings.minio.expires_in,
+            content_type=presign_url_create.content_type,
+            client_method="put_object",
+        )
+        return PresignUrlResponse(
+            url=presign_url.replace("minio", "localhost"),
+            path=object_name,
         )
 
-    async def copy_file(
+    async def confirm_upload_file(
         self,
-        bucket_name: str,
-        source_path: str,
-        destination_path: str,
+        confirm_upload_payload: ConfirmUploadRequest,
     ) -> None:
-        copy_source = {"Bucket": bucket_name, "Key": source_path}
-        await self.s3_client.copy_object(
-            Bucket=bucket_name,
-            CopySource=copy_source,  # type: ignore[arg-type]
-            Key=destination_path,
+        await self.minio_client.move_file(
+            source_bucket_name=confirm_upload_payload.source_bucket_name,
+            destination_bucket_name=confirm_upload_payload.destination_bucket_name,
+            source_object_name=confirm_upload_payload.source_object_name,
+            destination_object_name=confirm_upload_payload.destination_object_name,
         )
-
-    async def delete_file(self, bucket: str, key: str) -> None:
-        await self.s3_client.delete_object(Bucket=bucket, Key=key)
-
-    async def move_file(
-        self,
-        bucket_name: str,
-        source_path: str,
-        destination_path: str,
-    ) -> None:
-        await self.copy_file(bucket_name, source_path, destination_path)
-        await self.delete_file(bucket_name, source_path)
 
     async def upload_file(
         self,
-        bucket_name: str,
-        key: str,
-        file: BinaryIO,
+        bucket_name: S3Bucket,
+        uploaded_file: UploadFile,
     ) -> None:
-        await self.s3_client.put_object(
-            Bucket=bucket_name,
-            Key=key,
-            Body=file,
+        object_name = self.generate_name_object(
+            file_name=cast(str, uploaded_file.filename),
+        )
+        await self.minio_client.upload_file(
+            bucket_name=bucket_name,
+            object_name=object_name,
+            file=uploaded_file.file,
         )

@@ -40,21 +40,6 @@
         return null;
     }
 
-    // var MINIO_HOST = "minio";
-
-    // function ensureMinioHost(presignedUrl) {
-    //     // try {
-    //     //     var parsed = new URL(presignedUrl);
-    //     //     if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
-    //     //         parsed.hostname = MINIO_HOST;
-    //     //         return parsed.toString();
-    //     //     }
-    //     // } catch (e) {
-    //     //     /* ignore */
-    //     // }
-    //     return presignedUrl;
-    // }
-
     function uploadToPresignedUrl(presignedUrl, file, contentType) {
         return fetch(presignedUrl, {
             method: "PUT",
