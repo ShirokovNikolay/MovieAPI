@@ -45,16 +45,6 @@
                 this.showGenreForm = true;
             },
 
-            // openEditGenreForm: function (genre) {
-            //     this.editingGenre = genre;
-            //     this.genreForm = {
-            //         name: genre.name,
-            //         description: genre.description,
-            //         preview_url: genre.preview_url || "",
-            //     };
-            //     this.resetGenrePosterInput();
-            //     this.showGenreForm = true;
-            // },
             openEditGenreForm: function (genre) {
                 this.editingGenre = genre;
 
@@ -63,8 +53,6 @@
                 var key = "";
 
                 if (fullUrl) {
-                    // http://localhost:9000/genre-posters/493c4057-fe0c-491a-9efd-0e60d38d840d_photo123.png
-                    // -> 493c4057-fe0c-491a-9efd-0e60d38d840d_photo123.png
                     var parts = fullUrl.split('/');
                     var bucketIndex = parts.indexOf('genre-posters');
                     if (bucketIndex !== -1) {
@@ -90,62 +78,6 @@
                 this.genreForm = { name: "", description: "", preview_url: "" };
                 this.resetGenrePosterInput();
             },
-
-            // submitGenreForm: function () {
-            //     var self = this;
-            //     if (!this.genreForm.name.trim()) {
-            //         this.error = "Название жанра обязательно";
-            //         return;
-            //     }
-            //
-            //     if (!this.editingGenre && !this.genrePosterFile) {
-            //         this.error = "Выберите файл постера";
-            //         return;
-            //     }
-            //
-            //     this.genreFormSubmitting = true;
-            //     this.error = "";
-            //
-            //     var buildPayload = function (previewUrl) {
-            //         return {
-            //             name: self.genreForm.name.trim(),
-            //             description: self.genreForm.description,
-            //             preview_url: previewUrl,
-            //         };
-            //     };
-            //
-            //     var saveGenre = function (previewUrl) {
-            //         var payload = buildPayload(previewUrl);
-            //         var promise;
-            //         if (self.editingGenre) {
-            //             promise = window.Api.updateGenre(self.editingGenre.id, payload);
-            //         } else {
-            //             promise = window.Api.createGenre(payload);
-            //         }
-            //         return promise
-            //             .then(function () {
-            //                 self.closeGenreForm();
-            //                 self.loadAdminGenres();
-            //                 self.loadGenres();
-            //             })
-            //             .catch(function (e) {
-            //                 self.error = e.message || "Ошибка сохранения жанра";
-            //             });
-            //     };
-            //
-            //     var uploadPromise;
-            //     if (this.genrePosterFile) {
-            //         uploadPromise = window.MediaUpload.uploadGenrePoster(this.genrePosterFile);
-            //     } else {
-            //         uploadPromise = Promise.resolve(this.genreForm.preview_url);
-            //     }
-            //
-            //     uploadPromise
-            //         .then(saveGenre)
-            //         .finally(function () {
-            //             self.genreFormSubmitting = false;
-            //         });
-            // },
 
             submitGenreForm: function () {
                 var self = this;

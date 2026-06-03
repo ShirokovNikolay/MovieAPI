@@ -69,12 +69,37 @@
 
             openEditMovieForm: function (movie) {
                 this.editingMovie = movie;
+
+                // Извлекаем полный ключ (всё после movie-posters/)
+                var posterKey = "";
+                if (movie.preview_url) {
+                    var parts = movie.preview_url.split('/');
+                    var bucketIndex = parts.indexOf('movie-posters');
+                    if (bucketIndex !== -1) {
+                        posterKey = parts.slice(bucketIndex + 1).join('/');
+                    } else {
+                        posterKey = movie.preview_url;
+                    }
+                }
+
+                // Извлекаем полный ключ (всё после movies/)
+                var videoKey = "";
+                if (movie.source_url) {
+                    var parts = movie.source_url.split('/');
+                    var bucketIndex = parts.indexOf('movies');
+                    if (bucketIndex !== -1) {
+                        videoKey = parts.slice(bucketIndex + 1).join('/');
+                    } else {
+                        videoKey = movie.source_url;
+                    }
+                }
+
                 this.movieForm = {
                     name: movie.name,
                     description: movie.description,
                     rating: movie.rating,
-                    preview_url: movie.preview_url || "",
-                    source_url: movie.source_url || "",
+                    preview_url: posterKey,
+                    source_url: videoKey,
                     genre_id: movie.genre_id,
                     release_date: movie.release_date ? movie.release_date.split("T")[0] : "",
                 };
@@ -115,15 +140,24 @@
                 this.movieFormSubmitting = true;
                 this.error = "";
 
-                var posterPromise = this.moviePosterFile
-                    ? window.MediaUpload.uploadMoviePoster(this.moviePosterFile)
-                    : Promise.resolve(this.movieForm.preview_url);
+                // Функция для получения значения (новый файл -> загружаем, иначе -> старый ключ или null)
+                var getPosterValue = function () {
+                    if (self.moviePosterFile) {
+                        return window.MediaUpload.uploadMoviePoster(self.moviePosterFile);
+                    }
+                    // При редактировании без нового файла - отправляем существующий ключ
+                    return Promise.resolve(self.editingMovie ? self.movieForm.preview_url : "");
+                };
 
-                var sourcePromise = this.movieSourceFile
-                    ? window.MediaUpload.uploadMovieSource(this.movieSourceFile)
-                    : Promise.resolve(this.movieForm.source_url);
+                var getSourceValue = function () {
+                    if (self.movieSourceFile) {
+                        return window.MediaUpload.uploadMovieSource(self.movieSourceFile);
+                    }
+                    // При редактировании без нового файла - отправляем существующий ключ
+                    return Promise.resolve(self.editingMovie ? self.movieForm.source_url : "");
+                };
 
-                Promise.all([posterPromise, sourcePromise])
+                Promise.all([getPosterValue(), getSourceValue()])
                     .then(function (paths) {
                         var data = {
                             name: self.movieForm.name.trim(),
