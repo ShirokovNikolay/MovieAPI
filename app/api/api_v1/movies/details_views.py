@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, status
+from packages.constants import S3Bucket
 
+from core.constants import BASE_MINIO_URL
 from dependencies.annotations.cache_services import MovieCacheServiceDep
 from dependencies.auth import get_admin_by_access_token
 from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_not_auth
@@ -43,6 +45,20 @@ async def update_movie(
     update_movie_data: MovieUpdate,
     movie_cache_service: MovieCacheServiceDep,
 ) -> MovieWithGenreResponse:
+    update_movie_data.preview_url = (
+        BASE_MINIO_URL
+        + "/"
+        + S3Bucket.movie_posters.value
+        + "/"
+        + update_movie_data.preview_url
+    )
+    update_movie_data.source_url = (
+        BASE_MINIO_URL
+        + "/"
+        + S3Bucket.movies.value
+        + "/"
+        + update_movie_data.source_url
+    )
     return await movie_cache_service.update_movie(movie_id, update_movie_data)
 
 
@@ -60,6 +76,23 @@ async def partial_update_movie(
     update_movie_data: MoviePartialUpdate,
     movie_cache_service: MovieCacheServiceDep,
 ) -> MovieWithGenreResponse:
+    if update_movie_data.preview_url is not None:
+        update_movie_data.preview_url = (
+            BASE_MINIO_URL
+            + "/"
+            + S3Bucket.movie_posters.value
+            + "/"
+            + update_movie_data.preview_url
+        )
+
+    if update_movie_data.source_url is not None:
+        update_movie_data.source_url = (
+            BASE_MINIO_URL
+            + "/"
+            + S3Bucket.movies.value
+            + "/"
+            + update_movie_data.source_url
+        )
     return await movie_cache_service.partial_update_movie(movie_id, update_movie_data)
 
 
