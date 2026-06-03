@@ -10,10 +10,8 @@ class MinioConfig(BaseModel):
     port: int = 9000
     access_key: str = "admin"
     secret_key: str = "adminadmin"  # noqa: S105
-
-    @property
-    def endpoint_url(self) -> str:
-        return f"http://{self.host}:{self.port}"
+    expires_in: int = 15 * 60
+    temporary_prefix: str = "tmp/"
 
 
 class Settings(BaseSettings):
