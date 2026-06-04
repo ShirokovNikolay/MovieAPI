@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post(
     "/presign-url",
     response_model=PresignUrlResponse,
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_presign_url(
     presign_url_create: PresignUrlCreate,
@@ -37,7 +37,7 @@ async def confirm_upload_file(
 
 
 @router.post(
-    "/upload",
+    "/upload-file",
     status_code=status.HTTP_200_OK,
 )
 async def upload_file(
