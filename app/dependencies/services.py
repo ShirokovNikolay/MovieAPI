@@ -2,11 +2,13 @@ from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database.connection import session_factory
 from services import GenreService, MovieService, ReviewService, UserService
 from services.favorite_movie import FavoriteMovieService
+from services.http_request import HttpRequestService
 from services.watch_history import WatchHistoryService
 
 
@@ -103,3 +105,20 @@ async def get_watch_history_service(
         """
         Действия после view.
         """
+
+
+async def get_http_request_client() -> AsyncGenerator[AsyncClient]:
+    async with AsyncClient() as client:
+        yield client
+
+
+async def get_http_request_service(
+    http_request_client: Annotated[
+        AsyncClient,
+        Depends(get_http_request_client),
+    ],
+) -> AsyncGenerator[HttpRequestService]:
+    http_request_service = HttpRequestService(
+        http_request_client=http_request_client,
+    )
+    yield http_request_service

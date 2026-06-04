@@ -1,4 +1,7 @@
 from enum import StrEnum
+from typing import TypeVar
+
+from pydantic import BaseModel
 
 from core.exceptions.auth import (
     InvalidPasswordError,
@@ -28,6 +31,10 @@ from core.exceptions.watch_history import WatchHistoryNotFoundError
 
 BASE_MINIO_URL = "http://localhost:9000"
 
+AnyPydanticType = TypeVar("AnyPydanticType", bound=BaseModel)
+
+PrimitiveType = int | str | bool
+
 
 class UserRole(StrEnum):
     user = "user"
@@ -42,6 +49,14 @@ class SortType(StrEnum):
 class SortMonotony(StrEnum):
     ascending = "ASC"
     descending = "DESC"
+
+
+class MethodType(StrEnum):
+    get = "GET"
+    post = "POST"
+    put = "PUT"
+    patch = "PATCH"
+    delete = "DELETE"
 
 
 TOKEN_TYPE: str = "type"

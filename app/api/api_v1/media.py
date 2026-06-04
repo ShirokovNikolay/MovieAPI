@@ -1,8 +1,13 @@
-import httpx
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 from packages.schemas import PresignUrlCreate, PresignUrlResponse
 
+from core.constants import MethodType
 from dependencies.auth import get_admin_by_access_token
+from dependencies.rate_limiter import check_rate_limit_auth
+from dependencies.services import get_http_request_service
+from services.http_request import HttpRequestService
 
 router = APIRouter(
     tags=["Media"],
@@ -16,14 +21,19 @@ router = APIRouter(
     response_model=PresignUrlResponse,
     dependencies=[
         Depends(get_admin_by_access_token),
+        Depends(check_rate_limit_auth),
     ],
 )
 async def get_presign_url(
     presign_url_create: PresignUrlCreate,
+    http_request_service: Annotated[
+        HttpRequestService,
+        Depends(get_http_request_service),
+    ],
 ) -> PresignUrlResponse:
-    async with httpx.AsyncClient() as client:
-        request = await client.post(
-            url="http://mediaservice:8000/api/v1/presign-url",
-            json=presign_url_create.model_dump(),
-        )
-        return PresignUrlResponse(**request.json())
+    return await http_request_service.get_schema_from_request(
+        url="http://mediaservice:8000/api/v1/presign-url",
+        method=MethodType.post.value,  # type: ignore[arg-type]
+        json=presign_url_create.model_dump(),
+        response_schema=PresignUrlResponse,  # type: ignore[arg-type]
+    )
