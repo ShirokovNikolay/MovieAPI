@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from packages.schemas import PresignUrlCreate, PresignUrlResponse
 
+from core.config import settings
 from core.constants import MethodType
 from dependencies.auth import get_admin_by_access_token
 from dependencies.rate_limiter import check_rate_limit_auth
@@ -32,7 +33,7 @@ async def get_presign_url(
     ],
 ) -> PresignUrlResponse:
     return await http_request_service.get_schema_from_request(
-        url="http://mediaservice:8000/api/v1/presign-url",
+        url=settings.mediaservice.create_presign_url_endpoint,
         method=MethodType.post.value,  # type: ignore[arg-type]
         json=presign_url_create.model_dump(),
         response_schema=PresignUrlResponse,  # type: ignore[arg-type]

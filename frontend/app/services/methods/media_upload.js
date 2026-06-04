@@ -52,7 +52,7 @@
         });
     }
 
-    function uploadFile(bucketName, file, kind) {
+    function uploadFile(bucketName, file, kind, client_method) {
         var contentType = resolveContentType(file, kind);
         if (!contentType) {
             var hint = kind === "video" ? "MP4" : "JPEG, PNG или WebP";
@@ -63,23 +63,24 @@
             bucket_name: bucketName,
             file_name: file.name,
             content_type: contentType,
+            client_method,
         }).then(function (presign) {
-            var uploadUrl = presign.url;
+            var uploadUrl = presign.presign_url;
             return uploadToPresignedUrl(uploadUrl, file, contentType).then(function () {
-                return presign.path;
+                return presign.temporary_path;
             });
         });
     }
 
     window.MediaUpload = {
         uploadGenrePoster: function (file) {
-            return uploadFile("genre-posters", file, "image");
+            return uploadFile("genre-posters", file, "image", "put_object");
         },
         uploadMoviePoster: function (file) {
-            return uploadFile("movie-posters", file, "image");
+            return uploadFile("movie-posters", file, "image", "put_object");
         },
         uploadMovieSource: function (file) {
-            return uploadFile("movies", file, "video");
+            return uploadFile("movies", file, "video", "put_object");
         },
         resolveContentType: resolveContentType,
     };

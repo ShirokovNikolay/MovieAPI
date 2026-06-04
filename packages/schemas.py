@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from packages.constants import S3Bucket, S3ContentType
+from packages.constants import S3Bucket, S3ClientMethod, S3ContentType
 
 
 class PresignUrlCreate(BaseModel):
@@ -10,7 +10,8 @@ class PresignUrlCreate(BaseModel):
 
     bucket_name: S3Bucket
     file_name: str
-    content_type: S3ContentType
+    client_method: S3ClientMethod
+    content_type: S3ContentType | None = None
 
 
 class PresignUrlResponse(BaseModel):
@@ -18,8 +19,8 @@ class PresignUrlResponse(BaseModel):
     Модель для вывода информации о временной ссылке доступа к хранилищу S3.
     """
 
-    url: str
-    path: str
+    presign_url: str
+    temporary_path: str
 
 
 class ConfirmUploadRequest(BaseModel):

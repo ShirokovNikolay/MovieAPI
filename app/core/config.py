@@ -57,6 +57,15 @@ class AuthJWTConfig(BaseModel):
     refresh_token_expire_minutes: int = 30 * 24 * 60
 
 
+class MediaServiceConfig(BaseModel):
+    host: str = "mediaservice"
+    port: int = 8000
+
+    @property
+    def create_presign_url_endpoint(self) -> str:
+        return f"http://{self.host}:{self.port}/api/v1/presign-url"
+
+
 class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent.parent
     database: DataBaseConfig = DataBaseConfig()
@@ -65,6 +74,7 @@ class Settings(BaseSettings):
     auth_jwt: AuthJWTConfig = AuthJWTConfig()
     http_bearer: HTTPBearer = HTTPBearer()
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer("/api/v1/auth/login")
+    mediaservice: MediaServiceConfig = MediaServiceConfig()
     debug: bool = False
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(

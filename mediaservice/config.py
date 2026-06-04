@@ -13,6 +13,10 @@ class MinioConfig(BaseModel):
     expires_in: int = 15 * 60
     temporary_prefix: str = "tmp/"
 
+    @property
+    def url_minio(self) -> str:
+        return f"http://{self.host}:{self.port}"
+
 
 class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent

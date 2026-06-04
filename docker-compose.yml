@@ -13,6 +13,9 @@ services:
 
       RABBITMQ__HOST: rabbitmq
       RABBITMQ__PORT: 5672
+
+      MEDIASERVICE__HOST: mediaservice
+      MEDIASERVICE__PORT: 8000
     ports:
       - "8000:8000"
     depends_on:
