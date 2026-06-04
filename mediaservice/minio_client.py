@@ -16,13 +16,14 @@ class MinioClient:
         object_name: str,
         expires_in: int,
         client_method: str,
-        content_type: str,
+        content_type: str | None = None,
     ) -> str:
         params = {
             "Bucket": bucket_name,
             "Key": object_name,
-            "ContentType": content_type,
         }
+        if content_type is not None:
+            params.update({"ContentType": content_type})
         return await self.s3_client.generate_presigned_url(
             ClientMethod=client_method,
             ExpiresIn=expires_in,

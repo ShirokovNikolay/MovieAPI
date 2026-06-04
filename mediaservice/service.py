@@ -14,28 +14,31 @@ class MinioService:
         self.minio_client = minio_client
 
     @staticmethod
-    def generate_name_object(file_name: str) -> str:
-        temporary_prefix = settings.minio.temporary_prefix
-        object_name = f"{temporary_prefix}{uuid4()}_{file_name}"
+    def generate_object_name(
+        file_name: str,
+        prefix_object_name: str = "",
+    ) -> str:
+        object_name = f"{prefix_object_name}{uuid4()}_{file_name}"
         return object_name
 
     async def create_presign_url(
         self,
         presign_url_create: PresignUrlCreate,
     ) -> PresignUrlResponse:
-        file_name = presign_url_create.file_name
-        temporary_prefix = settings.minio.temporary_prefix
-        object_name = f"{temporary_prefix}{uuid4()}_{file_name}"
+        object_name = self.generate_object_name(
+            file_name=presign_url_create.file_name,
+            prefix_object_name=settings.minio.temporary_prefix,
+        )
         presign_url = await self.minio_client.create_presign_url(
             bucket_name=presign_url_create.bucket_name,
             object_name=object_name,
             expires_in=settings.minio.expires_in,
             content_type=presign_url_create.content_type,
-            client_method="put_object",
+            client_method=presign_url_create.client_method,
         )
         return PresignUrlResponse(
-            url=presign_url.replace("minio", "localhost"),
-            path=object_name,
+            presign_url=presign_url.replace("minio", "localhost"),
+            temporary_path=object_name,
         )
 
     async def confirm_upload_file(
@@ -54,7 +57,7 @@ class MinioService:
         bucket_name: S3Bucket,
         uploaded_file: UploadFile,
     ) -> None:
-        object_name = self.generate_name_object(
+        object_name = self.generate_object_name(
             file_name=cast(str, uploaded_file.filename),
         )
         await self.minio_client.upload_file(
