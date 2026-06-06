@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from httpx import AsyncClient
+from packages.rabbit_mq import RabbitMQService, get_rabbit_mq_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database.connection import session_factory
@@ -22,9 +23,13 @@ async def get_genre_service(
         AsyncSession,
         Depends(get_db),
     ],
+    rabbitmq: Annotated[
+        RabbitMQService,
+        Depends(get_rabbit_mq_service),
+    ],
 ) -> AsyncGenerator[GenreService]:
     try:
-        genre_service = GenreService(session)
+        genre_service = GenreService(session, rabbitmq)
         yield genre_service
     finally:
         """

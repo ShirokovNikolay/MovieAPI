@@ -14,8 +14,8 @@ class RabbitMQService:
 
     async def declare_queue(
         self,
-        name: str | None = None,
-        durable: bool = False,
+        name: str,
+        durable: bool = True,
     ) -> AbstractQueue:
         return await self.channel.declare_queue(
             name=name,
@@ -26,7 +26,7 @@ class RabbitMQService:
         self,
         name: str,
         type: str = "direct",
-        durable: bool = False,
+        durable: bool = True,
     ) -> AbstractExchange:
         return await self.channel.declare_exchange(
             name=name,

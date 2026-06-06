@@ -47,9 +47,9 @@ class MinioClient:
             Key=destination_object_name,
         )
 
-    async def delete_file(self, bucket: str, key: str) -> None:
+    async def delete_file(self, bucket_name: str, key: str) -> None:
         await self.s3_client.delete_object(
-            Bucket=bucket,
+            Bucket=bucket_name,
             Key=key,
         )
 
