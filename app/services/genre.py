@@ -1,7 +1,11 @@
+import json
 from typing import cast
 
+from aio_pika import Message
+from packages.rabbit_mq import RabbitMQService
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.constants import BASE_MINIO_URL
 from core.exceptions.genre import (
     GenreIdAlreadyHasMoviesError,
     GenreIdNotFoundError,
@@ -18,9 +22,14 @@ from schemas.genre import (
 
 
 class GenreService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        rabbit_mq_service: RabbitMQService,
+    ) -> None:
         self.genre_repository = GenreRepository(session)
         self.movie_repository = MovieRepository(session)
+        self.rabbitmq_service = rabbit_mq_service
 
     async def get_genre_by_id(self, genre_id: int) -> GenreResponse:
         genre = await self.genre_repository.get_genre_by_id(genre_id)
@@ -70,6 +79,21 @@ class GenreService:
             raise GenreNameAlreadyExistsError(create_data.name)
 
         genre = await self.genre_repository.create_genre(create_data)
+        object_name = create_data.preview_url.replace(BASE_MINIO_URL + "/", "")
+        body = {
+            "genre_id": genre.id,
+            "bucket_name": "genre-posters",
+            "object_name": object_name,
+        }
+        exchange = await self.rabbitmq_service.declare_exchange(
+            name="to_mediaservice",
+            durable=True,
+        )
+        await self.rabbitmq_service.publish(
+            message=Message(body=json.dumps(body).encode()),
+            exchange=exchange,
+            routing_key="to_mediaservice",
+        )
         return GenreResponse.model_validate(genre)
 
     async def update_genre(

@@ -3,15 +3,13 @@ from collections.abc import AsyncGenerator
 import aio_pika
 from aio_pika.abc import AbstractChannel
 
-from core.config import settings
-
 RABBIT_MQ_CONNECTION = None
 
 
 async def init_rabbit_mq() -> None:
     global RABBIT_MQ_CONNECTION  # noqa: PLW0603
     RABBIT_MQ_CONNECTION = await aio_pika.connect_robust(
-        url=settings.rabbitmq.url_rabbitmq,
+        url="amqp://guest:guest@rabbitmq:5672/%2f",
     )
 
 
