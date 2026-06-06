@@ -36,17 +36,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001
     connection.RABBIT_MQ_CONNECTION = await aio_pika.connect_robust(
         url="amqp://guest:guest@rabbitmq:5672",
     )
-    # for _ in range(10):  # Ждем, пока RabbitMQ окончательно поднимет порт
-    #     try:
-    #         connection.RABBIT_MQ_CONNECTION = await aio_pika.connect_robust(
-    #             url="amqp://guest:guest@rabbitmq:5672/%2f"
-    #         )
-    #         break
-    #     except (AMQPConnectionError, OSError):
-    #         await asyncio.sleep(2)
-    #
-    # if not connection.RABBIT_MQ_CONNECTION:
-    #     raise RuntimeError("RabbitMQ недоступен")
 
     channel = await connection.RABBIT_MQ_CONNECTION.channel()
 
