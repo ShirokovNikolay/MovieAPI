@@ -8,7 +8,6 @@ from dependencies import S3_SESSION, get_minio_client
 
 
 async def copy_file(message: IncomingMessage) -> None:
-    # print("IN COPY FILE!!!")
     async with message.process():
         async with S3_SESSION.client(
             "s3",
