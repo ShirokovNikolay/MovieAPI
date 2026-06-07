@@ -1,8 +1,7 @@
-import json
 from typing import cast
 
-from aio_pika import Message
 from packages.rabbit_mq import RabbitMQService
+from packages.rabbit_mq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import BASE_MINIO_URL
@@ -90,7 +89,7 @@ class GenreService:
             durable=True,
         )
         await self.rabbitmq_service.publish(
-            message=Message(body=json.dumps(body).encode()),
+            message=create_message(body=body),
             exchange=exchange,
             routing_key="to_mediaservice",
         )
