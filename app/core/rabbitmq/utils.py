@@ -1,9 +1,9 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import cast
 
 from aio_pika.abc import AbstractChannel
-from packages.rabbit_mq import RabbitMQService, connection
+from packages.rabbit_mq import RabbitMQService
+from packages.rabbit_mq.connection import get_channel as get_rabbitmq_channel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache_services import GenreCacheService
@@ -21,11 +21,7 @@ async def get_session() -> AsyncGenerator[AsyncSession]:
 
 @asynccontextmanager
 async def get_channel() -> AsyncGenerator[AbstractChannel]:
-    assert connection.RABBIT_MQ_CONNECTION is not None
-    async with cast(
-        AbstractChannel,
-        connection.RABBIT_MQ_CONNECTION.channel(),
-    ) as channel:
+    async for channel in get_rabbitmq_channel():
         yield channel
 
 
@@ -44,14 +40,14 @@ async def get_genre_service() -> AsyncGenerator[GenreService]:
 
 
 @asynccontextmanager
-async def get_get_redis_client_for_genres() -> AsyncGenerator[RedisClient]:
+async def get_genre_redis_client() -> AsyncGenerator[RedisClient]:
     async for redis_client in get_redis_client_for_genres():
         yield redis_client
 
 
 @asynccontextmanager
 async def get_cache_service_for_genres() -> AsyncGenerator[CacheService]:
-    async with get_get_redis_client_for_genres() as redis_client:
+    async with get_genre_redis_client() as redis_client:
         cache_service = CacheService(redis_client)
         yield cache_service
 
