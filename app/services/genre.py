@@ -24,11 +24,11 @@ class GenreService:
     def __init__(
         self,
         session: AsyncSession,
-        rabbit_mq_service: RabbitMQService,
+        rabbitmq_service: RabbitMQService,
     ) -> None:
         self.genre_repository = GenreRepository(session)
         self.movie_repository = MovieRepository(session)
-        self.rabbitmq_service = rabbit_mq_service
+        self.rabbitmq_service = rabbitmq_service
 
     async def get_genre_by_id(self, genre_id: int) -> GenreResponse:
         genre = await self.genre_repository.get_genre_by_id(genre_id)

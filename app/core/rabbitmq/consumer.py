@@ -22,7 +22,6 @@ async def update_genre_url(message: IncomingMessage) -> None:
             genre_id=genre_id,
             update_data=genre_partial_update,
         )
-
         rabbitmq_service = genre_cache_service.genre_service.rabbitmq_service
         exchange = await rabbitmq_service.declare_exchange(
             name="to_mediaservice",
