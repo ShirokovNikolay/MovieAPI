@@ -1,26 +1,3 @@
-# from contextlib import asynccontextmanager
-# from time import sleep
-# from typing import AsyncIterator
-#
-# from fastapi import FastAPI
-#
-# from packages.rabbit_mq import get_rabbit_mq_service
-# from packages.rabbit_mq.connection import RABBIT_MQ_CONNECTION, init_rabbit_mq
-#
-#
-# @asynccontextmanager
-# async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-#     await init_rabbit_mq()
-#     channel = await RABBIT_MQ_CONNECTION.channel()
-#     async for rabbitmq in get_rabbit_mq_service(channel):
-#         queue_copy = await rabbitmq.declare_queue("copy_file_queue", durable=True)
-#         queue_delete = await rabbitmq.declare_queue("delete_tmp_queue", durable=True)
-#
-#         exchange = await rabbitmq.declare_exchange("to_mediaservice", "direct")
-#
-#         await queue_copy.bind(exchange, "to_mediaservice")
-#         await queue_delete.bind(exchange, "to_mediaservice")
-#     yield
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -28,7 +5,7 @@ import aio_pika
 from fastapi import FastAPI
 from packages.rabbit_mq import connection, get_rabbit_mq_service
 
-from rabbitmq_consumer import copy_file, delete_temporary_file
+from rabbitmq.consumer import copy_file, delete_temporary_file
 
 
 @asynccontextmanager

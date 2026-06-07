@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from packages.rabbit_mq import connection, get_rabbit_mq_service
 
 from core.database.init_db import init_admin
-from core.rabbitmq_consumer import update_genre_url
+from core.rabbitmq.consumer import update_genre_url
 
 
 @asynccontextmanager
