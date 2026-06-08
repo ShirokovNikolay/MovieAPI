@@ -1,4 +1,5 @@
 from aio_pika import IncomingMessage
+from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 
 from core.config import settings
@@ -29,8 +30,8 @@ async def copy_file(message: IncomingMessage) -> None:
 
         async with get_rabbitmq_service() as rabbitmq_service:
             exchange = await rabbitmq_service.declare_exchange(
-                name="to_monolith",
-                type="direct",
+                name=Exchange.mediaservice.value,
+                type=ExchangeType.direct.value,
                 durable=True,
             )
             body = {
@@ -42,7 +43,7 @@ async def copy_file(message: IncomingMessage) -> None:
             await rabbitmq_service.publish(
                 message=create_message(body=body),
                 exchange=exchange,
-                routing_key="to_monolith",
+                routing_key=Queue.update_genre_url.value,
             )
 
 

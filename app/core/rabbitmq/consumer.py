@@ -1,4 +1,5 @@
 from aio_pika import IncomingMessage
+from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message, get_message
 
 from core.constants import BASE_MINIO_URL
@@ -24,8 +25,8 @@ async def update_genre_url(message: IncomingMessage) -> None:
         )
         rabbitmq_service = genre_cache_service.genre_service.rabbitmq_service
         exchange = await rabbitmq_service.declare_exchange(
-            name="to_mediaservice",
-            type="direct",
+            name=Exchange.app.value,
+            type=ExchangeType.direct.value,
         )
         body = {
             "object_name": object_name,
@@ -34,5 +35,5 @@ async def update_genre_url(message: IncomingMessage) -> None:
         await rabbitmq_service.publish(
             message=create_message(body=body),
             exchange=exchange,
-            routing_key="to_mediaservice",
+            routing_key=Queue.delete_file.value,
         )
