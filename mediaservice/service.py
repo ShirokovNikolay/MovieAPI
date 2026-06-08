@@ -65,3 +65,37 @@ class MinioService:
             object_name=object_name,
             file=uploaded_file.file,
         )
+
+    async def copy_file(
+        self,
+        source_bucket_name: str,
+        destination_bucket_name: str,
+        source_object_name: str,
+        destination_object_name: str,
+    ) -> None:
+        await self.minio_client.copy_file(
+            source_bucket_name=source_bucket_name,
+            destination_bucket_name=destination_bucket_name,
+            source_object_name=source_object_name,
+            destination_object_name=destination_object_name,
+        )
+
+    async def delete_file(self, bucket_name: str, key: str) -> None:
+        await self.minio_client.delete_file(
+            bucket_name=bucket_name,
+            key=key,
+        )
+
+    async def movie_file(
+        self,
+        source_bucket_name: str,
+        destination_bucket_name: str,
+        source_object_name: str,
+        destination_object_name: str,
+    ) -> None:
+        await self.minio_client.move_file(
+            source_bucket_name=source_bucket_name,
+            destination_bucket_name=destination_bucket_name,
+            source_object_name=source_object_name,
+            destination_object_name=destination_object_name,
+        )
