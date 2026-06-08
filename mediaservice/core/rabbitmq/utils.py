@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from types_aiobotocore_s3 import S3Client
 
-from config import settings
+from core.config import settings
 from dependencies import get_session
 from minio_client import MinioClient
 

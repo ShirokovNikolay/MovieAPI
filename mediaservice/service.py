@@ -5,7 +5,7 @@ from fastapi import UploadFile
 from packages.constants import S3Bucket
 from packages.schemas import ConfirmUploadRequest, PresignUrlCreate, PresignUrlResponse
 
-from config import settings
+from core.config import settings
 from minio_client import MinioClient
 
 
