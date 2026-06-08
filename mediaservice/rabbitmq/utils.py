@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from types_aiobotocore_s3 import S3Client
 
 from config import settings
-from dependencies import S3_SESSION
+from dependencies import get_session
 from minio_client import MinioClient
 
 
@@ -15,7 +15,8 @@ async def get_s3_client(
     aws_access_key_id: str = settings.minio.access_key,
     aws_secret_access_key: str = settings.minio.secret_key,
 ) -> AsyncGenerator[S3Client]:
-    async with S3_SESSION.client(
+    s3_session = get_session()
+    async with s3_session.client(
         service_name=service_name,
         endpoint_url=endpoint_url,
         aws_access_key_id=aws_access_key_id,
