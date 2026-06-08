@@ -2,11 +2,11 @@ from aio_pika import IncomingMessage
 from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 
 from core.config import settings
-from core.rabbitmq.utils import get_minio_client
+from core.rabbitmq.utils import get_minio_service
 
 
 async def copy_file(message: IncomingMessage) -> None:
-    async with message.process(), get_minio_client() as minio_client:
+    async with message.process(), get_minio_service() as minio_service:
         data = get_message(message)
         genre_id, object_name, bucket_name = (
             data["genre_id"],
@@ -20,7 +20,7 @@ async def copy_file(message: IncomingMessage) -> None:
             "",
         )
 
-        await minio_client.copy_file(
+        await minio_service.copy_file(
             source_bucket_name=bucket_name,
             destination_bucket_name=bucket_name,
             source_object_name=object_name,
@@ -47,14 +47,14 @@ async def copy_file(message: IncomingMessage) -> None:
 
 
 async def delete_temporary_file(message: IncomingMessage) -> None:
-    async with message.process(), get_minio_client() as minio_client:
+    async with message.process(), get_minio_service() as minio_service:
         data = get_message(message)
         bucket_name, key = (
             data["bucket_name"],
             data["object_name"],
         )
 
-        await minio_client.delete_file(
+        await minio_service.delete_file(
             bucket_name=bucket_name,
             key=key,
         )
