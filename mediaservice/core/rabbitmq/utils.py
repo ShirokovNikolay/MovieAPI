@@ -6,6 +6,7 @@ from types_aiobotocore_s3 import S3Client
 from core.config import settings
 from dependencies import get_session
 from minio_client import MinioClient
+from service import MinioService
 
 
 @asynccontextmanager
@@ -30,3 +31,10 @@ async def get_minio_client() -> AsyncGenerator[MinioClient]:
     async with get_s3_client() as client:
         minio_client = MinioClient(client=client)
         yield minio_client
+
+
+@asynccontextmanager
+async def get_minio_service() -> AsyncGenerator[MinioService]:
+    async with get_minio_client() as minio_client:
+        minio_service = MinioService(minio_client=minio_client)
+        yield minio_service
