@@ -1,9 +1,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from aio_pika.abc import AbstractChannel
-from packages.rabbit_mq import RabbitMQService
-from packages.rabbit_mq.connection import get_channel as get_rabbitmq_channel
+from packages.rabbitmq.utils import get_rabbitmq_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache_services import GenreCacheService
@@ -17,19 +15,6 @@ from services import GenreService
 async def get_session() -> AsyncGenerator[AsyncSession]:
     async with session_factory() as session:
         yield session
-
-
-@asynccontextmanager
-async def get_channel() -> AsyncGenerator[AbstractChannel]:
-    async for channel in get_rabbitmq_channel():
-        yield channel
-
-
-@asynccontextmanager
-async def get_rabbitmq_service() -> AsyncGenerator[RabbitMQService]:
-    async with get_channel() as channel:
-        rabbitmq_service = RabbitMQService(channel)
-        yield rabbitmq_service
 
 
 @asynccontextmanager

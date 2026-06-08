@@ -1,41 +1,22 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-import aio_pika
 from fastapi import FastAPI
-from packages.rabbit_mq import connection, get_rabbit_mq_service
+from packages.rabbitmq.connection import close_rabbitmq
 
-from rabbitmq.consumer import copy_file, delete_temporary_file
+from rabbitmq.prestart import start_rabbitmq
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001
-    connection.RABBIT_MQ_CONNECTION = await aio_pika.connect_robust(
-        url="amqp://guest:guest@rabbitmq:5672",
-    )
-
-    channel = await connection.RABBIT_MQ_CONNECTION.channel()
-
-    async for rabbitmq in get_rabbit_mq_service(channel):
-        queue_copy = await rabbitmq.declare_queue(
-            "copy_file_queue",
-            durable=True,
-        )
-        queue_delete = await rabbitmq.declare_queue(
-            "delete_tmp_queue",
-            durable=True,
-        )
-
-        exchange = await rabbitmq.declare_exchange(
-            "to_mediaservice",
-            "direct",
-            durable=True,
-        )
-
-        await queue_copy.bind(exchange, "to_mediaservice")
-        await queue_delete.bind(exchange, "to_mediaservice")
-
-        await rabbitmq.consume(queue_copy, copy_file)
-        await rabbitmq.consume(queue_delete, delete_temporary_file)
+    """
+    Действия до старта приложения.
+    """
+    rabbitmq = start_rabbitmq()
+    await anext(rabbitmq)
     yield
-    await connection.RABBIT_MQ_CONNECTION.close()
+    """
+    Действия после заверения работы приложения.
+    """
+    await rabbitmq.aclose()
+    await close_rabbitmq()

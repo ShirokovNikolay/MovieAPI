@@ -1,8 +1,8 @@
 from aio_pika import IncomingMessage
-from packages.rabbit_mq.utils import create_message, get_message
+from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 
 from config import settings
-from rabbitmq.utils import get_minio_client, get_rabbitmq_service
+from rabbitmq.utils import get_minio_client
 
 
 async def copy_file(message: IncomingMessage) -> None:

@@ -4,8 +4,8 @@ from typing import Annotated
 from aio_pika.abc import AbstractChannel
 from fastapi import Depends
 
-from packages.rabbit_mq.connection import get_channel
-from packages.rabbit_mq.service import RabbitMQService
+from packages.rabbitmq.connection import get_channel
+from packages.rabbitmq.service import RabbitMQService
 
 
 async def get_rabbit_mq_service(
