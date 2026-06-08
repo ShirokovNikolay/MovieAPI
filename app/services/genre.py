@@ -1,5 +1,6 @@
 from typing import cast
 
+from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq import RabbitMQService
 from packages.rabbitmq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -85,13 +86,14 @@ class GenreService:
             "object_name": object_name,
         }
         exchange = await self.rabbitmq_service.declare_exchange(
-            name="to_mediaservice",
+            name=Exchange.app.value,
+            type=ExchangeType.direct.value,
             durable=True,
         )
         await self.rabbitmq_service.publish(
             message=create_message(body=body),
             exchange=exchange,
-            routing_key="to_mediaservice",
+            routing_key=Queue.copy_file.value,
         )
         return GenreResponse.model_validate(genre)
 
