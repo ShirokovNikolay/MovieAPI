@@ -1,7 +1,7 @@
 from typing import cast
 
-from packages.rabbit_mq import RabbitMQService
-from packages.rabbit_mq.utils import create_message
+from packages.rabbitmq import RabbitMQService
+from packages.rabbitmq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import BASE_MINIO_URL

@@ -1,17 +1,15 @@
 from collections.abc import AsyncGenerator
 
-import aio_pika
-from packages.rabbit_mq import connection
+from packages.rabbitmq.connection import init_rabbitmq
+from packages.rabbitmq.utils import get_rabbitmq_service
 
+# import aio_pika
+# from packages.rabbitmq import connection
 from core.rabbitmq.consumer import update_genre_url
-from core.rabbitmq.utils import get_rabbitmq_service
 
 
 async def start_rabbitmq() -> AsyncGenerator[None]:
-    assert connection.RABBIT_MQ_CONNECTION is not None
-    connection.RABBIT_MQ_CONNECTION = await aio_pika.connect_robust(
-        url="amqp://guest:guest@rabbitmq:5672",
-    )
+    await init_rabbitmq()
     async with get_rabbitmq_service() as rabbitmq_service:
         queue_update = await rabbitmq_service.declare_queue(
             "update_genre_queue",

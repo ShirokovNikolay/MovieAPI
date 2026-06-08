@@ -1,5 +1,5 @@
 from aio_pika import IncomingMessage
-from packages.rabbit_mq.utils import create_message, get_message
+from packages.rabbitmq.utils import create_message, get_message
 
 from core.constants import BASE_MINIO_URL
 from core.rabbitmq.utils import get_genre_cache_service

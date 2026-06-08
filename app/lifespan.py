@@ -2,6 +2,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from packages.rabbitmq.connection import close_rabbitmq
 
 from core.database.init_db import init_admin
 from core.rabbitmq.prestart import start_rabbitmq
@@ -20,3 +21,4 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001
     Действия после заверения работы приложения.
     """
     await rabbitmq.aclose()
+    await close_rabbitmq()
