@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from packages.rabbitmq.connection import close_rabbitmq
 
-from rabbitmq.prestart import start_rabbitmq
+from core.rabbitmq.prestart import start_rabbitmq
 
 
 @asynccontextmanager

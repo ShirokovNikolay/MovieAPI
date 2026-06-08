@@ -5,7 +5,7 @@ from aioboto3 import Session
 from fastapi import Depends
 from types_aiobotocore_s3 import S3Client
 
-from config import settings
+from core.config import settings
 from minio_client import MinioClient
 from service import MinioService
 
