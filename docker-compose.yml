@@ -18,6 +18,14 @@ services:
       MEDIASERVICE__PORT: 8000
     ports:
       - "8000:8000"
+    develop:
+      watch:
+        - path: ./app
+          action: sync
+          target: /app
+        - path: ./packages
+          action: sync
+          target: /app/packages
     depends_on:
       database:
         condition: service_healthy
@@ -143,6 +151,14 @@ services:
       MINIO__SECRET_KEY: adminadmin
     ports:
       - "8001:8000"
+    develop:
+      watch:
+        - path: ./mediaservice
+          action: sync
+          target: /mediaservice
+        - path: ./packages
+          action: sync
+          target: /mediaservice/packages
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       start_period: 3s
