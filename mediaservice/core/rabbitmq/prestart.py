@@ -3,7 +3,7 @@ from collections.abc import AsyncGenerator
 from packages.rabbitmq.connection import init_rabbitmq
 from packages.rabbitmq.utils import get_rabbitmq_service
 
-from rabbitmq.consumer import copy_file, delete_temporary_file
+from core.rabbitmq.consumer import copy_file, delete_temporary_file
 
 
 async def start_rabbitmq() -> AsyncGenerator[None]:
