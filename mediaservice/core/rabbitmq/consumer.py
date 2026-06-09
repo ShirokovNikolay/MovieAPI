@@ -61,13 +61,11 @@ async def copy_file(message: IncomingMessage) -> None:
 async def delete_file(message: IncomingMessage) -> None:
     async with message.process(), get_minio_service() as minio_service:
         data = get_message(message)
-        bucket_name, object_url = (
+        object_name, bucket_name = (
+            data["object_name"],
             data["bucket_name"],
-            data["object_url"],
         )
-        object_name = get_object_name_from_url(object_url, bucket_name)
-        delete_object_name = settings.minio.temporary_prefix + object_name
         await minio_service.delete_file(
             bucket_name=bucket_name,
-            key=delete_object_name,
+            key=object_name,
         )
