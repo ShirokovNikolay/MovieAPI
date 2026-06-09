@@ -4,7 +4,7 @@ from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.connection import init_rabbitmq
 from packages.rabbitmq.utils import get_rabbitmq_service
 
-from core.rabbitmq.consumer import copy_file, delete_temporary_file
+from core.rabbitmq.consumer import copy_file, delete_file
 
 
 async def start_rabbitmq() -> AsyncGenerator[None]:
@@ -25,9 +25,9 @@ async def start_rabbitmq() -> AsyncGenerator[None]:
             durable=True,
         )
 
-        await queue_copy.bind(exchange, Queue.copy_file.value)
-        await queue_delete.bind(exchange, Queue.delete_file.value)
+        await rabbitmq_service.bind(queue_copy, exchange, Queue.copy_file.value)
+        await rabbitmq_service.bind(queue_delete, exchange, Queue.delete_file.value)
 
         await rabbitmq_service.consume(queue_copy, copy_file)
-        await rabbitmq_service.consume(queue_delete, delete_temporary_file)
+        await rabbitmq_service.consume(queue_delete, delete_file)
         yield
