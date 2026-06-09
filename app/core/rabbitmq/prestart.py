@@ -20,7 +20,9 @@ async def start_rabbitmq() -> AsyncGenerator[None]:
             type=ExchangeType.direct.value,
             durable=True,
         )
-        await queue_update.bind(exchange, Queue.update_genre_url.value)
+        await rabbitmq_service.bind(
+            queue_update, exchange, Queue.update_genre_url.value
+        )
         await rabbitmq_service.consume(queue_update, update_genre_url)
 
         yield
