@@ -1,11 +1,10 @@
 from typing import cast
 
-from packages.constants import Exchange, ExchangeType, Queue
+from packages.constants import Exchange, ExchangeType, Queue, S3Bucket
 from packages.rabbitmq import RabbitMQService
 from packages.rabbitmq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.constants import BASE_MINIO_URL
 from core.exceptions.genre import (
     GenreIdAlreadyHasMoviesError,
     GenreIdNotFoundError,
@@ -79,11 +78,10 @@ class GenreService:
             raise GenreNameAlreadyExistsError(create_data.name)
 
         genre = await self.genre_repository.create_genre(create_data)
-        object_name = create_data.preview_url.replace(BASE_MINIO_URL + "/", "")
         body = {
             "genre_id": genre.id,
-            "bucket_name": "genre-posters",
-            "object_name": object_name,
+            "bucket_name": S3Bucket.genre_posters.value,
+            "object_url": create_data.preview_url,
         }
         exchange = await self.rabbitmq_service.declare_exchange(
             name=Exchange.app.value,
