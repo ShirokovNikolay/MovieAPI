@@ -28,8 +28,8 @@ async def update_genre_url(message: IncomingMessage) -> None:
             type=ExchangeType.direct.value,
         )
         body = {
-            "object_url": new_object_url,
             "bucket_name": bucket_name,
+            "object_name": object_name,
         }
         await rabbitmq_service.publish(
             message=create_message(body=body),

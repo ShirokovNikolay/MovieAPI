@@ -1,5 +1,6 @@
 from typing import cast
 
+from core.constants import BASE_MINIO_URL
 from packages.constants import Exchange, ExchangeType, Queue, S3Bucket
 from packages.rabbitmq import RabbitMQService
 from packages.rabbitmq.utils import create_message
@@ -142,5 +143,25 @@ class GenreService:
         if movies:
             raise GenreIdAlreadyHasMoviesError(genre_id)
 
+        genre = await self.get_genre_by_id(genre_id)
+        genre_preview_url = genre.preview_url
         if not await self.genre_repository.delete_genre_by_id(genre_id):
             raise GenreIdNotFoundError(genre_id)
+
+        exchange = await self.rabbitmq_service.declare_exchange(
+            name=Exchange.app.value,
+            type=ExchangeType.direct.value,
+            durable=True,
+        )
+        object_name = genre_preview_url.replace(
+            BASE_MINIO_URL + "/" + S3Bucket.genre_posters.value + "/", ""
+        )
+        body = {
+            "bucket_name": S3Bucket.genre_posters.value,
+            "object_name": object_name,
+        }
+        await self.rabbitmq_service.publish(
+            exchange=exchange,
+            routing_key=Queue.delete_file.value,
+            message=create_message(body=body),
+        )

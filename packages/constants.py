@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+from packages.rabbitmq.utils import create_exchange_name, create_queue_name
+
 
 class ActionType(StrEnum):
     update_genre_url = "update_genre_url"
@@ -12,24 +14,6 @@ class ExchangeType(StrEnum):
     fanout = "fanout"
     topic = "topic"
     headers = "headers"
-
-
-def create_exchange_name(
-    producer: str,
-    entity: str,
-    exchange_type: ExchangeType,
-) -> str:
-    exchange_name = f"{producer}.{entity}.{exchange_type.value}"
-    return exchange_name
-
-
-def create_queue_name(
-    consumer: str,
-    entity: str,
-    action: ActionType,
-) -> str:
-    queue_name = f"{consumer}.{entity}.{action.value}"
-    return queue_name
 
 
 class S3Bucket(StrEnum):
@@ -65,6 +49,15 @@ class Exchange(StrEnum):
         entity="content",
         exchange_type=ExchangeType.direct,
     )
+
+    @staticmethod
+    def create_queue_name(
+        consumer: str,
+        entity: str,
+        action: "ActionType",
+    ) -> str:
+        queue_name = f"{consumer}.{entity}.{action.value}"
+        return queue_name
 
 
 class Queue(StrEnum):
