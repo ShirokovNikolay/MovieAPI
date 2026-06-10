@@ -1,6 +1,6 @@
 from aio_pika import IncomingMessage
 
-from packages.constants import Exchange, ExchangeType, Queue
+from packages.constants import Exchange, ExchangeType, Queue, S3Bucket
 from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 
 from core.config import settings
@@ -10,8 +10,8 @@ from core.rabbitmq.utils import get_minio_service, get_object_name_from_url
 async def copy_file(message: IncomingMessage) -> None:
     async with message.process(), get_minio_service() as minio_service:
         data = get_message(message)
-        genre_id, bucket_name, object_url = (
-            data["genre_id"],
+        entity_id, bucket_name, object_url = (
+            data["entity_id"],
             data["bucket_name"],
             data["object_url"],
         )
@@ -37,15 +37,21 @@ async def copy_file(message: IncomingMessage) -> None:
                 durable=True,
             )
             body = {
-                "genre_id": genre_id,
+                "entity_id": entity_id,
                 "bucket_name": bucket_name,
                 "object_name": object_name,
                 "new_object_url": new_object_url,
             }
+            get_routing_key_by_bucket = {
+                S3Bucket.genre_posters.value: Queue.update_genre_url.value,
+                S3Bucket.movie_posters.value: Queue.update_movie_poster_url.value,
+                S3Bucket.movies.value: Queue.update_movie_source_url.value,
+            }
+            routing_key = get_routing_key_by_bucket[bucket_name]
             await rabbitmq_service.publish(
                 message=create_message(body=body),
                 exchange=exchange,
-                routing_key=Queue.update_genre_url.value,
+                routing_key=routing_key,
             )
 
 
