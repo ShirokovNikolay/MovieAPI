@@ -21,10 +21,10 @@ services:
     develop:
       watch:
         - path: ./app
-          action: sync
+          action: sync+restart
           target: /app
         - path: ./packages
-          action: sync
+          action: sync+restart
           target: /app/packages
     depends_on:
       database:
@@ -154,10 +154,10 @@ services:
     develop:
       watch:
         - path: ./mediaservice
-          action: sync
+          action: sync+restart
           target: /mediaservice
         - path: ./packages
-          action: sync
+          action: sync+restart
           target: /mediaservice/packages
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

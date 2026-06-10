@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 
 from packages.constants import Exchange, ExchangeType, Queue
-from packages.rabbitmq.connection import init_rabbitmq
+from packages.rabbitmq.connection import rabbitmq_connection_startup
 from packages.rabbitmq.utils import get_rabbitmq_service
 
 from core.rabbitmq.consumer import (
@@ -11,11 +11,15 @@ from core.rabbitmq.consumer import (
 )
 
 
-async def start_rabbitmq() -> AsyncGenerator[None]:
-    await init_rabbitmq()
+async def rabbitmq_consumer_queues_startup() -> AsyncGenerator[None]:
     async with get_rabbitmq_service() as rabbitmq_service:
-        queue_update_genre_url = await rabbitmq_service.declare_queue(
-            name=Queue.update_genre_url.value,
+        exchange = await rabbitmq_service.declare_exchange(
+            name=Exchange.mediaservice.value,
+            type=ExchangeType.direct.value,
+            durable=True,
+        )
+        queue_update_genre_poster_url = await rabbitmq_service.declare_queue(
+            name=Queue.update_genre_poster_url.value,
             durable=True,
         )
         queue_update_movie_poster_url = await rabbitmq_service.declare_queue(
@@ -27,27 +31,26 @@ async def start_rabbitmq() -> AsyncGenerator[None]:
             durable=True,
         )
 
-        exchange = await rabbitmq_service.declare_exchange(
-            name=Exchange.mediaservice.value,
-            type=ExchangeType.direct.value,
-            durable=True,
-        )
         await rabbitmq_service.bind(
-            queue_update_genre_url,
+            queue_update_genre_poster_url,
             exchange,
-            Queue.update_genre_url.value,
+            Queue.update_genre_poster_url.value,
         )
         await rabbitmq_service.bind(
             queue_update_movie_poster_url,
             exchange,
             Queue.update_movie_poster_url.value,
         )
+
         await rabbitmq_service.bind(
             queue_update_movie_source_url,
             exchange,
             Queue.update_movie_source_url.value,
         )
-        await rabbitmq_service.consume(queue_update_genre_url, update_genre_poster_url)
+        await rabbitmq_service.consume(
+            queue_update_genre_poster_url,
+            update_genre_poster_url,
+        )
         await rabbitmq_service.consume(
             queue_update_movie_poster_url,
             update_movie_poster_url,
@@ -56,5 +59,11 @@ async def start_rabbitmq() -> AsyncGenerator[None]:
             queue_update_movie_source_url,
             update_movie_source_url,
         )
-
         yield
+
+
+async def rabbitmq_startup() -> AsyncGenerator[None]:
+    await rabbitmq_connection_startup()
+    rabbitmq = rabbitmq_consumer_queues_startup()
+    await anext(rabbitmq)
+    yield
