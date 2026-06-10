@@ -4,16 +4,7 @@ from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 
 from core.config import settings
-from core.rabbitmq.utils import get_minio_service
-from urllib.parse import urlsplit
-
-
-def get_object_name_from_url(object_url: str, bucket_name: str) -> str:
-    url_parts = urlsplit(object_url)
-    path_url = url_parts.path
-    bucket_name_part = "/" + bucket_name + "/"
-    object_name = path_url.replace(bucket_name_part, "")
-    return object_name
+from core.rabbitmq.utils import get_minio_service, get_object_name_from_url
 
 
 async def copy_file(message: IncomingMessage) -> None:

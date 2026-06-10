@@ -23,13 +23,13 @@ async def get_genre_service(
         AsyncSession,
         Depends(get_db),
     ],
-    rabbitmq: Annotated[
+    rabbitmq_service: Annotated[
         RabbitMQService,
         Depends(get_rabbit_mq_service),
     ],
 ) -> AsyncGenerator[GenreService]:
     try:
-        genre_service = GenreService(session, rabbitmq)
+        genre_service = GenreService(session, rabbitmq_service)
         yield genre_service
     finally:
         """
@@ -42,9 +42,13 @@ async def get_movie_service(
         AsyncSession,
         Depends(get_db),
     ],
+    rabbitmq_service: Annotated[
+        RabbitMQService,
+        Depends(get_rabbit_mq_service),
+    ],
 ) -> AsyncGenerator[MovieService]:
     try:
-        movie_service = MovieService(session)
+        movie_service = MovieService(session, rabbitmq_service)
         yield movie_service
     finally:
         """
