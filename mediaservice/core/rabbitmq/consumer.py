@@ -1,27 +1,29 @@
 from aio_pika import IncomingMessage
-
 from packages.constants import Exchange, ExchangeType, Queue, S3Bucket
 from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 
 from core.config import settings
-from core.rabbitmq.utils import get_minio_service, get_object_name_from_url
+from core.rabbitmq.utils import (
+    get_bucket_name_from_url,
+    get_minio_service,
+    get_object_name_from_url,
+)
 
 
 async def copy_file(message: IncomingMessage) -> None:
     async with message.process(), get_minio_service() as minio_service:
         data = get_message(message)
-        entity_id, bucket_name, object_url = (
-            data["entity_id"],
-            data["bucket_name"],
-            data["object_url"],
-        )
+        entity_id, object_url = data["entity_id"], data["object_url"]
 
-        object_name = get_object_name_from_url(object_url, bucket_name)
+        bucket_name = get_bucket_name_from_url(object_url)
+        object_name = get_object_name_from_url(object_url)
         destination_object_name = object_name.replace(
-            settings.minio.temporary_prefix, ""
+            settings.minio.temporary_prefix,
+            "",
         )
         prefix_url = settings.minio.url_minio.replace("minio", "localhost")
-        new_object_url = prefix_url + "/" + bucket_name + "/" + destination_object_name
+        updated_object_url_list = [prefix_url, bucket_name, destination_object_name]
+        updated_object_url = "/".join(updated_object_url_list)
 
         await minio_service.copy_file(
             source_bucket_name=bucket_name,
@@ -38,9 +40,8 @@ async def copy_file(message: IncomingMessage) -> None:
             )
             body = {
                 "entity_id": entity_id,
-                "bucket_name": bucket_name,
-                "object_name": object_name,
-                "new_object_url": new_object_url,
+                "object_url": object_url,
+                "updated_object_url": updated_object_url,
             }
             get_routing_key_by_bucket = {
                 S3Bucket.genre_posters.value: Queue.update_genre_url.value,
@@ -58,10 +59,9 @@ async def copy_file(message: IncomingMessage) -> None:
 async def delete_file(message: IncomingMessage) -> None:
     async with message.process(), get_minio_service() as minio_service:
         data = get_message(message)
-        object_name, bucket_name = (
-            data["object_name"],
-            data["bucket_name"],
-        )
+        object_url = data["object_url"]
+        bucket_name = get_bucket_name_from_url(object_url)
+        object_name = get_object_name_from_url(object_url)
         await minio_service.delete_file(
             bucket_name=bucket_name,
             key=object_name,

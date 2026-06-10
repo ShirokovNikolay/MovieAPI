@@ -1,12 +1,12 @@
-from typing import Callable, Any
+from collections.abc import Callable
+from typing import Any
 
 from aio_pika import IncomingMessage
-
-from cache_services import GenreCacheService, MovieCacheService
-from core.constants import AnyPydanticType
 from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message, get_message
 
+from cache_services import GenreCacheService, MovieCacheService
+from core.constants import AnyPydanticType
 from core.rabbitmq.utils import get_genre_cache_service, get_movie_cache_service
 from schemas.genre import GenrePartialUpdate
 from schemas.movie import MoviePartialUpdate
@@ -37,16 +37,15 @@ def update_media_factory(
     }
     get_service = service_to_context_manager[service_class]
 
-    async def update_media_url_function(message: IncomingMessage):
+    async def update_media_url_function(message: IncomingMessage) -> None:
         async with message.process(), get_service() as service:
             data = get_message(message=message)
-            entity_id, bucket_name, object_name, new_object_url = (
+            entity_id, object_url, updated_object_url = (
                 data["entity_id"],
-                data["bucket_name"],
-                data["object_name"],
-                data["new_object_url"],
+                data["object_url"],
+                data["updated_object_url"],
             )
-            partial_update_data = schema(**{update_field_name: new_object_url})
+            partial_update_data = schema(**{update_field_name: updated_object_url})
             update_method = getattr(service, update_method_name)
 
             parameters = {
@@ -61,8 +60,7 @@ def update_media_factory(
                 type=ExchangeType.direct.value,
             )
             body = {
-                "bucket_name": bucket_name,
-                "object_name": object_name,
+                "object_url": object_url,
             }
             await rabbitmq_service.publish(
                 message=create_message(body=body),

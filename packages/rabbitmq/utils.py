@@ -1,16 +1,15 @@
 import json
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from aio_pika import IncomingMessage, Message
 from aio_pika.abc import AbstractChannel
 
-
 from packages.rabbitmq import RabbitMQService, connection
 
 if TYPE_CHECKING:
-    from packages.constants import ExchangeType, ActionType
+    from packages.constants import ActionType, ExchangeType
 
 
 def get_message(

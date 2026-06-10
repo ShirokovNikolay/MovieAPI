@@ -49,10 +49,12 @@ async def start_rabbitmq() -> AsyncGenerator[None]:
         )
         await rabbitmq_service.consume(queue_update_genre_url, update_genre_poster_url)
         await rabbitmq_service.consume(
-            queue_update_movie_poster_url, update_movie_poster_url
+            queue_update_movie_poster_url,
+            update_movie_poster_url,
         )
         await rabbitmq_service.consume(
-            queue_update_movie_source_url, update_movie_source_url
+            queue_update_movie_source_url,
+            update_movie_source_url,
         )
 
         yield

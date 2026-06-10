@@ -34,7 +34,9 @@ mounted = "".join(
 )
 write(
     "app/lifecycle/mounted.js",
-    "(function () {\n    window.AppMounted = function () {\n" + mounted + "    };\n})();\n",
+    "(function () {\n    window.AppMounted = function () {\n"
+    + mounted
+    + "    };\n})();\n",
 )
 
 watch = "".join(
