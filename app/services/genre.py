@@ -1,7 +1,6 @@
 from typing import cast
 
-from core.constants import BASE_MINIO_URL
-from packages.constants import Exchange, ExchangeType, Queue, S3Bucket
+from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq import RabbitMQService
 from packages.rabbitmq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -81,7 +80,6 @@ class GenreService:
         genre = await self.genre_repository.create_genre(create_data)
         body = {
             "entity_id": genre.id,
-            "bucket_name": S3Bucket.genre_posters.value,
             "object_url": create_data.preview_url,
         }
         exchange = await self.rabbitmq_service.declare_exchange(
@@ -144,7 +142,6 @@ class GenreService:
             raise GenreIdAlreadyHasMoviesError(genre_id)
 
         genre = await self.get_genre_by_id(genre_id)
-        genre_preview_url = genre.preview_url
         if not await self.genre_repository.delete_genre_by_id(genre_id):
             raise GenreIdNotFoundError(genre_id)
 
@@ -153,13 +150,7 @@ class GenreService:
             type=ExchangeType.direct.value,
             durable=True,
         )
-        object_name = genre_preview_url.replace(
-            BASE_MINIO_URL + "/" + S3Bucket.genre_posters.value + "/", ""
-        )
-        body = {
-            "bucket_name": S3Bucket.genre_posters.value,
-            "object_name": object_name,
-        }
+        body = {"object_url": genre.preview_url}
         await self.rabbitmq_service.publish(
             exchange=exchange,
             routing_key=Queue.delete_file.value,

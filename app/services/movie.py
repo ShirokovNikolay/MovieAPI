@@ -1,5 +1,8 @@
 from typing import cast
 
+from packages.constants import Exchange, ExchangeType, Queue
+from packages.rabbitmq import RabbitMQService
+from packages.rabbitmq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.exceptions.genre import GenreIdNotFoundError
@@ -9,9 +12,6 @@ from core.exceptions.movie import (
 )
 from core.exceptions.user import UserIdNotFoundError
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
-from packages.constants import Queue, ExchangeType, Exchange, S3Bucket
-from packages.rabbitmq import RabbitMQService
-from packages.rabbitmq.utils import create_message
 from repositories import GenreRepository, MovieRepository, UserRepository
 from repositories.watch_history import WatchHistoryRepository
 from schemas.movie import (
@@ -144,7 +144,6 @@ class MovieService:
         )
         body = {
             "entity_id": movie.id,
-            "bucket_name": S3Bucket.movie_posters.value,
             "object_url": create_movie_data.preview_url,
         }
         message = create_message(body=body)
@@ -156,7 +155,6 @@ class MovieService:
 
         body = {
             "entity_id": movie.id,
-            "bucket_name": S3Bucket.movies.value,
             "object_url": create_movie_data.source_url,
         }
         message = create_message(body=body)
@@ -235,10 +233,7 @@ class MovieService:
             type=ExchangeType.direct.value,
             durable=True,
         )
-        body = {
-            "bucket_name": S3Bucket.movie_posters.value,
-            "object_name": movie.preview_url.split("/")[-1],
-        }
+        body = {"object_url": movie.preview_url}
         message = create_message(body=body)
         await self.rabbitmq_service.publish(
             message=message,
@@ -246,10 +241,7 @@ class MovieService:
             routing_key=Queue.delete_file.value,
         )
 
-        body = {
-            "bucket_name": S3Bucket.movies.value,
-            "object_name": movie.source_url.split("/")[-1],
-        }
+        body = {"object_url": movie.source_url}
         message = create_message(body=body)
         await self.rabbitmq_service.publish(
             message=message,
