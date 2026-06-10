@@ -44,7 +44,7 @@ async def copy_file(message: IncomingMessage) -> None:
                 "updated_object_url": updated_object_url,
             }
             get_routing_key_by_bucket = {
-                S3Bucket.genre_posters.value: Queue.update_genre_url.value,
+                S3Bucket.genre_posters.value: Queue.update_genre_poster_url.value,
                 S3Bucket.movie_posters.value: Queue.update_movie_poster_url.value,
                 S3Bucket.movies.value: Queue.update_movie_source_url.value,
             }

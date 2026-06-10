@@ -2,9 +2,9 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from packages.rabbitmq.connection import close_rabbitmq
+from packages.rabbitmq.connection import rabbitmq_connection_shutdown
 
-from core.rabbitmq.prestart import start_rabbitmq
+from core.rabbitmq.startup import rabbitmq_startup
 
 
 @asynccontextmanager
@@ -12,11 +12,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001
     """
     Действия до старта приложения.
     """
-    rabbitmq = start_rabbitmq()
+    rabbitmq = rabbitmq_startup()
     await anext(rabbitmq)
     yield
     """
     Действия после заверения работы приложения.
     """
     await rabbitmq.aclose()
-    await close_rabbitmq()
+    await rabbitmq_connection_shutdown()

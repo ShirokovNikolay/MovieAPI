@@ -4,7 +4,7 @@ from packages.rabbitmq.utils import create_exchange_name, create_queue_name
 
 
 class ActionType(StrEnum):
-    update_genre_url = "update_genre_url"
+    update_genre_poster_url = "update_genre_poster_url"
     update_movie_poster_url = "update_movie_poster_url"
     update_movie_source_url = "update_movie_source_url"
     copy_file = "copy_file"
@@ -63,10 +63,10 @@ class Exchange(StrEnum):
 
 
 class Queue(StrEnum):
-    update_genre_url = create_queue_name(
+    update_genre_poster_url = create_queue_name(
         consumer="app",
         entity="content",
-        action=ActionType.update_genre_url,
+        action=ActionType.update_genre_poster_url,
     )
     update_movie_poster_url = create_queue_name(
         consumer="app",
