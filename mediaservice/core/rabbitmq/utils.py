@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from urllib.parse import urlsplit
 
 from types_aiobotocore_s3 import S3Client
 
@@ -38,3 +39,11 @@ async def get_minio_service() -> AsyncGenerator[MinioService]:
     async with get_minio_client() as minio_client:
         minio_service = MinioService(minio_client=minio_client)
         yield minio_service
+
+
+def get_object_name_from_url(object_url: str, bucket_name: str) -> str:
+    url_parts = urlsplit(object_url)
+    path_url = url_parts.path
+    bucket_name_part = "/" + bucket_name + "/"
+    object_name = path_url.replace(bucket_name_part, "")
+    return object_name
