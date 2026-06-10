@@ -73,7 +73,7 @@ async def get_movie_service() -> AsyncGenerator[MovieService]:
 
 @asynccontextmanager
 async def get_movie_redis_client() -> AsyncGenerator[RedisClient]:
-    async for redis_client in get_redis_client_for_movies:
+    async for redis_client in get_redis_client_for_movies():
         yield redis_client
 
 
