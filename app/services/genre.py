@@ -80,7 +80,7 @@ class GenreService:
 
         genre = await self.genre_repository.create_genre(create_data)
         body = {
-            "genre_id": genre.id,
+            "entity_id": genre.id,
             "bucket_name": S3Bucket.genre_posters.value,
             "object_url": create_data.preview_url,
         }

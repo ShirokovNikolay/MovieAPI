@@ -9,6 +9,7 @@ from packages.rabbitmq.utils import create_message, get_message
 
 from core.rabbitmq.utils import get_genre_cache_service, get_movie_cache_service
 from schemas.genre import GenrePartialUpdate
+from schemas.movie import MoviePartialUpdate
 
 
 def update_media_factory(
@@ -21,13 +22,13 @@ def update_media_factory(
     inner_service_attr_name: str,
 ) -> Callable:
     """
-    :param schema: Схема для частичного обновления
-    :param service_class: Класс сервиса, у которого вызываем метод обновления сущности
-    :param update_field_name: Название поля класса, которое мы собираемся обновить
-    :param update_method_name: Метод для обновления этого поля
-    :param id_field_name: Название поля с id внутри update_method
-    :param update_data_field_name: Название поля, куда передаем схему
-    :param inner_service_attr_name: Название поля с сервисом
+    :param schema: схема для частичного обновления
+    :param service_class: класс сервиса, у которого вызываем метод обновления сущности
+    :param update_field_name: название обновляемого поля класса
+    :param update_method_name: метод для обновления этого поля
+    :param id_field_name: название поля с id внутри update_method
+    :param update_data_field_name: название поля, куда передаем схему
+    :param inner_service_attr_name: название поля с сервисом
     :return: функция-обработчик для rabbitmq
     """
     service_to_context_manager = {
@@ -82,34 +83,22 @@ update_genre_poster_url = update_media_factory(
     inner_service_attr_name="genre_service",
 )
 
+update_movie_poster_url = update_media_factory(
+    schema=MoviePartialUpdate,
+    service_class=MovieCacheService,
+    update_field_name="preview_url",
+    update_method_name="partial_update_movie",
+    id_field_name="movie_id",
+    update_data_field_name="update_movie_data",
+    inner_service_attr_name="movie_service",
+)
 
-# async def update_genre_url(message: IncomingMessage) -> None:
-#     async with message.process(), get_genre_cache_service() as genre_cache_service:
-#         data = get_message(message=message)
-#         genre_id, bucket_name, object_name, new_object_url = (
-#             data["genre_id"],
-#             data["bucket_name"],
-#             data["object_name"],
-#             data["new_object_url"],
-#         )
-#         genre_partial_update = GenrePartialUpdate(
-#             preview_url=new_object_url,
-#         )
-#         await genre_cache_service.partial_update_genre(
-#             genre_id=genre_id,
-#             update_data=genre_partial_update,
-#         )
-#         rabbitmq_service = genre_cache_service.genre_service.rabbitmq_service
-#         exchange = await rabbitmq_service.declare_exchange(
-#             name=Exchange.app.value,
-#             type=ExchangeType.direct.value,
-#         )
-#         body = {
-#             "bucket_name": bucket_name,
-#             "object_name": object_name,
-#         }
-#         await rabbitmq_service.publish(
-#             message=create_message(body=body),
-#             exchange=exchange,
-#             routing_key=Queue.delete_file.value,
-#         )
+update_movie_source_url = update_media_factory(
+    schema=MoviePartialUpdate,
+    service_class=MovieCacheService,
+    update_field_name="source_url",
+    update_method_name="partial_update_movie",
+    id_field_name="movie_id",
+    update_data_field_name="update_movie_data",
+    inner_service_attr_name="movie_service",
+)

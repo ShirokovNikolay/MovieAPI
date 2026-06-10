@@ -9,7 +9,9 @@ from core.exceptions.movie import (
 )
 from core.exceptions.user import UserIdNotFoundError
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
+from packages.constants import Queue, ExchangeType, Exchange, S3Bucket
 from packages.rabbitmq import RabbitMQService
+from packages.rabbitmq.utils import create_message
 from repositories import GenreRepository, MovieRepository, UserRepository
 from repositories.watch_history import WatchHistoryRepository
 from schemas.movie import (
@@ -135,6 +137,34 @@ class MovieService:
             raise GenreIdNotFoundError(create_movie_data.genre_id)
 
         movie = await self.movie_repository.create_movie(create_movie_data)
+        exchange = await self.rabbitmq_service.declare_exchange(
+            name=Exchange.app.value,
+            type=ExchangeType.direct.value,
+            durable=True,
+        )
+        body = {
+            "entity_id": movie.id,
+            "bucket_name": S3Bucket.movie_posters.value,
+            "object_url": create_movie_data.preview_url,
+        }
+        message = create_message(body=body)
+        await self.rabbitmq_service.publish(
+            message=message,
+            exchange=exchange,
+            routing_key=Queue.copy_file.value,
+        )
+
+        body = {
+            "entity_id": movie.id,
+            "bucket_name": S3Bucket.movies.value,
+            "object_url": create_movie_data.source_url,
+        }
+        message = create_message(body=body)
+        await self.rabbitmq_service.publish(
+            message=message,
+            exchange=exchange,
+            routing_key=Queue.copy_file.value,
+        )
         return MovieWithGenreResponse.model_validate(movie)
 
     async def update_movie(
@@ -196,5 +226,33 @@ class MovieService:
         return MovieWithGenreResponse.model_validate(updated_movie)
 
     async def delete_movie_by_id(self, movie_id: int) -> None:
+        movie = await self.get_movie_by_id(movie_id)
         if not await self.movie_repository.delete_movie_by_id(movie_id):
             raise MovieIdNotFoundError(movie_id)
+
+        exchange = await self.rabbitmq_service.declare_exchange(
+            name=Exchange.app.value,
+            type=ExchangeType.direct.value,
+            durable=True,
+        )
+        body = {
+            "bucket_name": S3Bucket.movie_posters.value,
+            "object_name": movie.preview_url.split("/")[-1],
+        }
+        message = create_message(body=body)
+        await self.rabbitmq_service.publish(
+            message=message,
+            exchange=exchange,
+            routing_key=Queue.delete_file.value,
+        )
+
+        body = {
+            "bucket_name": S3Bucket.movies.value,
+            "object_name": movie.source_url.split("/")[-1],
+        }
+        message = create_message(body=body)
+        await self.rabbitmq_service.publish(
+            message=message,
+            exchange=exchange,
+            routing_key=Queue.delete_file.value,
+        )
