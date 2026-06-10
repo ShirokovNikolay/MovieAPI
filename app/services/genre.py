@@ -1,3 +1,4 @@
+import asyncio
 from typing import cast
 
 from packages.constants import Exchange, ExchangeType, Queue
@@ -109,7 +110,36 @@ class GenreService:
         ):
             raise GenreNameAlreadyExistsError(update_data.name)
 
+        current_genre_preview_url = genre.preview_url
         updated_genre = await self.genre_repository.update_genre(genre_id, update_data)
+
+        if current_genre_preview_url != update_data.preview_url:
+            exchange = await self.rabbitmq_service.declare_exchange(
+                name=Exchange.app.value,
+                type=ExchangeType.direct.value,
+                durable=True,
+            )
+
+            body = {
+                "entity_id": genre.id,
+                "object_url": update_data.preview_url,
+            }
+            message = create_message(body=body)
+            await self.rabbitmq_service.publish(
+                message=message,
+                exchange=exchange,
+                routing_key=Queue.copy_file.value,
+            )
+
+            body = {
+                "object_url": current_genre_preview_url,
+            }
+            message = create_message(body=body)
+            await self.rabbitmq_service.publish(
+                message=message,
+                exchange=exchange,
+                routing_key=Queue.delete_file.value,
+            )
         return GenreResponse.model_validate(updated_genre)
 
     async def partial_update_genre(
