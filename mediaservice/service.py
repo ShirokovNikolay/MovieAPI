@@ -73,6 +73,12 @@ class MinioService:
         source_object_name: str,
         destination_object_name: str,
     ) -> None:
+        if (
+            source_bucket_name == destination_bucket_name
+            and source_object_name == destination_object_name
+        ):
+            return
+
         await self.minio_client.copy_file(
             source_bucket_name=source_bucket_name,
             destination_bucket_name=destination_bucket_name,
@@ -86,7 +92,7 @@ class MinioService:
             key=key,
         )
 
-    async def movie_file(
+    async def move_file(
         self,
         source_bucket_name: str,
         destination_bucket_name: str,
