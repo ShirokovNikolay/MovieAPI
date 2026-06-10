@@ -4,7 +4,7 @@ from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.connection import init_rabbitmq
 from packages.rabbitmq.utils import get_rabbitmq_service
 
-from core.rabbitmq.consumer import update_genre_url
+from core.rabbitmq.consumer import update_genre_poster_url
 
 
 async def start_rabbitmq() -> AsyncGenerator[None]:
@@ -23,6 +23,6 @@ async def start_rabbitmq() -> AsyncGenerator[None]:
         await rabbitmq_service.bind(
             queue_update, exchange, Queue.update_genre_url.value
         )
-        await rabbitmq_service.consume(queue_update, update_genre_url)
+        await rabbitmq_service.consume(queue_update, update_genre_poster_url)
 
         yield

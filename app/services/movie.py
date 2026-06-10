@@ -9,6 +9,7 @@ from core.exceptions.movie import (
 )
 from core.exceptions.user import UserIdNotFoundError
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
+from packages.rabbitmq import RabbitMQService
 from repositories import GenreRepository, MovieRepository, UserRepository
 from repositories.watch_history import WatchHistoryRepository
 from schemas.movie import (
@@ -25,12 +26,17 @@ from schemas.watch_history import WatchHistoryCreate
 
 
 class MovieService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        rabbitmq_service: RabbitMQService,
+    ) -> None:
         self.session = session
         self.user_repository = UserRepository(session)
         self.movie_repository = MovieRepository(session)
         self.genre_repository = GenreRepository(session)
         self.watch_history_repository = WatchHistoryRepository(session)
+        self.rabbitmq_service = rabbitmq_service
 
     async def get_movie_by_id(self, movie_id: int) -> MovieWithGenreResponse:
         movie = await self.movie_repository.get_movie_by_id(movie_id)
