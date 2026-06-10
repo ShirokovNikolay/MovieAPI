@@ -18,7 +18,9 @@ TEMPLATE_PARTS = [
 
 def write_manifest():
     manifest = "window.AppTemplateParts = " + repr(TEMPLATE_PARTS) + ";\n"
-    with open(os.path.join(ROOT, "app", "ui", "template_manifest.js"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(ROOT, "app", "ui", "template_manifest.js"), "w", encoding="utf-8"
+    ) as f:
         f.write(manifest)
 
 

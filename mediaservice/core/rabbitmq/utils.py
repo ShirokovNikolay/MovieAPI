@@ -10,6 +10,21 @@ from minio_client import MinioClient
 from service import MinioService
 
 
+def get_bucket_name_from_url(object_url: str) -> str:
+    parsed_url = urlsplit(object_url)
+    path_url = parsed_url.path
+    bucket_name = path_url.split("/")[1]
+    return bucket_name
+
+
+def get_object_name_from_url(object_url: str) -> str:
+    parsed_url = urlsplit(object_url)
+    path_url = parsed_url.path
+    object_name_list = path_url.split("/")[2:]
+    object_name = "/".join(object_name_list)
+    return object_name
+
+
 @asynccontextmanager
 async def get_s3_client(
     service_name: str = "s3",
@@ -39,11 +54,3 @@ async def get_minio_service() -> AsyncGenerator[MinioService]:
     async with get_minio_client() as minio_client:
         minio_service = MinioService(minio_client=minio_client)
         yield minio_service
-
-
-def get_object_name_from_url(object_url: str, bucket_name: str) -> str:
-    url_parts = urlsplit(object_url)
-    path_url = url_parts.path
-    bucket_name_part = "/" + bucket_name + "/"
-    object_name = path_url.replace(bucket_name_part, "")
-    return object_name
