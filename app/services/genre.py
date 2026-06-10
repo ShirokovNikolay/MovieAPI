@@ -1,4 +1,3 @@
-import asyncio
 from typing import cast
 
 from packages.constants import Exchange, ExchangeType, Queue

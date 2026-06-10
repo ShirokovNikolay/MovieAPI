@@ -183,10 +183,63 @@ class MovieService:
         ):
             raise MovieNameAlreadyExistsError(update_movie_data.name)
 
+        current_movie_preview_url = movie.preview_url
+        current_movie_source_url = movie.source_url
         updated_movie = await self.movie_repository.update_movie(
             movie_id,
             update_movie_data,
         )
+
+        exchange = await self.rabbitmq_service.declare_exchange(
+            name=Exchange.app.value,
+            type=ExchangeType.direct.value,
+            durable=True,
+        )
+
+        if current_movie_preview_url != update_movie_data.preview_url:
+            body = {
+                "entity_id": movie.id,
+                "object_url": update_movie_data.preview_url,
+            }
+            message = create_message(body=body)
+            await self.rabbitmq_service.publish(
+                message=message,
+                exchange=exchange,
+                routing_key=Queue.copy_file.value,
+            )
+
+            body = {
+                "object_url": current_movie_preview_url,
+            }
+            message = create_message(body=body)
+            await self.rabbitmq_service.publish(
+                message=message,
+                exchange=exchange,
+                routing_key=Queue.delete_file.value,
+            )
+
+        if current_movie_source_url != update_movie_data.source_url:
+            body = {
+                "entity_id": movie.id,
+                "object_url": update_movie_data.source_url,
+            }
+            message = create_message(body=body)
+            await self.rabbitmq_service.publish(
+                message=message,
+                exchange=exchange,
+                routing_key=Queue.copy_file.value,
+            )
+
+            body = {
+                "object_url": current_movie_source_url,
+            }
+            message = create_message(body=body)
+            await self.rabbitmq_service.publish(
+                message=message,
+                exchange=exchange,
+                routing_key=Queue.delete_file.value,
+            )
+
         return MovieWithGenreResponse.model_validate(updated_movie)
 
     async def partial_update_movie(

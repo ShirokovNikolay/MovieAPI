@@ -149,7 +149,7 @@
                 // Админ панель - фильмы
                 adminMoviesList: [],
                 adminMoviesPage: 1,
-                adminMoviesSize: 10,
+                adminMoviesSize: 16,
                 adminMoviesLoading: false,
                 adminMoviesTotal: 0,
 
