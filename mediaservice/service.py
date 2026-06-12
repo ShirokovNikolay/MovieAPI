@@ -36,7 +36,15 @@ class MinioService:
             content_type=presign_url_create.content_type,
             client_method=presign_url_create.client_method,
         )
+        from core.celery_core.tasks import delete_temporary_file
 
+        delete_temporary_file.apply_async(
+            args=[
+                presign_url_create.bucket_name.value,
+                object_name,
+            ],
+            countdown=24 * 60 * 60,
+        )
         return PresignUrlResponse(
             presign_url=presign_url.replace("minio", "localhost"),
             temporary_path=object_name,

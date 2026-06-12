@@ -123,11 +123,16 @@ services:
   celery-worker-mediaservice:
     build:
       context: .
-      dockerfile: mediaservice/core/celery/Dockerfile
-    container_name: celery-worker-mediaservice
+      dockerfile: mediaservice/core/celery_core/Dockerfile
+    container_name: celery_core-worker-mediaservice
+    environment:
+      MINIO__HOST: minio
+      MINIO__PORT: 9000
+      MINIO__ACCESS_KEY: admin
+      MINIO__SECRET_KEY: adminadmin
     develop:
       watch:
-        - path: ./mediaservice/core/celery
+        - path: mediaservice/core/celery_core
           action: sync+restart
           target: /celery-worker
     depends_on:
