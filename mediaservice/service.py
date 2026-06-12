@@ -5,6 +5,7 @@ from fastapi import UploadFile
 from packages.constants import S3Bucket
 from packages.schemas import ConfirmUploadRequest, PresignUrlCreate, PresignUrlResponse
 
+from core.celery_core.celery_app import app
 from core.config import settings
 from minio_client import MinioClient
 
@@ -36,9 +37,9 @@ class MinioService:
             content_type=presign_url_create.content_type,
             client_method=presign_url_create.client_method,
         )
-        from core.celery_core.tasks import delete_temporary_file
 
-        delete_temporary_file.apply_async(
+        app.send_task(
+            name="mediaservice.media.delete_temporary_file",
             args=[
                 presign_url_create.bucket_name.value,
                 object_name,
