@@ -1,5 +1,6 @@
 from typing import BinaryIO
 
+from botocore.exceptions import ClientError
 from types_aiobotocore_s3 import S3Client
 
 
@@ -79,3 +80,17 @@ class MinioClient:
             Key=object_name,
             Body=file,
         )
+
+    async def file_exists(
+        self,
+        bucket_name: str,
+        object_name: str,
+    ) -> bool:
+        try:
+            await self.s3_client.head_object(
+                Bucket=bucket_name,
+                Key=object_name,
+            )
+            return True
+        except ClientError:
+            return False
