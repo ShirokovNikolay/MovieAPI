@@ -102,7 +102,7 @@ services:
       - "5540:5540"
 
   rabbitmq:
-    image: rabbitmq:4.3-management
+    image: rabbitmq:3.13-management
     container_name: rabbitmq
     restart: always
     environment:
@@ -114,11 +114,26 @@ services:
     volumes:
       - "rabbitmq-data:/var/lib/rabbitmq"
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      start_period: 2s
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      start_period: 10s
       interval: 2s
       timeout: 2s
       retries: 3
+
+  celery-worker-mediaservice:
+    build:
+      context: .
+      dockerfile: mediaservice/core/celery/Dockerfile
+    container_name: celery-worker-mediaservice
+    develop:
+      watch:
+        - path: ./mediaservice/core/celery
+          action: sync+restart
+          target: /celery-worker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 
   minio:
     image: minio/minio:latest
