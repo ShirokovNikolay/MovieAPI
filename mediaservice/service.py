@@ -36,6 +36,7 @@ class MinioService:
             content_type=presign_url_create.content_type,
             client_method=presign_url_create.client_method,
         )
+
         return PresignUrlResponse(
             presign_url=presign_url.replace("minio", "localhost"),
             temporary_path=object_name,
@@ -104,4 +105,14 @@ class MinioService:
             destination_bucket_name=destination_bucket_name,
             source_object_name=source_object_name,
             destination_object_name=destination_object_name,
+        )
+
+    async def file_exists(
+        self,
+        bucket_name: str,
+        object_name: str,
+    ) -> bool:
+        return await self.minio_client.file_exists(
+            bucket_name=bucket_name,
+            object_name=object_name,
         )
