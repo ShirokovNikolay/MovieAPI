@@ -30,3 +30,7 @@ echo -ne "Connection: close\r\n\r\n"
 cat test.png
 sleep 1
 ) | nc minio 9000
+
+
+run mypy:
+$env:MYPYPATH="app;."; mypy app; $env:MYPYPATH="mediaservice;."; mypy mediaservice; $env:MYPYPATH="packages;."; mypy packages

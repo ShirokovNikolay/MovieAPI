@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
 from typing import Any
 
 from aio_pika import IncomingMessage
@@ -20,7 +20,7 @@ def update_media_factory(
     id_field_name: str,
     update_data_field_name: str,
     inner_service_attr_name: str,
-) -> Callable:
+) -> Callable[[IncomingMessage], Coroutine[Any, Any, None]]:
     """
     :param schema: схема для частичного обновления
     :param service_class: класс сервиса, у которого вызываем метод обновления сущности
@@ -45,7 +45,9 @@ def update_media_factory(
                 data["object_url"],
                 data["updated_object_url"],
             )
-            partial_update_data = schema(**{update_field_name: updated_object_url})
+            partial_update_data = schema(  # type: ignore[operator]
+                **{update_field_name: updated_object_url},
+            )
             update_method = getattr(service, update_method_name)
 
             parameters = {
@@ -72,7 +74,7 @@ def update_media_factory(
 
 
 update_genre_poster_url = update_media_factory(
-    schema=GenrePartialUpdate,
+    schema=GenrePartialUpdate,  # type: ignore[type-var]
     service_class=GenreCacheService,
     update_field_name="preview_url",
     update_method_name="partial_update_genre",
@@ -82,7 +84,7 @@ update_genre_poster_url = update_media_factory(
 )
 
 update_movie_poster_url = update_media_factory(
-    schema=MoviePartialUpdate,
+    schema=MoviePartialUpdate,  # type: ignore[type-var]
     service_class=MovieCacheService,
     update_field_name="preview_url",
     update_method_name="partial_update_movie",
@@ -92,7 +94,7 @@ update_movie_poster_url = update_media_factory(
 )
 
 update_movie_source_url = update_media_factory(
-    schema=MoviePartialUpdate,
+    schema=MoviePartialUpdate,  # type: ignore[type-var]
     service_class=MovieCacheService,
     update_field_name="source_url",
     update_method_name="partial_update_movie",
