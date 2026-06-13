@@ -18,9 +18,14 @@ class MinioConfig(BaseModel):
         return f"http://{self.host}:{self.port}"
 
 
+class CeleryConfig(BaseModel):
+    delete_temporary_file_in: int = 24 * 60 * 60
+
+
 class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent
     minio: MinioConfig = MinioConfig()
+    celery: CeleryConfig = CeleryConfig()
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         case_sensitive=False,
         env_file=BASE_DIR / ".env",

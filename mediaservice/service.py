@@ -5,7 +5,7 @@ from fastapi import UploadFile
 from packages.constants import S3Bucket
 from packages.schemas import ConfirmUploadRequest, PresignUrlCreate, PresignUrlResponse
 
-from core.celery_core.celery_app import app
+from core.celery.celery_app import app
 from core.config import settings
 from minio_client import MinioClient
 
@@ -44,7 +44,7 @@ class MinioService:
                 presign_url_create.bucket_name.value,
                 object_name,
             ],
-            countdown=24 * 60 * 60,
+            countdown=settings.celery.delete_temporary_file_in,
         )
         return PresignUrlResponse(
             presign_url=presign_url.replace("minio", "localhost"),
