@@ -31,8 +31,20 @@ jobs:
       - name: Run black
         run: uv run black ./
 
-      - name: Run mypy
-        run: uv run mypy ./
+      - name: Run mypy in app
+        env:
+          MYPYPATH: "app;."
+        run: uv run mypy app
+
+      - name: Run mypy in mediaservice
+        env:
+          MYPYPATH: "mediaservice;."
+        run: uv run mypy mediaservice
+
+      - name: Run mypy in packages
+        env:
+          MYPYPATH: "packages;."
+        run: uv run mypy packages
 
       - name: Run ruff
         run: uv run ruff check --fix
