@@ -91,6 +91,6 @@ class MinioClient:
                 Bucket=bucket_name,
                 Key=object_name,
             )
-            return True
+            return True  # noqa: TRY300
         except ClientError:
             return False
