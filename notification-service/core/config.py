@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     mail_host: str = "smtp.yandex.ru"
     mail_port: int = 587
     corporate_mail: str = "email"
-    mail_password: str = "password"
+    mail_password: str = "password"  # noqa: S105
     start_tls: bool = True
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         case_sensitive=False,

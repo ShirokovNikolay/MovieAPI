@@ -1,4 +1,5 @@
 from email.message import EmailMessage
+
 from aiosmtplib import SMTP
 
 from core.config import settings
@@ -6,7 +7,7 @@ from core.config import settings
 
 class EmailService:
     @staticmethod
-    def get_smtp_client():
+    def get_smtp_client() -> SMTP:
         smtp_client = SMTP(
             hostname=settings.mail_host,
             port=settings.mail_port,
