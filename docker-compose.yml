@@ -31,9 +31,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
       mediaservice:
+        condition: service_healthy
+      notification-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -189,6 +189,32 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    develop:
+      watch:
+        - path: ./notification-service
+          action: sync+restart
+          target: /notification-service
+
+        - path: ./packages
+          action: sync+restart
+          target: /notification-service/packages
+    ports:
+      - "8003:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      start_period: 3s
+      interval: 2s
+      timeout: 2s
+      retries: 3
+    depends_on:
       rabbitmq:
         condition: service_healthy
 
