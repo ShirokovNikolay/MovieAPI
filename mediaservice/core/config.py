@@ -23,7 +23,7 @@ class CeleryConfig(BaseModel):
 
 
 class Settings(BaseSettings):
-    BASE_DIR: Path = Path(__file__).parent
+    BASE_DIR: Path = Path(__file__).parent.parent
     minio: MinioConfig = MinioConfig()
     celery: CeleryConfig = CeleryConfig()
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
