@@ -31,6 +31,13 @@ repos:
           args: ["mediaservice"]
 
         - id: mypy
+          alias: mypy notification-service
+          name: Run mypy notification-service
+          language: system
+          exclude: tests
+          args: ["notification-service"]
+
+        - id: mypy
           alias: mypy packages
           name: Run mypy packages
           language: system

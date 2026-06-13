@@ -222,3 +222,4 @@ __marimo__/
 .secrets
 config.local.yaml
 mediaservice/.env
+notification-service/.env
