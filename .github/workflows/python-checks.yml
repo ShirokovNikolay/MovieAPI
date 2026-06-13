@@ -37,6 +37,9 @@ jobs:
       - name: Run mypy mediaservice
         run: uv run mypy mediaservice
 
+      - name: Run mypy notification-service
+        run: uv run mypy notification-service
+
       - name: Run mypy packages
         run: uv run mypy packages
 
