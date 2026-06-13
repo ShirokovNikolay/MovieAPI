@@ -21,7 +21,7 @@ async def rabbitmq_connection_shutdown() -> None:
 
 async def get_channel() -> AsyncGenerator[AbstractChannel]:
     try:
-        channel = await RABBIT_MQ_CONNECTION.channel()
+        channel = await RABBIT_MQ_CONNECTION.channel()  # type: ignore[union-attr]
         yield channel
     finally:
         await channel.close()

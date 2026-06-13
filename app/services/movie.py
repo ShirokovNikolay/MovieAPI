@@ -143,7 +143,7 @@ class MovieService:
             durable=True,
         )
         body = {
-            "entity_id": movie.id,
+            "entity_id": movie.id,  # type: ignore[union-attr]
             "object_url": create_movie_data.preview_url,
         }
         message = create_message(body=body)
@@ -154,7 +154,7 @@ class MovieService:
         )
 
         body = {
-            "entity_id": movie.id,
+            "entity_id": movie.id,  # type: ignore[union-attr]
             "object_url": create_movie_data.source_url,
         }
         message = create_message(body=body)

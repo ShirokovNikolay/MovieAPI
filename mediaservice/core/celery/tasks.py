@@ -4,7 +4,7 @@ from ..rabbitmq.utils import get_minio_service
 from .celery_app import app
 
 
-@app.task(
+@app.task(  # type: ignore[untyped-decorator]
     name="mediaservice.media.delete_temporary_file",
 )
 def delete_temporary_file(bucket_name: str, object_name: str) -> None:
