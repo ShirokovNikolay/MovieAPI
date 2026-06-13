@@ -17,13 +17,29 @@ repos:
       rev: v1.20.1
       hooks:
         - id: mypy
+          alias: mypy app
+          name: Run mypy app
           language: system
           exclude: tests
+          args: ["app"]
+
+        - id: mypy
+          alias: mypy mediaservice
+          name: Run mypy mediaservice
+          language: system
+          exclude: tests
+          args: ["mediaservice"]
+
+        - id: mypy
+          alias: mypy packages
+          name: Run mypy packages
+          language: system
+          exclude: tests
+          args: ["packages"]
 
     - repo: https://github.com/astral-sh/ruff-pre-commit
       rev: v0.15.11
       hooks:
-        # Run the linter.
         - id: ruff-check
           args:
             - --fix
