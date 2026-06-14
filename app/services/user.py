@@ -20,6 +20,7 @@ from schemas.user import (
     UserResponseList,
     UserUpdate,
 )
+from core.celery.celery_app import app
 
 
 class UserService:
@@ -64,6 +65,13 @@ class UserService:
 
         create_user_data.password = hash_password(create_user_data.password)
         user = await self.user_repository.create_user(create_user_data)
+        app.send_task(
+            name="notification-service.email.send-welcome-email",
+            args=[
+                create_user_data.email,
+                create_user_data.name,
+            ],
+        )
         return UserResponse.model_validate(user)
 
     async def make_admin(self, user_id: int) -> None:

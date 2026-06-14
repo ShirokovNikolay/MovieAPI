@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent.parent
     mail_host: str = "smtp.yandex.ru"
     mail_port: int = 587
-    corporate_mail: str = "email"
-    mail_password: str = "password"  # noqa: S105
+    corporate_email: str = "email"
+    corporate_email_password: str = "password"  # noqa: S105
     start_tls: bool = True
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         case_sensitive=False,
