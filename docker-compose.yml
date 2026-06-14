@@ -42,6 +42,64 @@ services:
       timeout: 2s
       retries: 3
 
+  mediaservice:
+    build:
+      context: .
+      dockerfile: mediaservice/Dockerfile
+    container_name: mediaservice
+    environment:
+      MINIO__HOST: minio
+      MINIO__PORT: 9000
+      MINIO__ACCESS_KEY: admin
+      MINIO__SECRET_KEY: adminadmin
+    ports:
+      - "8001:8000"
+    develop:
+      watch:
+        - path: ./mediaservice
+          action: sync+restart
+          target: /mediaservice
+        - path: ./packages
+          action: sync+restart
+          target: /mediaservice/packages
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      start_period: 3s
+      interval: 2s
+      timeout: 2s
+      retries: 3
+    depends_on:
+      minio:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    develop:
+      watch:
+        - path: ./notification-service
+          action: sync+restart
+          target: /notification-service
+
+        - path: ./packages
+          action: sync+restart
+          target: /notification-service/packages
+    ports:
+      - "8003:8000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      start_period: 3s
+      interval: 2s
+      timeout: 2s
+      retries: 3
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   frontend:
     image: nginx:1.27-alpine
     container_name: frontend
@@ -72,15 +130,6 @@ services:
       timeout: 2s
       retries: 3
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: postgres@postgres.com
-      PGADMIN_DEFAULT_PASSWORD: postgres
-    ports:
-      - "5050:80"
-
   redis:
     image: redis:latest
     container_name: redis
@@ -95,11 +144,24 @@ services:
       timeout: 2s
       retries: 3
 
-  redis_gui:
-    image: redis/redisinsight
-    container_name: redis_gui
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: adminadmin
     ports:
-      - "5540:5540"
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    command: server --console-address ":9001" /data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      start_period: 3s
+      interval: 2s
+      timeout: 2s
+      retries: 3
 
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -140,84 +202,29 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  maildev:
+    image: maildev/maildev
+    container_name: maidev
+    env_file:
+      - .env.docker-compose
+    ports:
+      - "1080:1080"
+      - "1025:1025"
 
-  minio:
-    image: minio/minio:latest
-    container_name: minio
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
     environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: adminadmin
+      PGADMIN_DEFAULT_EMAIL: postgres@postgres.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio-data:/data
-    command: server --console-address ":9001" /data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      start_period: 3s
-      interval: 2s
-      timeout: 2s
-      retries: 3
+      - "5050:80"
 
-  mediaservice:
-    build:
-      context: .
-      dockerfile: mediaservice/Dockerfile
-    container_name: mediaservice
-    environment:
-      MINIO__HOST: minio
-      MINIO__PORT: 9000
-      MINIO__ACCESS_KEY: admin
-      MINIO__SECRET_KEY: adminadmin
+  redis_gui:
+    image: redis/redisinsight
+    container_name: redis_gui
     ports:
-      - "8001:8000"
-    develop:
-      watch:
-        - path: ./mediaservice
-          action: sync+restart
-          target: /mediaservice
-        - path: ./packages
-          action: sync+restart
-          target: /mediaservice/packages
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      start_period: 3s
-      interval: 2s
-      timeout: 2s
-      retries: 3
-    depends_on:
-      minio:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-
-  notification-service:
-    build:
-      context: .
-      dockerfile: notification-service/Dockerfile
-    container_name: notification-service
-    develop:
-      watch:
-        - path: ./notification-service
-          action: sync+restart
-          target: /notification-service
-
-        - path: ./packages
-          action: sync+restart
-          target: /notification-service/packages
-    ports:
-      - "8003:8000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      start_period: 3s
-      interval: 2s
-      timeout: 2s
-      retries: 3
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-
+      - "5540:5540"
 
 volumes:
   postgres-data:
