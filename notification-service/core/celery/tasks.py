@@ -1,8 +1,6 @@
 import asyncio
-from datetime import time
 
 from core.celery.celery_app import app
-
 from service import EmailService
 
 
@@ -14,5 +12,5 @@ def send_welcome_email(email: str, name: str) -> None:
         EmailService.send_welcome_email(
             email,
             name,
-        )
+        ),
     )

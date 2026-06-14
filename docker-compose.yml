@@ -187,7 +187,7 @@ services:
       context: .
       dockerfile: mediaservice/Dockerfile
     container_name: celery-worker-mediaservice
-    command: uv run celery --app core.celery.celery_app worker --loglevel=INFO
+    command: uv run celery --app core.celery.celery_app worker -Q mediaservice --loglevel=INFO
     environment:
       MINIO__HOST: minio
       MINIO__PORT: 9000
@@ -207,7 +207,7 @@ services:
       context: .
       dockerfile: notification-service/Dockerfile
     container_name: celery-worker-notification-service
-    command: uv run celery --app core.celery.celery_app worker --loglevel=INFO
+    command: uv run celery --app core.celery.celery_app worker -Q notification --loglevel=INFO
     develop:
       watch:
         - path: notification-service
