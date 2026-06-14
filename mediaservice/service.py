@@ -45,6 +45,7 @@ class MinioService:
                 object_name,
             ],
             countdown=settings.celery.delete_temporary_file_in,
+            queue="mediaservice",
         )
         return PresignUrlResponse(
             presign_url=presign_url.replace("minio", "localhost"),

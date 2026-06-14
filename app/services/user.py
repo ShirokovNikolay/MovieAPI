@@ -2,6 +2,7 @@ from typing import cast
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.celery.celery_app import app
 from core.constants import UserRole
 from core.exceptions.auth import InvalidPasswordError
 from core.exceptions.user import (
@@ -20,7 +21,6 @@ from schemas.user import (
     UserResponseList,
     UserUpdate,
 )
-from core.celery.celery_app import app
 
 
 class UserService:
@@ -71,6 +71,7 @@ class UserService:
                 create_user_data.email,
                 create_user_data.name,
             ],
+            queue="notification",
         )
         return UserResponse.model_validate(user)
 
