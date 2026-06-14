@@ -177,10 +177,10 @@ services:
       - "rabbitmq-data:/var/lib/rabbitmq"
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
-      start_period: 10s
+      start_period: 15s
       interval: 2s
       timeout: 2s
-      retries: 3
+      retries: 5
 
   celery-worker-mediaservice:
     build:
@@ -195,9 +195,24 @@ services:
       MINIO__SECRET_KEY: adminadmin
     develop:
       watch:
-        - path: mediaservice/core/celery
+        - path: mediaservice
           action: sync+restart
-          target: /celery-worker
+          target: /mediaservice
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  celery-worker-notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: celery-worker-notification-service
+    command: uv run celery --app core.celery.celery_app worker --loglevel=INFO
+    develop:
+      watch:
+        - path: notification-service
+          action: sync+restart
+          target: /notification-service
     depends_on:
       rabbitmq:
         condition: service_healthy
