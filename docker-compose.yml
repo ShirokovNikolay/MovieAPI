@@ -207,7 +207,7 @@ services:
       context: .
       dockerfile: notification-service/Dockerfile
     container_name: celery-worker-notification-service
-    command: uv run celery --app core.celery.celery_app worker -Q notification --loglevel=INFO
+    command: uv run celery --app core.celery.celery_app worker -Q notification-service --loglevel=INFO
     develop:
       watch:
         - path: notification-service

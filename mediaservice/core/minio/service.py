@@ -1,4 +1,5 @@
 from typing import cast
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 from fastapi import UploadFile
@@ -7,7 +8,7 @@ from packages.schemas import ConfirmUploadRequest, PresignUrlCreate, PresignUrlR
 
 from core.celery.celery_app import app
 from core.config import settings
-from minio_client import MinioClient
+from core.minio.client import MinioClient
 
 
 class MinioService:
@@ -126,3 +127,18 @@ class MinioService:
             bucket_name=bucket_name,
             object_name=object_name,
         )
+
+    @classmethod
+    def get_bucket_name_from_url(cls, object_url: str) -> str:
+        parsed_url = urlsplit(object_url)
+        path_url = parsed_url.path
+        bucket_name = path_url.split("/")[1]
+        return bucket_name
+
+    @classmethod
+    def get_object_name_from_url(cls, object_url: str) -> str:
+        parsed_url = urlsplit(object_url)
+        path_url = parsed_url.path
+        object_name_list = path_url.split("/")[2:]
+        object_name = "/".join(object_name_list)
+        return object_name

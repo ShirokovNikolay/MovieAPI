@@ -41,6 +41,7 @@ class EmailService:
     @classmethod
     async def send_welcome_email(cls, email: str, name: str) -> None:
         subject = "Because you love movies as much as we do 🎬"
+        # ruff: disable[W291, W293, E501]
         body_template = """
         Dear {name},
         
@@ -66,8 +67,9 @@ class EmailService:
         
         Let's watch something great.
         
-        — The MovieAPI Team
+        — The MovieAPI Team 
         """
+        # ruff: enable[W291, W293, E501]
         await cls.send_email(
             subject=subject,
             body=body_template.format(name=name),
