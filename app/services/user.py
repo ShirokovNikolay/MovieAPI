@@ -71,7 +71,7 @@ class UserService:
                 create_user_data.email,
                 create_user_data.name,
             ],
-            queue="notification",
+            queue="notification-service",
         )
         return UserResponse.model_validate(user)
 

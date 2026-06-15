@@ -3,11 +3,7 @@ from packages.constants import Exchange, ExchangeType, Queue, S3Bucket
 from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 
 from core.config import settings
-from core.rabbitmq.utils import (
-    get_bucket_name_from_url,
-    get_minio_service,
-    get_object_name_from_url,
-)
+from core.minio.utils import get_minio_service
 
 
 async def copy_file(message: IncomingMessage) -> None:
@@ -15,8 +11,8 @@ async def copy_file(message: IncomingMessage) -> None:
         data = get_message(message)
         entity_id, object_url = data["entity_id"], data["object_url"]
 
-        bucket_name = get_bucket_name_from_url(object_url)
-        object_name = get_object_name_from_url(object_url)
+        bucket_name = minio_service.get_bucket_name_from_url(object_url)
+        object_name = minio_service.get_object_name_from_url(object_url)
         destination_object_name = object_name.replace(
             settings.minio.temporary_prefix,
             "",
@@ -60,8 +56,8 @@ async def delete_file(message: IncomingMessage) -> None:
     async with message.process(), get_minio_service() as minio_service:
         data = get_message(message)
         object_url = data["object_url"]
-        bucket_name = get_bucket_name_from_url(object_url)
-        object_name = get_object_name_from_url(object_url)
+        bucket_name = minio_service.get_bucket_name_from_url(object_url)
+        object_name = minio_service.get_object_name_from_url(object_url)
         await minio_service.delete_file(
             bucket_name=bucket_name,
             key=object_name,

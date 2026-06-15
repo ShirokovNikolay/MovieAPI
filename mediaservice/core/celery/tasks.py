@@ -1,6 +1,7 @@
 import asyncio
 
-from ..rabbitmq.utils import get_minio_service
+from core.minio.utils import get_minio_service
+
 from .celery_app import app
 
 

@@ -6,15 +6,9 @@ from fastapi import Depends
 from types_aiobotocore_s3 import S3Client
 
 from core.config import settings
-from minio_client import MinioClient
-from service import MinioService
-
-S3_SESSION = Session()
-
-
-def get_session() -> Session:
-    global S3_SESSION  # noqa: PLW0602
-    return S3_SESSION
+from core.minio.client import MinioClient
+from core.minio.connection import get_session
+from core.minio.service import MinioService
 
 
 async def get_client(
