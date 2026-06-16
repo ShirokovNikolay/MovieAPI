@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from packages.constants import S3Bucket, S3ClientMethod, S3ContentType
 
@@ -33,3 +33,13 @@ class ConfirmUploadRequest(BaseModel):
     destination_bucket_name: S3Bucket
     source_object_name: str
     destination_object_name: str
+
+
+class SendEmail(BaseModel):
+    """
+    Модель для отправки сообщения на почту.
+    """
+
+    subject: str
+    to_email: EmailStr
+    body: str

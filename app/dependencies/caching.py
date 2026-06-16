@@ -5,6 +5,7 @@ from fastapi import Depends
 
 from core.redis import CacheService, RedisClient
 from dependencies.redis_client import (
+    get_redis_client_for_confirmation_codes,
     get_redis_client_for_favorite_movies,
     get_redis_client_for_genres,
     get_redis_client_for_movies,
@@ -54,4 +55,7 @@ get_cache_service_for_watch_history = cache_service_factory(
 )
 get_cache_service_for_users = cache_service_factory(
     get_redis_client_for_users,
+)
+get_cache_service_for_confirmation_codes = cache_service_factory(
+    get_redis_client_for_confirmation_codes,
 )

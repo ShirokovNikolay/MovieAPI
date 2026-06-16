@@ -1,33 +1,51 @@
+import random
 from typing import cast
 
 from packages.celery.constants import Queue, TaskType
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.celery.celery_app import app
+from core.config import settings
 from core.constants import UserRole
 from core.exceptions.auth import InvalidPasswordError
+from core.exceptions.confirmation_code import (
+    EmailConfirmationCodeNotFoundError,
+    InvalidEmailConfirmationCodeError,
+)
 from core.exceptions.user import (
     UserEmailAlreadyExistsError,
     UserIdNotFoundError,
     UserLoginAlreadyExistsError,
     UserLoginNotFoundError,
 )
+from core.redis import CacheService
 from core.security.password_utils import hash_password, verify_password
+from packages.schemas import SendEmail
 from repositories import UserRepository
 from schemas.auth import UserLogin
 from schemas.user import (
     UserCreate,
     UserPartialUpdate,
+    UserRegistration,
     UserResponse,
     UserResponseList,
     UserUpdate,
 )
+from services.http_request import HttpRequestService
 
 
 class UserService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(
+        self,
+        session: AsyncSession,
+        redis_service: CacheService | None = None,
+        http_request_service: HttpRequestService | None = None,
+    ) -> None:
         self.session = session
         self.user_repository = UserRepository(session)
+        self.http_request_service = http_request_service
+        self.cache_service = redis_service
 
     async def get_user_by_id(self, user_id: int) -> UserResponse:
         user = await self.user_repository.get_user_by_id(user_id)
@@ -57,24 +75,89 @@ class UserService:
             page=page,
         )
 
-    async def create_user(self, create_user_data: UserCreate) -> UserResponse:
-        if await self.user_repository.user_login_exists(create_user_data.login):
-            raise UserLoginAlreadyExistsError(create_user_data.login)
+    async def get_confirmation_code(self, email: EmailStr) -> str:
+        confirmation_code = await self.cache_service.get(f"register:email:{email}")
+        if confirmation_code is None:
+            raise EmailConfirmationCodeNotFoundError(
+                email=email,
+            )
+        return confirmation_code
 
-        if await self.user_repository.user_email_exists(create_user_data.email):
-            raise UserEmailAlreadyExistsError(create_user_data.email)
+    async def verify_confirmation_code(
+        self,
+        email: EmailStr,
+        confirmation_code: str,
+    ) -> None:
+        sent_confirmation_code = await self.get_confirmation_code(email)
+        if confirmation_code != sent_confirmation_code:
+            raise InvalidEmailConfirmationCodeError(
+                email=email,
+                confirmation_code=confirmation_code,
+            )
 
-        create_user_data.password = hash_password(create_user_data.password)
+    @staticmethod
+    def convert_registration_to_create_schema(
+        user_registration_data: UserRegistration,
+    ) -> UserCreate:
+        user_create_data = user_registration_data.model_dump(
+            exclude={"confirmation_code", "password"},
+        )
+        password = user_registration_data.password
+        encrypted_password = hash_password(password)
+        user_create_data["encrypted_password"] = encrypted_password
+        return UserCreate(**user_create_data)
+
+    async def create_user(
+        self,
+        registration_user_data: UserRegistration,
+    ) -> UserResponse:
+        if await self.user_repository.user_login_exists(registration_user_data.login):
+            raise UserLoginAlreadyExistsError(registration_user_data.login)
+
+        if await self.user_repository.user_email_exists(registration_user_data.email):
+            raise UserEmailAlreadyExistsError(registration_user_data.email)
+
+        await self.verify_confirmation_code(
+            registration_user_data.email,
+            registration_user_data.confirmation_code,
+        )
+
+        create_user_data = self.convert_registration_to_create_schema(
+            registration_user_data,
+        )
         user = await self.user_repository.create_user(create_user_data)
         app.send_task(
             name=TaskType.send_welcome_email.value,
             args=[
-                create_user_data.email,
-                create_user_data.name,
+                registration_user_data.email,
+                registration_user_data.name,
             ],
             queue=Queue.notification.value,
         )
         return UserResponse.model_validate(user)
+
+    async def create_confirmation_code(self, email: EmailStr) -> str:
+        confirmation_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+        await self.cache_service.set(
+            key=f"register:email:{email}",
+            value=confirmation_code,
+            ttl=60,
+        )
+        return confirmation_code
+
+    async def send_confirmation_code(self, email: EmailStr) -> None:
+        confirmation_code = await self.create_confirmation_code(email)
+        subject = "Confirm your email address"
+        body = f"Your confirmation code is {confirmation_code}"
+        email_data = SendEmail(
+            subject=subject,
+            body=body,
+            to_email=email,
+        )
+        await self.http_request_service.post(
+            url=settings.notificationservice.send_email_endpoint,
+            json=email_data.model_dump(),
+        )
 
     async def make_admin(self, user_id: int) -> None:
         if not await self.user_repository.make_admin(user_id):

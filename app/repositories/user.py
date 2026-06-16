@@ -51,10 +51,7 @@ class UserRepository:
         return list(result.scalars().all())
 
     async def create_user(self, create_user_data: UserCreate) -> User:
-        user = User(
-            **create_user_data.model_dump(exclude={"password"}),
-            encrypted_password=create_user_data.password,
-        )
+        user = User(**create_user_data.model_dump())
         self.session.add(user)
         await self.session.commit()
         await self.session.refresh(user)

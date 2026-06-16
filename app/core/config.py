@@ -32,6 +32,7 @@ class RedisDataBaseConfig(BaseModel):
     reviews: int = 4
     favorite_movies: int = 5
     watch_history: int = 6
+    confirmation_codes: int = 7
 
 
 class RedisConfig(BaseModel):
@@ -66,6 +67,15 @@ class MediaServiceConfig(BaseModel):
         return f"http://{self.host}:{self.port}/api/v1/presign-url"
 
 
+class NotificationServiceConfig(BaseModel):
+    host: str = "notification-service"
+    port: int = 8000
+
+    @property
+    def send_email_endpoint(self) -> str:
+        return f"http://{self.host}:{self.port}/api/v1/send-email"
+
+
 class Settings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent.parent
     database: DataBaseConfig = DataBaseConfig()
@@ -75,6 +85,7 @@ class Settings(BaseSettings):
     http_bearer: HTTPBearer = HTTPBearer()
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer("/api/v1/auth/login")
     mediaservice: MediaServiceConfig = MediaServiceConfig()
+    notificationservice: NotificationServiceConfig = NotificationServiceConfig()
     debug: bool = False
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(

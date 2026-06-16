@@ -49,3 +49,7 @@ get_redis_client_for_favorite_movies = redis_client_factory(
 get_redis_client_for_watch_history = redis_client_factory(
     db=settings.redis.db.watch_history,
 )
+
+get_redis_client_for_confirmation_codes = redis_client_factory(
+    db=settings.redis.db.confirmation_codes,
+)
