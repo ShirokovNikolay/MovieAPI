@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 from core.constants import (
     USER_EMAIL_MAX_LENGTH,
     USER_EMAIL_MIN_LENGTH,
+    USER_ENCRYPTED_PASSWORD_MAX_LENGTH,
     USER_LOGIN_MAX_LENGTH,
     USER_LOGIN_MIN_LENGTH,
     USER_NAME_MAX_LENGTH,
@@ -57,6 +58,21 @@ PasswordConstraint = Annotated[
     ),
 ]
 
+EncryptedPasswordConstraint = Annotated[
+    str,
+    Len(
+        max_length=USER_ENCRYPTED_PASSWORD_MAX_LENGTH,
+    ),
+]
+
+ConfirmationCode = Annotated[
+    str,
+    Len(
+        min_length=6,
+        max_length=6,
+    ),
+]
+
 
 class UserBase(BaseModel):
     """
@@ -75,7 +91,16 @@ class UserCreate(UserBase):
     Модель для создания пользователя.
     """
 
+    encrypted_password: EncryptedPasswordConstraint
+
+
+class UserRegistration(UserBase):
+    """
+    Модель для регистрирования пользователя.
+    """
+
     password: PasswordConstraint
+    confirmation_code: ConfirmationCode
 
 
 class UserUpdate(UserBase):

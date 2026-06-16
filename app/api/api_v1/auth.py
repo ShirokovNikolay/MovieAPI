@@ -2,6 +2,7 @@ from fastapi import (
     APIRouter,
     status,
 )
+from pydantic import EmailStr
 
 from core.constants import BEARER_TOKEN_TYPE
 from core.security.jwt_utils import (
@@ -13,10 +14,11 @@ from dependencies.annotations.security import (
     AuthUserByRefreshTokenDep,
     OAuth2Dep,
 )
+from dependencies.annotations.services import UserServiceDep
 from schemas.auth import UserLogin
 from schemas.token_info import TokenInfo
 from schemas.user import (
-    UserCreate,
+    UserRegistration,
     UserResponse,
 )
 
@@ -26,16 +28,24 @@ router = APIRouter(
 )
 
 
+@router.post("/confirmation_code")
+async def send_confirmation_code(
+    email: EmailStr,
+    user_service: UserServiceDep,
+) -> None:
+    await user_service.send_confirmation_code(email)
+
+
 @router.post(
     "/register",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(
-    create_user_data: UserCreate,
+    registration_user_data: UserRegistration,
     user_service: UserCacheServiceDep,
 ) -> UserResponse:
-    return await user_service.create_user(create_user_data)
+    return await user_service.create_user(registration_user_data)
 
 
 @router.post(

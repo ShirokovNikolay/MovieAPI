@@ -1,6 +1,7 @@
 from email.message import EmailMessage
 
 from aiosmtplib import SMTP
+from pydantic import EmailStr
 
 from core.config import settings
 
@@ -22,7 +23,7 @@ class EmailService:
         cls,
         subject: str,
         body: str,
-        to_email: str,
+        to_email: EmailStr,
     ) -> None:
         smtp_client = cls.get_smtp_client()
         async with smtp_client:
@@ -40,36 +41,36 @@ class EmailService:
 
     @classmethod
     async def send_welcome_email(cls, email: str, name: str) -> None:
-        subject = "Because you love movies as much as we do 🎬"
-        # ruff: disable[W291, W293, E501]
+        subject = "Потому что вы любите кино так же сильно, как и мы 🎬"
+        # ruff: disable[W293, E501]
         body_template = """
-        Dear {name},
+        Дорогой {name},
+
+        Некоторые люди смотрят фильмы. Другие — живут ими.
         
-        Some people watch movies. Others live them.
+        Если вы читаете это, вам, скорее всего, важнее не просто названия и постеры. Вам важны истории.
         
-        If you're reading this, you probably care about more than just titles and posters. You care about stories. 
+        Тот самый кадр, который остаётся с вами на дни.
         
-        That one shot that stays with you for days.
+        Именно для этого мы создали MovieAPI.
         
-        That's why we built MovieAPI.
+        Представьте, что это ваш второй дом:
         
-        Think of it as your second home:
+        Записывайте каждый фильм, который вы когда-либо видели
         
-        Log every film you've ever seen
+        Открывайте скрытые жемчужины, которые вы никогда не найдёте на популярных сайтах
         
-        Discover hidden gems you'd never find on mainstream sites
+        Ведите свой личный блокнот с мыслями и оценками
         
-        Keep your own private notebook of thoughts and ratings
+        Никаких алгоритмов, кричащих на вас. Только чистое кино.
         
-        No algorithms shouting at you. Just pure cinema.
+        Добро пожаловать домой, {name}.
         
-        Welcome home, {name}.
+        Давайте посмотрим что-то великое.
         
-        Let's watch something great.
-        
-        — The MovieAPI Team 
+        — Команда MovieAPI
         """
-        # ruff: enable[W291, W293, E501]
+        # ruff: enable[W293, E501]
         await cls.send_email(
             subject=subject,
             body=body_template.format(name=name),
