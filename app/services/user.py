@@ -1,5 +1,6 @@
 from typing import cast
 
+from packages.celery.constants import Queue, TaskType
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.celery.celery_app import app
@@ -66,12 +67,12 @@ class UserService:
         create_user_data.password = hash_password(create_user_data.password)
         user = await self.user_repository.create_user(create_user_data)
         app.send_task(
-            name="notification-service.email.send-welcome-email",
+            name=TaskType.send_welcome_email.value,
             args=[
                 create_user_data.email,
                 create_user_data.name,
             ],
-            queue="notification-service",
+            queue=Queue.notification.value,
         )
         return UserResponse.model_validate(user)
 

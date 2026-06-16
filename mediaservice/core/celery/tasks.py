@@ -1,12 +1,14 @@
 import asyncio
 
+from packages.celery.constants import TaskType
+
 from core.minio.utils import get_minio_service
 
 from .celery_app import app
 
 
 @app.task(  # type: ignore[untyped-decorator]
-    name="mediaservice.media.delete_temporary_file",
+    name=TaskType.delete_temporary_file.value,
 )
 def delete_temporary_file(bucket_name: str, object_name: str) -> None:
     async def async_delete_temporary_file() -> None:

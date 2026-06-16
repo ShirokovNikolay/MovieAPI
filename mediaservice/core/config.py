@@ -19,7 +19,7 @@ class MinioConfig(BaseModel):
 
 
 class CeleryConfig(BaseModel):
-    delete_temporary_file_in: int = 10
+    delete_temporary_file_in: int = 24 * 60 * 60
 
 
 class Settings(BaseSettings):

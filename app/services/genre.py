@@ -1,7 +1,7 @@
 from typing import cast
 
-from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq import RabbitMQService
+from packages.rabbitmq.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -83,8 +83,8 @@ class GenreService:
             "object_url": create_data.preview_url,
         }
         exchange = await self.rabbitmq_service.declare_exchange(
-            name=Exchange.app.value,
-            type=ExchangeType.direct.value,
+            name=Exchange.app,
+            type=ExchangeType.direct,
             durable=True,
         )
         await self.rabbitmq_service.publish(
@@ -114,8 +114,8 @@ class GenreService:
 
         if current_genre_preview_url != update_data.preview_url:
             exchange = await self.rabbitmq_service.declare_exchange(
-                name=Exchange.app.value,
-                type=ExchangeType.direct.value,
+                name=Exchange.app,
+                type=ExchangeType.direct,
                 durable=True,
             )
 
@@ -175,8 +175,8 @@ class GenreService:
             raise GenreIdNotFoundError(genre_id)
 
         exchange = await self.rabbitmq_service.declare_exchange(
-            name=Exchange.app.value,
-            type=ExchangeType.direct.value,
+            name=Exchange.app,
+            type=ExchangeType.direct,
             durable=True,
         )
         body = {"object_url": genre.preview_url}
