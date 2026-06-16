@@ -1,25 +1,25 @@
 from collections.abc import AsyncGenerator
 
-from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.connection import rabbitmq_connection_startup
+from packages.rabbitmq.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import get_rabbitmq_service
 
-from core.rabbitmq.consumer import copy_file, delete_file
+from core.rabbitmq.consumers import copy_file, delete_file
 
 
 async def rabbitmq_consumer_queues_startup() -> AsyncGenerator[None]:
     async with get_rabbitmq_service() as rabbitmq_service:
         exchange = await rabbitmq_service.declare_exchange(
-            name=Exchange.app.value,
-            type=ExchangeType.direct.value,
+            name=Exchange.app,
+            type=ExchangeType.direct,
             durable=True,
         )
         queue_copy = await rabbitmq_service.declare_queue(
-            name=Queue.copy_file.value,
+            name=Queue.copy_file,
             durable=True,
         )
         queue_delete = await rabbitmq_service.declare_queue(
-            name=Queue.delete_file.value,
+            name=Queue.delete_file,
             durable=True,
         )
 

@@ -3,6 +3,7 @@ from urllib.parse import urlsplit
 from uuid import uuid4
 
 from fastapi import UploadFile
+from packages.celery.constants import Queue, TaskType
 from packages.constants import S3Bucket
 from packages.schemas import ConfirmUploadRequest, PresignUrlCreate, PresignUrlResponse
 
@@ -40,13 +41,13 @@ class MinioService:
         )
 
         app.send_task(
-            name="mediaservice.media.delete_temporary_file",
+            name=TaskType.delete_temporary_file.value,
             args=[
                 presign_url_create.bucket_name.value,
                 object_name,
             ],
             countdown=settings.celery.delete_temporary_file_in,
-            queue="mediaservice",
+            queue=Queue.mediaservice.value,
         )
         return PresignUrlResponse(
             presign_url=presign_url.replace("minio", "localhost"),

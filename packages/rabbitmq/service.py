@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from aio_pika.abc import (
     AbstractChannel,
@@ -7,6 +8,9 @@ from aio_pika.abc import (
     AbstractQueue,
 )
 
+if TYPE_CHECKING:
+    from packages.rabbitmq.constants import Exchange, ExchangeType, Queue
+
 
 class RabbitMQService:
     def __init__(self, channel: AbstractChannel) -> None:
@@ -14,23 +18,23 @@ class RabbitMQService:
 
     async def declare_queue(
         self,
-        name: str,
+        name: "Queue",
         durable: bool = True,
     ) -> AbstractQueue:
         return await self.channel.declare_queue(
-            name=name,
+            name=name.value,
             durable=durable,
         )
 
     async def declare_exchange(
         self,
-        name: str,
-        type: str = "direct",
+        name: "Exchange",
+        type: "ExchangeType",
         durable: bool = True,
     ) -> AbstractExchange:
         return await self.channel.declare_exchange(
-            name=name,
-            type=type,
+            name=name.value,
+            type=type.value,
             durable=durable,
         )
 

@@ -1,7 +1,7 @@
 from typing import cast
 
-from packages.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq import RabbitMQService
+from packages.rabbitmq.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -138,8 +138,8 @@ class MovieService:
 
         movie = await self.movie_repository.create_movie(create_movie_data)
         exchange = await self.rabbitmq_service.declare_exchange(
-            name=Exchange.app.value,
-            type=ExchangeType.direct.value,
+            name=Exchange.app,
+            type=ExchangeType.direct,
             durable=True,
         )
         body = {
@@ -191,8 +191,8 @@ class MovieService:
         )
 
         exchange = await self.rabbitmq_service.declare_exchange(
-            name=Exchange.app.value,
-            type=ExchangeType.direct.value,
+            name=Exchange.app,
+            type=ExchangeType.direct,
             durable=True,
         )
 
@@ -282,8 +282,8 @@ class MovieService:
             raise MovieIdNotFoundError(movie_id)
 
         exchange = await self.rabbitmq_service.declare_exchange(
-            name=Exchange.app.value,
-            type=ExchangeType.direct.value,
+            name=Exchange.app,
+            type=ExchangeType.direct,
             durable=True,
         )
         body = {"object_url": movie.preview_url}

@@ -9,7 +9,12 @@ from aio_pika.abc import AbstractChannel
 from packages.rabbitmq import RabbitMQService, connection
 
 if TYPE_CHECKING:
-    from packages.constants import ActionType, ExchangeType
+    from packages.rabbitmq.constants import (
+        ActionType,
+        ConsumerType,
+        ExchangeType,
+        ProducerType,
+    )
 
 
 def get_message(
@@ -28,20 +33,20 @@ def create_message(body: dict[Any, Any]) -> Message:
 
 
 def create_exchange_name(
-    producer: str,
+    producer: "ProducerType",
     entity: str,
     exchange_type: "ExchangeType",
 ) -> str:
-    exchange_name = f"{producer}.{entity}.{exchange_type.value}"
+    exchange_name = f"{producer.value}.{entity}.{exchange_type.value}"
     return exchange_name
 
 
 def create_queue_name(
-    consumer: str,
+    consumer: "ConsumerType",
     entity: str,
     action: "ActionType",
 ) -> str:
-    queue_name = f"{consumer}.{entity}.{action.value}"
+    queue_name = f"{consumer.value}.{entity}.{action.value}"
     return queue_name
 
 

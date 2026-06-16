@@ -8,7 +8,7 @@ from packages.rabbitmq.connection import get_channel
 from packages.rabbitmq.service import RabbitMQService
 
 
-async def get_rabbit_mq_service(
+async def get_rabbitmq_service(
     channel: Annotated[
         AbstractChannel,
         Depends(get_channel),

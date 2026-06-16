@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from httpx import AsyncClient
-from packages.rabbitmq import RabbitMQService, get_rabbit_mq_service
+from packages.rabbitmq import RabbitMQService, get_rabbitmq_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database.connection import session_factory
@@ -25,7 +25,7 @@ async def get_genre_service(
     ],
     rabbitmq_service: Annotated[
         RabbitMQService,
-        Depends(get_rabbit_mq_service),
+        Depends(get_rabbitmq_service),
     ],
 ) -> AsyncGenerator[GenreService]:
     try:
@@ -44,7 +44,7 @@ async def get_movie_service(
     ],
     rabbitmq_service: Annotated[
         RabbitMQService,
-        Depends(get_rabbit_mq_service),
+        Depends(get_rabbitmq_service),
     ],
 ) -> AsyncGenerator[MovieService]:
     try:

@@ -2,7 +2,7 @@ from collections.abc import Callable, Coroutine
 from typing import Any
 
 from aio_pika import IncomingMessage
-from packages.constants import Exchange, ExchangeType, Queue
+from packages.rabbitmq.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message, get_message
 
 from cache_services import GenreCacheService, MovieCacheService
@@ -58,8 +58,8 @@ def update_media_factory(
             inner_service = getattr(service, inner_service_attr_name)
             rabbitmq_service = inner_service.rabbitmq_service
             exchange = await rabbitmq_service.declare_exchange(
-                name=Exchange.app.value,
-                type=ExchangeType.direct.value,
+                name=Exchange.app,
+                type=ExchangeType.direct,
             )
             body = {
                 "object_url": object_url,

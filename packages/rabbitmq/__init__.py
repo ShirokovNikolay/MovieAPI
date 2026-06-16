@@ -1,7 +1,7 @@
 __all__ = (
     "RabbitMQService",
-    "get_rabbit_mq_service",
+    "get_rabbitmq_service",
 )
 
-from .dependencies import get_rabbit_mq_service
+from .dependencies import get_rabbitmq_service
 from .service import RabbitMQService
