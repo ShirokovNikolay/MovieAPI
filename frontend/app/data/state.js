@@ -153,6 +153,20 @@
                 adminMoviesLoading: false,
                 adminMoviesTotal: 0,
 
+                // Для двухэтапной регистрации
+                registerStep: 'form', // 'form' | 'verify'
+                registrationData: {
+                    surname: '',
+                    name: '',
+                    login: '',
+                    email: '',
+                    password: '',
+                },
+                confirmationCode: '',
+                resendTimer: 60,
+                canResend: false,
+                timerInterval: null,
+
                 // Форма для фильма
                 editingMovie: null,
                 showMovieForm: false,
