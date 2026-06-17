@@ -3,7 +3,25 @@
     var parseResponseJson = window.ApiClient.parseResponseJson;
     var readErrorMessage = window.ApiClient.readErrorMessage;
 
-    function registerUser(payload) {
+    // ОТПРАВКА КОДА НА ПОЧТУ
+    function sendConfirmationCode(email) {
+        return fetch(apiUrl("/api/v1/auth/confirmation_code?email=" + encodeURIComponent(email)), {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+            },
+        }).then(function (res) {
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data;
+            });
+        });
+    }
+
+    // РЕГИСТРАЦИЯ С КОДОМ
+    function registerUserWithCode(payload) {
         return fetch(apiUrl("/api/v1/auth/register"), {
             method: "POST",
             headers: {
@@ -19,6 +37,13 @@
                 return data;
             });
         });
+    }
+
+    // СТАРАЯ РЕГИСТРАЦИЯ (оставляем для совместимости, но не используем)
+    function registerUser(payload) {
+        // Можно оставить или удалить
+        console.warn("registerUser is deprecated, use registerUserWithCode");
+        return registerUserWithCode(payload);
     }
 
     function loginUser(username, password) {
@@ -48,7 +73,9 @@
     }
 
     window.ApiAuth = {
-        registerUser: registerUser,
+        registerUser: registerUser, // оставляем для обратной совместимости
+        registerUserWithCode: registerUserWithCode,
+        sendConfirmationCode: sendConfirmationCode,
         loginUser: loginUser,
         logout: logout,
     };
