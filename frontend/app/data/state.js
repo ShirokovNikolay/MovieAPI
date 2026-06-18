@@ -185,6 +185,14 @@
                 movieSourceFile: null,
                 movieSourceFileName: "",
 
+                // Для двухфакторной аутентификации
+                loginStep: 'form', // 'form' | 'verify'
+                loginEmail: '', // email из ответа /login
+                loginCode: '', // 6-значный код
+                loginResendTimer: 60,
+                loginCanResend: false,
+                loginTimerInterval: null,
+
                 deletingGenreId: null,
                 deletingGenreName: null,
                 genreDeleting: false,

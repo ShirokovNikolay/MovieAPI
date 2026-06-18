@@ -3,6 +3,41 @@
     var parseResponseJson = window.ApiClient.parseResponseJson;
     var readErrorMessage = window.ApiClient.readErrorMessage;
 
+    function confirmEmail(payload) {
+        return fetch(apiUrl("/api/v1/auth/confirm-email"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(payload),
+        }).then(function (res) {
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data;
+            });
+        });
+    }
+
+    // ПОВТОРНАЯ ОТПРАВКА 2FA КОДА (используем тот же эндпоинт)
+    function resend2FACode(email) {
+        return fetch(apiUrl("/api/v1/auth/confirmation_code?email=" + encodeURIComponent(email)), {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+            },
+        }).then(function (res) {
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data;
+            });
+        });
+    }
+
     // ОТПРАВКА КОДА НА ПОЧТУ
     function sendConfirmationCode(email) {
         return fetch(apiUrl("/api/v1/auth/confirmation_code?email=" + encodeURIComponent(email)), {
@@ -74,9 +109,11 @@
 
     window.ApiAuth = {
         registerUser: registerUser, // оставляем для обратной совместимости
+        confirmEmail: confirmEmail,
         registerUserWithCode: registerUserWithCode,
         sendConfirmationCode: sendConfirmationCode,
         loginUser: loginUser,
         logout: logout,
+        resend2FACode: resend2FACode,
     };
 })();
