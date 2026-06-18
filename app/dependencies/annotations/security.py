@@ -5,9 +5,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from dependencies.auth import (
     get_admin_by_access_token,
+    get_login_data,
     get_user_by_access_token,
     get_user_by_refresh_token,
 )
+from schemas.auth import UserLogin
 
 AuthUserByAccessTokenDep = Annotated[
     int,
@@ -33,4 +35,9 @@ AuthUserByRefreshTokenDep = Annotated[
 OAuth2Dep = Annotated[
     OAuth2PasswordRequestForm,
     Depends(),
+]
+
+GetLoginDataDep = Annotated[
+    UserLogin,
+    Depends(get_login_data),
 ]

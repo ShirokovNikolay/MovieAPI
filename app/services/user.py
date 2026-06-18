@@ -6,8 +6,7 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.celery.celery_app import app
-from core.config import settings
-from core.constants import UserRole
+from core.constants import BEARER_TOKEN_TYPE, UserRole
 from core.exceptions.auth import InvalidPasswordError
 from core.exceptions.confirmation_code import (
     EmailConfirmationCodeNotFoundError,
@@ -15,15 +14,17 @@ from core.exceptions.confirmation_code import (
 )
 from core.exceptions.user import (
     UserEmailAlreadyExistsError,
+    UserEmailNotFoundError,
     UserIdNotFoundError,
     UserLoginAlreadyExistsError,
     UserLoginNotFoundError,
 )
 from core.redis import CacheService
+from core.security.jwt_utils import create_access_token, create_refresh_token
 from core.security.password_utils import hash_password, verify_password
-from packages.schemas import SendEmail
 from repositories import UserRepository
-from schemas.auth import UserLogin
+from schemas.auth import ConfirmEmailRequest, UserLogin
+from schemas.token_info import TokenInfo
 from schemas.user import (
     UserCreate,
     UserPartialUpdate,
@@ -32,7 +33,6 @@ from schemas.user import (
     UserResponseList,
     UserUpdate,
 )
-from services.http_request import HttpRequestService
 
 
 class UserService:
@@ -40,11 +40,9 @@ class UserService:
         self,
         session: AsyncSession,
         redis_service: CacheService | None = None,
-        http_request_service: HttpRequestService | None = None,
     ) -> None:
         self.session = session
         self.user_repository = UserRepository(session)
-        self.http_request_service = http_request_service
         self.cache_service = redis_service
 
     async def get_user_by_id(self, user_id: int) -> UserResponse:
@@ -60,6 +58,12 @@ class UserService:
             return UserResponse.model_validate(user)
 
         raise UserLoginNotFoundError(login)
+
+    async def get_user_by_email(self, email: EmailStr) -> UserResponse:
+        user = await self.user_repository.get_user_by_email(email)
+        if user is None:
+            raise UserEmailNotFoundError(email)
+        return UserResponse.model_validate(user)
 
     async def user_login_exists(self, login: str) -> bool:
         return await self.user_repository.user_login_exists(login)
@@ -94,6 +98,23 @@ class UserService:
                 email=email,
                 confirmation_code=confirmation_code,
             )
+
+    async def confirm_email(
+        self,
+        confirm_email_request: ConfirmEmailRequest,
+    ) -> TokenInfo:
+        await self.verify_confirmation_code(
+            confirm_email_request.email,
+            confirm_email_request.confirmation_code,
+        )
+        user = await self.get_user_by_email(confirm_email_request.email)
+        access_token = create_access_token(user)
+        refresh_token = create_refresh_token(user)
+        return TokenInfo(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type=BEARER_TOKEN_TYPE,
+        )
 
     @staticmethod
     def convert_registration_to_create_schema(
@@ -147,16 +168,13 @@ class UserService:
 
     async def send_confirmation_code(self, email: EmailStr) -> None:
         confirmation_code = await self.create_confirmation_code(email)
-        subject = "Confirm your email address"
-        body = f"Your confirmation code is {confirmation_code}"
-        email_data = SendEmail(
-            subject=subject,
-            body=body,
-            to_email=email,
-        )
-        await self.http_request_service.post(
-            url=settings.notificationservice.send_email_endpoint,
-            json=email_data.model_dump(),
+        app.send_task(
+            name=TaskType.send_confirmation_email_code.value,
+            args=[
+                email,
+                confirmation_code,
+            ],
+            queue=Queue.notification.value,
         )
 
     async def make_admin(self, user_id: int) -> None:
@@ -231,7 +249,7 @@ class UserService:
         if not await self.user_repository.delete_user_by_login(login):
             raise UserLoginNotFoundError(login)
 
-    async def authenticate_user(self, login_data: UserLogin) -> UserResponse:
+    async def authenticate_user(self, login_data: UserLogin) -> EmailStr:
         user = await self.user_repository.get_user_by_login(login_data.login)
         if user is None:
             raise UserLoginNotFoundError(login_data.login)
@@ -239,7 +257,8 @@ class UserService:
         if not verify_password(login_data.password, user.encrypted_password):
             raise InvalidPasswordError
 
-        return UserResponse.model_validate(user)
+        await self.send_confirmation_code(user.email)
+        return user.email
 
     async def is_admin(self, user_id: int) -> bool:
         role = await self.user_repository.get_user_role(user_id)
@@ -247,3 +266,8 @@ class UserService:
             raise UserIdNotFoundError(user_id)
 
         return role == UserRole.admin.value
+
+    async def refresh_access_token(self, user_id: int) -> TokenInfo:
+        user = await self.get_user_by_id(user_id)
+        access_token = create_access_token(user)
+        return TokenInfo(access_token=access_token)

@@ -1,7 +1,6 @@
 from typing import cast
 
 from core.redis.cache_service import CacheService
-from schemas.auth import UserLogin
 from schemas.user import (
     UserPartialUpdate,
     UserRegistration,
@@ -52,7 +51,8 @@ class UserCacheService:
         return users_response
 
     async def create_user(
-        self, registration_user_data: UserRegistration,
+        self,
+        registration_user_data: UserRegistration,
     ) -> UserResponse:
         user_response = await self.user_service.create_user(registration_user_data)
         key = CacheService.create_cache_key("user")
@@ -96,17 +96,3 @@ class UserCacheService:
         key = CacheService.create_cache_key("user")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
-
-    async def authenticate_user(self, login_data: UserLogin) -> UserResponse:
-        key = CacheService.create_cache_key(
-            "user",
-            login=login_data.login,
-            password=login_data.password,
-        )
-        cached_user_response = await self.cache_service.get(key, UserResponse)
-        if cached_user_response is not None:
-            return cast(UserResponse, cached_user_response)
-
-        user_response = await self.user_service.authenticate_user(login_data)
-        await self.cache_service.set(key, user_response)
-        return user_response

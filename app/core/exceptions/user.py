@@ -1,3 +1,5 @@
+from pydantic import EmailStr
+
 from core.exceptions.base import ConflictError, NotFoundError
 
 
@@ -29,6 +31,17 @@ class UserLoginNotFoundError(UserNotFoundError):
     def __init__(self, login: str) -> None:
         self.login = login
         detail = f"User with login = {login} not found."
+        super().__init__(detail)
+
+
+class UserEmailNotFoundError(UserNotFoundError):
+    """
+    Класс для ошибок, связанных с ненахождением пользователя с таким логином.
+    """
+
+    def __init__(self, email: EmailStr) -> None:
+        self.email = email
+        detail = f"User with email = {email} not found."
         super().__init__(detail)
 
 

@@ -1,3 +1,4 @@
+from pydantic import EmailStr
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,7 +31,7 @@ class UserRepository:
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
-    async def get_user_by_email(self, email: str) -> User | None:
+    async def get_user_by_email(self, email: EmailStr) -> User | None:
         stmt = select(User).where(User.email == email)
         result = await self.session.execute(stmt)
         return result.scalars().first()
