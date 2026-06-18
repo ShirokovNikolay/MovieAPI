@@ -4,18 +4,13 @@ from fastapi import (
 )
 from pydantic import EmailStr
 
-from core.constants import BEARER_TOKEN_TYPE
-from core.security.jwt_utils import (
-    create_access_token,
-    create_refresh_token,
-)
 from dependencies.annotations.cache_services import UserCacheServiceDep
 from dependencies.annotations.security import (
     AuthUserByRefreshTokenDep,
-    OAuth2Dep,
+    GetLoginDataDep,
 )
 from dependencies.annotations.services import UserServiceDep
-from schemas.auth import UserLogin
+from schemas.auth import ConfirmEmailRequest
 from schemas.token_info import TokenInfo
 from schemas.user import (
     UserRegistration,
@@ -50,25 +45,21 @@ async def register_user(
 
 @router.post(
     "/login",
-    response_model=TokenInfo,
     status_code=status.HTTP_200_OK,
 )
 async def login_user(
-    oauth2_form: OAuth2Dep,
-    user_service: UserCacheServiceDep,
+    login_data: GetLoginDataDep,
+    user_service: UserServiceDep,
+) -> EmailStr:
+    return await user_service.authenticate_user(login_data)
+
+
+@router.post("/confirm-email")
+async def confirm_email(
+    confirm_email_request: ConfirmEmailRequest,
+    user_service: UserServiceDep,
 ) -> TokenInfo:
-    login_data = UserLogin(
-        login=oauth2_form.username,
-        password=oauth2_form.password,
-    )
-    user = await user_service.authenticate_user(login_data)
-    access_token = create_access_token(user)
-    refresh_token = create_refresh_token(user)
-    return TokenInfo(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type=BEARER_TOKEN_TYPE,
-    )
+    return await user_service.confirm_email(confirm_email_request)
 
 
 @router.post(
@@ -79,8 +70,6 @@ async def login_user(
 )
 async def refresh_access_token(
     user_id: AuthUserByRefreshTokenDep,
-    user_service: UserCacheServiceDep,
+    user_service: UserServiceDep,
 ) -> TokenInfo:
-    user = await user_service.get_user_by_id(user_id)
-    access_token = create_access_token(user)
-    return TokenInfo(access_token=access_token)
+    return await user_service.refresh_access_token(user_id)

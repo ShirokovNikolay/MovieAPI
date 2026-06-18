@@ -101,13 +101,9 @@ async def get_user_service(
             get_cache_service_for_confirmation_codes,
         ),
     ],
-    http_request_service: Annotated[
-        HttpRequestService,
-        Depends(get_http_request_service),
-    ],
 ) -> AsyncGenerator[UserService]:
     try:
-        user_service = UserService(session, redis_service, http_request_service)
+        user_service = UserService(session, redis_service)
         yield user_service
     finally:
         """

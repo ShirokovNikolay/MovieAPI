@@ -76,3 +76,15 @@ class EmailService:
             body=body_template.format(name=name),
             to_email=email,
         )
+
+    @classmethod
+    async def send_confirmation_email_code(
+        cls, email: EmailStr, confirmation_code: str,
+    ) -> None:
+        subject = "Confirm your email address"
+        body = f"Your confirmation code is {confirmation_code}"
+        await cls.send_email(
+            subject=subject,
+            body=body,
+            to_email=email,
+        )

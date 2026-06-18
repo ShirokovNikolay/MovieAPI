@@ -1,6 +1,7 @@
 from typing import Annotated, cast
 
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordRequestForm
 
 from core.config import settings
 from core.constants import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
@@ -8,6 +9,7 @@ from core.exceptions.auth import PermissionDeniedError
 from core.security.jwt_utils import decode_jwt
 from core.security.validators import validate_token_payload
 from dependencies.services import get_user_service
+from schemas.auth import UserLogin
 from services import UserService
 
 
@@ -64,3 +66,15 @@ async def get_admin_by_access_token(
         return user_id
 
     raise PermissionDeniedError
+
+
+def get_login_data(
+    oauth2_form: Annotated[
+        OAuth2PasswordRequestForm,
+        Depends(),
+    ],
+) -> UserLogin:
+    return UserLogin(
+        login=oauth2_form.username,
+        password=oauth2_form.password,
+    )
