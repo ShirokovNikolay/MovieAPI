@@ -1,13 +1,17 @@
 (function () {
     window.AppMethodsAuth = {
+        // ==================== ЛОГИН С 2FA ====================
         onLogin: function () {
             var self = this;
             this.error = "";
             this.loading = true;
+
             window.ApiAuth.loginUser(this.loginForm.username, this.loginForm.password)
-                .then(function () {
-                    window.location.hash = "#/";
-                    window.location.reload();
+                .then(function (email) {
+                    self.loginEmail = email;
+                    self.loginStep = 'verify';
+                    self.success = "Код подтверждения отправлен на почту";
+                    self.startLoginResendTimer(60); // Запускаем таймер
                 })
                 .catch(function (e) {
                     self.error = e.message || "Не удалось войти";
@@ -17,6 +21,84 @@
                 });
         },
 
+        // ПОДТВЕРЖДЕНИЕ 2FA КОДА
+        onVerifyLoginCode: function () {
+            var self = this;
+            this.error = "";
+            this.loading = true;
+
+            window.ApiAuth.confirmEmail({
+                email: this.loginEmail,
+                confirmation_code: this.loginCode.trim(),
+            })
+                .then(function (data) {
+                    // Сохраняем токены и перезагружаем страницу
+                    window.TokenStore.setTokens(data.access_token, data.refresh_token);
+                    window.location.hash = "#/";
+                    window.location.reload();
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Неверный код подтверждения";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
+        },
+
+        // ПОВТОРНАЯ ОТПРАВКА 2FA КОДА (пока без отдельного эндпоинта)
+        onResendLoginCode: function () {
+            var self = this;
+            this.error = "";
+            this.success = "";
+            this.loading = true;
+
+            window.ApiAuth.resend2FACode(this.loginEmail)
+                .then(function () {
+                    self.success = "Новый код отправлен на почту";
+                    self.startLoginResendTimer(60); // Запускаем таймер
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Не удалось отправить код";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
+        },
+
+
+        // ВОЗВРАТ К ФОРМЕ ЛОГИНА
+        onBackToLogin: function () {
+            this.loginStep = 'form';
+            this.loginCode = '';
+            this.error = '';
+            this.success = '';
+            if (this.loginTimerInterval) {
+                clearInterval(this.loginTimerInterval);
+                this.loginTimerInterval = null;
+            }
+        },
+
+        // ТАЙМЕР ДЛЯ 2FA
+        startLoginResendTimer: function (seconds) {
+            var self = this;
+            this.loginResendTimer = seconds;
+            this.loginCanResend = false;
+
+            if (this.loginTimerInterval) {
+                clearInterval(this.loginTimerInterval);
+            }
+
+            this.loginTimerInterval = setInterval(function () {
+                self.loginResendTimer--;
+                if (self.loginResendTimer <= 0) {
+                    clearInterval(self.loginTimerInterval);
+                    self.loginTimerInterval = null;
+                    self.loginCanResend = true;
+                }
+            }, 1000);
+        },
+
+        // ==================== РЕГИСТРАЦИЯ ====================
         // ОТПРАВКА КОДА НА ПОЧТУ
         onSendCode: function () {
             var self = this;
@@ -76,7 +158,7 @@
                 });
         },
 
-        // ПОВТОРНАЯ ОТПРАВКА КОДА
+        // ПОВТОРНАЯ ОТПРАВКА КОДА (регистрация)
         onResendCode: function () {
             var self = this;
             this.error = "";
@@ -137,6 +219,7 @@
             this.onSendCode();
         },
 
+        // ==================== ОБЩИЕ МЕТОДЫ ====================
         onLogout: function () {
             window.ApiAuth.logout();
             window.location.reload();
@@ -153,7 +236,7 @@
             }
         },
 
-        // ТАЙМЕР ДЛЯ ПОВТОРНОЙ ОТПРАВКИ
+        // ТАЙМЕР ДЛЯ ПОВТОРНОЙ ОТПРАВКИ (регистрация)
         startResendTimer: function (seconds) {
             var self = this;
             this.resendTimer = seconds;
