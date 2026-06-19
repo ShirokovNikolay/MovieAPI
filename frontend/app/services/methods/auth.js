@@ -11,7 +11,7 @@
                     self.loginEmail = email;
                     self.loginStep = 'verify';
                     self.success = "Код подтверждения отправлен на почту";
-                    self.startLoginResendTimer(60); // Запускаем таймер
+                    self.startLoginResendTimer(60);
                 })
                 .catch(function (e) {
                     self.error = e.message || "Не удалось войти";
@@ -32,7 +32,6 @@
                 confirmation_code: this.loginCode.trim(),
             })
                 .then(function (data) {
-                    // Сохраняем токены и перезагружаем страницу
                     window.TokenStore.setTokens(data.access_token, data.refresh_token);
                     window.location.hash = "#/";
                     window.location.reload();
@@ -45,17 +44,17 @@
                 });
         },
 
-        // ПОВТОРНАЯ ОТПРАВКА 2FA КОДА (пока без отдельного эндпоинта)
+        // ПОВТОРНАЯ ОТПРАВКА 2FA КОДА
         onResendLoginCode: function () {
             var self = this;
             this.error = "";
             this.success = "";
             this.loading = true;
 
-            window.ApiAuth.resend2FACode(this.loginEmail)
+            window.ApiAuth.sendConfirmationCode(this.loginEmail, "two_factor_auth")
                 .then(function () {
                     self.success = "Новый код отправлен на почту";
-                    self.startLoginResendTimer(60); // Запускаем таймер
+                    self.startLoginResendTimer(60);
                 })
                 .catch(function (e) {
                     self.error = e.message || "Не удалось отправить код";
@@ -64,7 +63,6 @@
                     self.loading = false;
                 });
         },
-
 
         // ВОЗВРАТ К ФОРМЕ ЛОГИНА
         onBackToLogin: function () {
@@ -99,14 +97,13 @@
         },
 
         // ==================== РЕГИСТРАЦИЯ ====================
-        // ОТПРАВКА КОДА НА ПОЧТУ
+        // ОТПРАВКА КОДА НА ПОЧТУ (регистрация)
         onSendCode: function () {
             var self = this;
             this.error = "";
             this.success = "";
             this.loading = true;
 
-            // Сохраняем данные регистрации
             this.registrationData = {
                 surname: this.registerForm.surname.trim(),
                 name: this.registerForm.name.trim(),
@@ -115,7 +112,7 @@
                 password: this.registerForm.password,
             };
 
-            window.ApiAuth.sendConfirmationCode(this.registrationData.email)
+            window.ApiAuth.sendConfirmationCode(this.registrationData.email, "verify_email")
                 .then(function () {
                     self.registerStep = 'verify';
                     self.success = "Код подтверждения отправлен на почту";
@@ -165,7 +162,7 @@
             this.success = "";
             this.loading = true;
 
-            window.ApiAuth.sendConfirmationCode(this.registrationData.email)
+            window.ApiAuth.sendConfirmationCode(this.registrationData.email, "verify_email")
                 .then(function () {
                     self.success = "Новый код отправлен на почту";
                     self.startResendTimer(60);
@@ -196,47 +193,26 @@
             this.error = "";
             this.success = "";
 
-            // Валидация пароля
             if (this.registerForm.password.length < 8) {
                 this.error = "Пароль должен быть минимум 8 символов";
                 return;
             }
 
-            // Валидация email
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(this.registerForm.email.trim())) {
                 this.error = "Введите корректный email";
                 return;
             }
 
-            // Валидация логина
             if (this.registerForm.login.trim().length < 3) {
                 this.error = "Логин должен быть минимум 3 символа";
                 return;
             }
 
-            // Отправляем код
             this.onSendCode();
         },
 
-        // ==================== ОБЩИЕ МЕТОДЫ ====================
-        onLogout: function () {
-            window.ApiAuth.logout();
-            window.location.reload();
-        },
-
-        formatRegistrationDate: function (iso) {
-            if (!iso) {
-                return "—";
-            }
-            try {
-                return new Date(iso).toLocaleString("ru-RU");
-            } catch (e) {
-                return iso;
-            }
-        },
-
-        // ТАЙМЕР ДЛЯ ПОВТОРНОЙ ОТПРАВКИ (регистрация)
+        // ТАЙМЕР ДЛЯ РЕГИСТРАЦИИ
         startResendTimer: function (seconds) {
             var self = this;
             this.resendTimer = seconds;
@@ -254,6 +230,169 @@
                     self.canResend = true;
                 }
             }, 1000);
+        },
+
+        // ==================== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ====================
+        // ШАГ 1: Отправка кода для восстановления
+        onSendResetCode: function () {
+            var self = this;
+            this.error = "";
+            this.success = "";
+            this.loading = true;
+
+            var email = this.resetEmail.trim();
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                this.error = "Введите корректный email";
+                this.loading = false;
+                return;
+            }
+
+            window.ApiAuth.sendConfirmationCode(email, "reset_password")
+                .then(function () {
+                    self.resetStep = 'verify';
+                    self.success = "Код восстановления отправлен на почту";
+                    self.startResetResendTimer(60);
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Не удалось отправить код";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
+        },
+
+        // ШАГ 2: Подтверждение кода и переход к смене пароля
+        onVerifyResetCode: function () {
+            var self = this;
+            this.error = "";
+            this.success = "";
+            this.loading = true;
+
+            if (this.resetCode.trim().length !== 6) {
+                this.error = "Введите 6-значный код";
+                this.loading = false;
+                return;
+            }
+
+            // Проверяем код через бэкенд
+            // Для проверки кода используем тот же confirmEmail?
+            // Если есть отдельный эндпоинт для проверки - используйте его
+            // Пока просто переходим к шагу смены пароля
+            self.resetStep = 'change';
+            self.loading = false;
+        },
+
+        // ШАГ 3: Смена пароля
+        onChangePassword: function () {
+            var self = this;
+            this.error = "";
+            this.success = "";
+            this.loading = true;
+
+            if (this.resetNewPassword.length < 8) {
+                this.error = "Пароль должен быть минимум 8 символов";
+                this.loading = false;
+                return;
+            }
+
+            if (this.resetNewPassword !== this.resetConfirmPassword) {
+                this.error = "Пароли не совпадают";
+                this.loading = false;
+                return;
+            }
+
+            var payload = {
+                email: this.resetEmail,
+                password: this.resetNewPassword,
+                password_confirmation: this.resetConfirmPassword,
+                confirmation_code: this.resetCode.trim(),
+            };
+
+            window.ApiAuth.resetPassword(payload)
+                .then(function () {
+                    self.success = "Пароль успешно изменен! Теперь вы можете войти.";
+                    self.resetStep = 'done';
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Не удалось изменить пароль";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
+        },
+
+        // СБРОС ВОССТАНОВЛЕНИЯ (возврат к логину)
+        onResetBackToLogin: function () {
+            this.resetStep = 'form';
+            this.resetEmail = '';
+            this.resetCode = '';
+            this.resetNewPassword = '';
+            this.resetConfirmPassword = '';
+            this.error = '';
+            this.success = '';
+            if (this.resetTimerInterval) {
+                clearInterval(this.resetTimerInterval);
+                this.resetTimerInterval = null;
+            }
+            this.currentView = 'login';
+        },
+
+        // ПОВТОРНАЯ ОТПРАВКА КОДА ДЛЯ ВОССТАНОВЛЕНИЯ
+        onResendResetCode: function () {
+            var self = this;
+            this.error = "";
+            this.success = "";
+            this.loading = true;
+
+            window.ApiAuth.sendConfirmationCode(this.resetEmail, "reset_password")
+                .then(function () {
+                    self.success = "Новый код отправлен на почту";
+                    self.startResetResendTimer(60);
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Не удалось отправить код";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
+        },
+
+        // ТАЙМЕР ДЛЯ ВОССТАНОВЛЕНИЯ
+        startResetResendTimer: function (seconds) {
+            var self = this;
+            this.resetResendTimer = seconds;
+            this.resetCanResend = false;
+
+            if (this.resetTimerInterval) {
+                clearInterval(this.resetTimerInterval);
+            }
+
+            this.resetTimerInterval = setInterval(function () {
+                self.resetResendTimer--;
+                if (self.resetResendTimer <= 0) {
+                    clearInterval(self.resetTimerInterval);
+                    self.resetTimerInterval = null;
+                    self.resetCanResend = true;
+                }
+            }, 1000);
+        },
+
+        // ==================== ОБЩИЕ МЕТОДЫ ====================
+        onLogout: function () {
+            window.ApiAuth.logout();
+            window.location.reload();
+        },
+
+        formatRegistrationDate: function (iso) {
+            if (!iso) {
+                return "—";
+            }
+            try {
+                return new Date(iso).toLocaleString("ru-RU");
+            } catch (e) {
+                return iso;
+            }
         },
     };
 })();

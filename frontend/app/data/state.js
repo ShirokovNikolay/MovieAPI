@@ -167,6 +167,16 @@
                 canResend: false,
                 timerInterval: null,
 
+                // Для восстановления пароля
+                resetStep: 'form', // 'form' | 'verify' | 'change' | 'done'
+                resetEmail: '',
+                resetCode: '',
+                resetNewPassword: '',
+                resetConfirmPassword: '',
+                resetResendTimer: 60,
+                resetCanResend: false,
+                resetTimerInterval: null,
+
                 // Форма для фильма
                 editingMovie: null,
                 showMovieForm: false,

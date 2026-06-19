@@ -67,7 +67,7 @@
             <div v-if="currentView === 'login' && loginStep === 'form'" class="row justify-content-center">
                 <div class="col-12 auth-card">
                     <div class="card shadow text-bg-dark border-secondary">
-                        <div class="card-body p-4">
+                        <div class="card-body p-4 position-relative">
                             <h1 class="h4 mb-4">Вход</h1>
 
                             <div v-if="error" class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -93,6 +93,14 @@
                                     Войти
                                 </button>
                             </form>
+
+                            <!-- Кнопка в правом нижнем углу -->
+                            <div class="text-end mt-3">
+                                <a href="#/reset-password" @click="syncRoute" class="text-secondary text-decoration-none small">
+                                    ❓ Забыли пароль?
+                                </a>
+                            </div>
+
                             <p class="mt-3 mb-0 text-secondary small">
                                 Нет аккаунта?
                                 <a href="#/register" class="link-light">Зарегистрироваться</a>
@@ -323,6 +331,205 @@
                             <p class="mt-3 mb-0 text-secondary small">
                                 <a href="#/login" class="link-light">Вернуться ко входу</a>
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Секция восстановления пароля -->
+            <!-- Шаг 1: Ввод email -->
+            <div v-else-if="currentView === 'reset-password' && resetStep === 'form'" class="row justify-content-center">
+                <div class="col-12 col-lg-6">
+                    <div class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-4">
+                            <h1 class="h4 mb-3">Восстановление пароля</h1>
+                            <p class="text-secondary small mb-3">
+                                Введите email, на который зарегистрирован аккаунт. Мы отправим код для восстановления.
+                            </p>
+
+                            <div v-if="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ error }}
+                                <button type="button" class="btn-close" @click="error = ''"></button>
+                            </div>
+
+                            <div v-if="success" class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ success }}
+                                <button type="button" class="btn-close" @click="success = ''"></button>
+                            </div>
+
+                            <form @submit.prevent="onSendResetCode">
+                                <div class="mb-3">
+                                    <label class="form-label" for="reset-email">Email</label>
+                                    <input id="reset-email" v-model="resetEmail" type="email"
+                                           class="form-control bg-dark text-light border-secondary" required
+                                           autocomplete="email">
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary flex-grow-1" :disabled="loading">
+                                        <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Отправить код
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            @click="onResetBackToLogin" :disabled="loading">
+                                        Назад
+                                    </button>
+                                </div>
+                            </form>
+
+                            <p class="mt-3 mb-0 text-secondary small">
+                                <a href="#/login" class="link-light" @click.prevent="onResetBackToLogin">Вернуться ко входу</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Шаг 2: Ввод кода -->
+            <div v-else-if="currentView === 'reset-password' && resetStep === 'verify'" class="row justify-content-center">
+                <div class="col-12 col-lg-6">
+                    <div class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-4">
+                            <h1 class="h4 mb-3">Введите код восстановления</h1>
+                            <p class="text-secondary small mb-3">
+                                На почту <strong>{{ resetEmail }}</strong> отправлен код восстановления.
+                                Введите его ниже.
+                            </p>
+
+                            <div v-if="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ error }}
+                                <button type="button" class="btn-close" @click="error = ''"></button>
+                            </div>
+
+                            <div v-if="success" class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ success }}
+                                <button type="button" class="btn-close" @click="success = ''"></button>
+                            </div>
+
+                            <form @submit.prevent="onVerifyResetCode">
+                                <div class="mb-3">
+                                    <label class="form-label" for="reset-code-input">Код подтверждения</label>
+                                    <input id="reset-code-input"
+                                           v-model="resetCode"
+                                           type="text"
+                                           class="form-control bg-dark text-light border-secondary text-center"
+                                           placeholder="000000"
+                                           required
+                                           minlength="6"
+                                           maxlength="6"
+                                           pattern="\d{6}"
+                                           autocomplete="one-time-code"
+                                           inputmode="numeric"
+                                           style="font-size: 1.5rem; letter-spacing: 0.5rem;">
+                                    <div class="form-text text-secondary">
+                                        Введите 6-значный код из письма
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary flex-grow-1" :disabled="loading">
+                                        <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Подтвердить
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            @click="resetStep = 'form'" :disabled="loading">
+                                        Назад
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Повторная отправка -->
+                            <div class="mt-3 d-flex justify-content-between align-items-center">
+                                <span class="text-secondary small">
+                                    Не пришло письмо?
+                                </span>
+                                <button type="button"
+                                        class="btn btn-link btn-sm text-decoration-none p-0"
+                                        @click="onResendResetCode"
+                                        :disabled="loading || !resetCanResend">
+                                    <span v-if="!resetCanResend">
+                                        Отправить повторно через {{ resetResendTimer }}с
+                                    </span>
+                                    <span v-else>
+                                        Отправить повторно
+                                    </span>
+                                </button>
+                            </div>
+
+                            <p class="mt-3 mb-0 text-secondary small">
+                                <a href="#/login" class="link-light" @click.prevent="onResetBackToLogin">Вернуться ко входу</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Шаг 3: Смена пароля -->
+            <div v-else-if="currentView === 'reset-password' && resetStep === 'change'" class="row justify-content-center">
+                <div class="col-12 col-lg-6">
+                    <div class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-4">
+                            <h1 class="h4 mb-3">Создание нового пароля</h1>
+                            <p class="text-secondary small mb-3">
+                                Придумайте новый пароль для аккаунта <strong>{{ resetEmail }}</strong>
+                            </p>
+
+                            <div v-if="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ error }}
+                                <button type="button" class="btn-close" @click="error = ''"></button>
+                            </div>
+
+                            <div v-if="success" class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ success }}
+                                <button type="button" class="btn-close" @click="success = ''"></button>
+                            </div>
+
+                            <form @submit.prevent="onChangePassword">
+                                <div class="mb-3">
+                                    <label class="form-label" for="reset-new-password">Новый пароль</label>
+                                    <input id="reset-new-password" v-model="resetNewPassword" type="password"
+                                           class="form-control bg-dark text-light border-secondary" required
+                                           minlength="8" maxlength="30" autocomplete="new-password">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="reset-confirm-password">Повторите пароль</label>
+                                    <input id="reset-confirm-password" v-model="resetConfirmPassword" type="password"
+                                           class="form-control bg-dark text-light border-secondary" required
+                                           minlength="8" maxlength="30" autocomplete="new-password">
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary flex-grow-1" :disabled="loading">
+                                        <span v-if="loading" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Сменить пароль
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            @click="resetStep = 'verify'" :disabled="loading">
+                                        Назад
+                                    </button>
+                                </div>
+                            </form>
+
+                            <p class="mt-3 mb-0 text-secondary small">
+                                <a href="#/login" class="link-light" @click.prevent="onResetBackToLogin">Вернуться ко входу</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Шаг 4: Готово -->
+            <div v-else-if="currentView === 'reset-password' && resetStep === 'done'" class="row justify-content-center">
+                <div class="col-12 col-lg-6">
+                    <div class="card shadow text-bg-dark border-secondary">
+                        <div class="card-body p-4 text-center">
+                            <h1 class="h4 mb-3">✅ Пароль изменен!</h1>
+                            <p class="text-secondary mb-3">
+                                Ваш пароль успешно изменен. Теперь вы можете войти в аккаунт с новым паролем.
+                            </p>
+                            <a href="#/login" class="btn btn-primary" @click.prevent="onResetBackToLogin">
+                                Войти
+                            </a>
                         </div>
                     </div>
                 </div>
