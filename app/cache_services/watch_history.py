@@ -1,7 +1,7 @@
 from datetime import date
 from typing import cast
 
-from core.redis.cache_service import CacheService
+from core.redis.service import RedisService
 from schemas.watch_history import (
     WatchHistoryWithMovieResponse,
     WatchHistoryWithMovieResponseList,
@@ -13,7 +13,7 @@ class WatchHistoryCacheService:
     def __init__(
         self,
         watch_history_service: WatchHistoryService,
-        cache_service: CacheService,
+        cache_service: RedisService,
     ) -> None:
         self.watch_history_service = watch_history_service
         self.cache_service = cache_service
@@ -22,7 +22,7 @@ class WatchHistoryCacheService:
         self,
         watch_history_id: int,
     ) -> WatchHistoryWithMovieResponse:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "watch_history",
             watch_history_id=watch_history_id,
         )
@@ -45,7 +45,7 @@ class WatchHistoryCacheService:
         size: int = 10,
         page: int = 1,
     ) -> WatchHistoryWithMovieResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "watch_history_list",
             user_id=user_id,
             size=size,
@@ -75,7 +75,7 @@ class WatchHistoryCacheService:
         size: int = 10,
         page: int = 1,
     ) -> WatchHistoryWithMovieResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "watch_history_list",
             user_id=user_id,
             start_date=start_date,
@@ -106,7 +106,7 @@ class WatchHistoryCacheService:
         return watch_history_list_response
 
     async def count_user_watch_history(self, user_id: int) -> int:
-        key = CacheService.create_cache_key("watch_history", user_id=user_id)
+        key = RedisService.create_cache_key("watch_history", user_id=user_id)
         cached_watch_history_response = await self.cache_service.get(key)
         if cached_watch_history_response is not None:
             return cast(int, cached_watch_history_response)
@@ -125,12 +125,12 @@ class WatchHistoryCacheService:
             user_id,
             watch_history_id,
         )
-        key = CacheService.create_cache_key("watch_history")
+        key = RedisService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
 
     async def delete_user_watch_history(self, user_id: int) -> None:
         await self.watch_history_service.delete_user_watch_history(user_id)
-        key = CacheService.create_cache_key("watch_history")
+        key = RedisService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)

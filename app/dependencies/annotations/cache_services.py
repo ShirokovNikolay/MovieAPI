@@ -10,7 +10,7 @@ from cache_services import (
     UserCacheService,
     WatchHistoryCacheService,
 )
-from core.redis import CacheService
+from core.redis import RedisService
 from dependencies.cache_services import (
     get_favorite_movie_cache_service,
     get_genre_cache_service,
@@ -19,50 +19,50 @@ from dependencies.cache_services import (
     get_user_cache_service,
     get_watch_history_cache_service,
 )
-from dependencies.caching import (
-    get_cache_service_for_favorite_movies,
-    get_cache_service_for_genres,
-    get_cache_service_for_movies,
-    get_cache_service_for_reviews,
-    get_cache_service_for_users,
-    get_cache_service_for_watch_history,
+from dependencies.redis_services import (
+    get_favorite_movie_redis_service,
+    get_genre_redis_service,
+    get_movie_redis_service,
+    get_review_redis_service,
+    get_user_redis_service,
+    get_watch_history_redis_service,
 )
 
-CacheServiceForGenresDep = Annotated[
-    CacheService,
-    Depends(get_cache_service_for_genres),
+GenreRedisServiceDep = Annotated[
+    RedisService,
+    Depends(get_genre_redis_service),
 ]
 
-CacheServiceForMoviesDep = Annotated[
-    CacheService,
-    Depends(get_cache_service_for_movies),
+MovieRedisServiceDep = Annotated[
+    RedisService,
+    Depends(get_movie_redis_service),
 ]
 
-CacheServiceForFavoriteMoviesDep = Annotated[
-    CacheService,
+FavoriteMovieRedisServiceDep = Annotated[
+    RedisService,
     Depends(
-        get_cache_service_for_favorite_movies,
+        get_favorite_movie_redis_service,
     ),
 ]
 
-CacheServiceForReviewsDep = Annotated[
-    CacheService,
+ReviewRedisServiceDep = Annotated[
+    RedisService,
     Depends(
-        get_cache_service_for_reviews,
+        get_review_redis_service,
     ),
 ]
 
-CacheServiceForUsersDep = Annotated[
-    CacheService,
+UserRedisServiceDep = Annotated[
+    RedisService,
     Depends(
-        get_cache_service_for_users,
+        get_user_redis_service,
     ),
 ]
 
-CacheServiceForWatchHistoryDep = Annotated[
-    CacheService,
+WatchHistoryRedisServiceDep = Annotated[
+    RedisService,
     Depends(
-        get_cache_service_for_watch_history,
+        get_watch_history_redis_service,
     ),
 ]
 

@@ -7,8 +7,8 @@ from packages.rabbitmq import RabbitMQService, get_rabbitmq_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database.connection import session_factory
-from core.redis import CacheService
-from dependencies.caching import get_cache_service_for_confirmation_codes
+from core.redis import RedisService
+from dependencies.redis_services import get_confirmation_code_redis_service
 from services import GenreService, MovieService, ReviewService, UserService
 from services.favorite_movie import FavoriteMovieService
 from services.http_request import HttpRequestService
@@ -96,9 +96,9 @@ async def get_user_service(
         Depends(get_db),
     ],
     redis_service: Annotated[
-        CacheService,
+        RedisService,
         Depends(
-            get_cache_service_for_confirmation_codes,
+            get_confirmation_code_redis_service,
         ),
     ],
 ) -> AsyncGenerator[UserService]:

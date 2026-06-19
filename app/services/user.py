@@ -19,7 +19,7 @@ from core.exceptions.user import (
     UserLoginAlreadyExistsError,
     UserLoginNotFoundError,
 )
-from core.redis import CacheService
+from core.redis import RedisService
 from core.security.jwt_utils import create_access_token, create_refresh_token
 from core.security.password_utils import hash_password, verify_password
 from repositories import UserRepository
@@ -39,7 +39,7 @@ class UserService:
     def __init__(
         self,
         session: AsyncSession,
-        redis_service: CacheService | None = None,
+        redis_service: RedisService | None = None,
     ) -> None:
         self.session = session
         self.user_repository = UserRepository(session)

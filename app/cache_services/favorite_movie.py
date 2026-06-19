@@ -1,6 +1,6 @@
 from typing import cast
 
-from core.redis.cache_service import CacheService
+from core.redis.service import RedisService
 from schemas.favorite_movie import (
     FavoriteMovieCreate,
     FavoriteMovieWithMovieResponse,
@@ -13,7 +13,7 @@ class FavoriteMovieCacheService:
     def __init__(
         self,
         favorite_movie_service: FavoriteMovieService,
-        cache_service: CacheService,
+        cache_service: RedisService,
     ) -> None:
         self.favorite_movie_service = favorite_movie_service
         self.cache_service = cache_service

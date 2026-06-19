@@ -6,11 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from cache_services import GenreCacheService, MovieCacheService
 from core.database import session_factory
-from core.redis import CacheService, RedisClient
+from core.redis import RedisClient, RedisService
 from dependencies.redis_client import (
-    get_redis_client_for_genres,
-    get_redis_client_for_movies,
-    get_redis_client_for_watch_history,
+    get_genre_redis_client as get_genre_redis_client_dependency,
+)
+from dependencies.redis_client import (
+    get_movie_redis_client as get_movie_redis_client_dependency,
+)
+from dependencies.redis_client import (
+    get_watch_history_redis_client as get_watch_history_redis_client_dependency,
 )
 from services import GenreService, MovieService
 
@@ -30,27 +34,27 @@ async def get_genre_service() -> AsyncGenerator[GenreService]:
 
 @asynccontextmanager
 async def get_genre_redis_client() -> AsyncGenerator[RedisClient]:
-    async for redis_client in get_redis_client_for_genres():
+    async for redis_client in get_genre_redis_client_dependency():
         yield redis_client
 
 
 @asynccontextmanager
 async def get_watch_history_redis_client() -> AsyncGenerator[RedisClient]:
-    async for redis_client in get_redis_client_for_watch_history():
+    async for redis_client in get_watch_history_redis_client_dependency():
         yield redis_client
 
 
 @asynccontextmanager
-async def get_cache_service_for_genres() -> AsyncGenerator[CacheService]:
+async def get_genre_redis_service() -> AsyncGenerator[RedisService]:
     async with get_genre_redis_client() as redis_client:
-        cache_service = CacheService(redis_client)
-        yield cache_service
+        redis_service = RedisService(redis_client)
+        yield redis_service
 
 
 @asynccontextmanager
-async def get_cache_service_for_watch_history() -> AsyncGenerator[CacheService]:
+async def get_watch_history_redis_service() -> AsyncGenerator[RedisService]:
     async with get_watch_history_redis_client() as redis_client:
-        cache_service = CacheService(redis_client)
+        cache_service = RedisService(redis_client)
         yield cache_service
 
 
@@ -58,7 +62,7 @@ async def get_cache_service_for_watch_history() -> AsyncGenerator[CacheService]:
 async def get_genre_cache_service() -> AsyncGenerator[GenreCacheService]:
     async with (
         get_genre_service() as genre_service,
-        get_cache_service_for_genres() as cache_service,
+        get_genre_redis_service() as cache_service,
     ):
         genre_cache_service = GenreCacheService(genre_service, cache_service)
         yield genre_cache_service
@@ -73,14 +77,14 @@ async def get_movie_service() -> AsyncGenerator[MovieService]:
 
 @asynccontextmanager
 async def get_movie_redis_client() -> AsyncGenerator[RedisClient]:
-    async for redis_client in get_redis_client_for_movies():
+    async for redis_client in get_movie_redis_client_dependency():
         yield redis_client
 
 
 @asynccontextmanager
-async def get_cache_service_for_movies() -> AsyncGenerator[CacheService]:
+async def get_movie_redis_service() -> AsyncGenerator[RedisService]:
     async with get_movie_redis_client() as redis_client:
-        cache_service = CacheService(redis_client)
+        cache_service = RedisService(redis_client)
         yield cache_service
 
 
@@ -88,8 +92,8 @@ async def get_cache_service_for_movies() -> AsyncGenerator[CacheService]:
 async def get_movie_cache_service() -> AsyncGenerator[MovieCacheService]:
     async with (
         get_movie_service() as movie_service,
-        get_cache_service_for_movies() as cache_service_for_movies,
-        get_cache_service_for_watch_history() as cache_service_for_watch_history,
+        get_movie_redis_service() as cache_service_for_movies,
+        get_watch_history_redis_service() as cache_service_for_watch_history,
     ):
         movie_cache_service = MovieCacheService(
             movie_service,

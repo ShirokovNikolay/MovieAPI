@@ -23,14 +23,6 @@ router = APIRouter(
 )
 
 
-@router.post("/confirmation_code")
-async def send_confirmation_code(
-    email: EmailStr,
-    user_service: UserServiceDep,
-) -> None:
-    await user_service.send_confirmation_code(email)
-
-
 @router.post(
     "/register",
     response_model=UserResponse,
@@ -52,6 +44,14 @@ async def login_user(
     user_service: UserServiceDep,
 ) -> EmailStr:
     return await user_service.authenticate_user(login_data)
+
+
+@router.post("/confirmation_code")
+async def send_confirmation_code(
+    email: EmailStr,
+    user_service: UserServiceDep,
+) -> None:
+    await user_service.send_confirmation_code(email)
 
 
 @router.post("/confirm-email")
