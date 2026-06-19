@@ -6,7 +6,7 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.celery.celery_app import app
-from core.constants import BEARER_TOKEN_TYPE, UserRole
+from core.constants import BEARER_TOKEN_TYPE, UserRole, MessageType
 from core.exceptions.auth import InvalidPasswordError
 from core.exceptions.confirmation_code import (
     EmailConfirmationCodeNotFoundError,
@@ -23,7 +23,12 @@ from core.redis import RedisService
 from core.security.jwt_utils import create_access_token, create_refresh_token
 from core.security.password_utils import hash_password, verify_password
 from repositories import UserRepository
-from schemas.auth import ConfirmEmailRequest, UserLogin
+from schemas.auth import (
+    ConfirmEmailRequest,
+    UserLogin,
+    SendAuthEmail,
+    ResetPasswordRequest,
+)
 from schemas.token_info import TokenInfo
 from schemas.user import (
     UserCreate,
@@ -43,7 +48,7 @@ class UserService:
     ) -> None:
         self.session = session
         self.user_repository = UserRepository(session)
-        self.cache_service = redis_service
+        self.redis_service = redis_service
 
     async def get_user_by_id(self, user_id: int) -> UserResponse:
         user = await self.user_repository.get_user_by_id(user_id)
@@ -80,7 +85,7 @@ class UserService:
         )
 
     async def get_confirmation_code(self, email: EmailStr) -> str:
-        confirmation_code = await self.cache_service.get(f"register:email:{email}")
+        confirmation_code = await self.redis_service.get(f"auth:email:{email}")
         if confirmation_code is None:
             raise EmailConfirmationCodeNotFoundError(
                 email=email,
@@ -159,23 +164,53 @@ class UserService:
 
     async def create_confirmation_code(self, email: EmailStr) -> str:
         confirmation_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
-        await self.cache_service.set(
-            key=f"register:email:{email}",
+        await self.redis_service.set(
+            key=f"auth:email:{email}",
             value=confirmation_code,
             ttl=60,
         )
         return confirmation_code
 
-    async def send_confirmation_code(self, email: EmailStr) -> None:
+    async def send_confirmation_code(self, send_auth_email_data: SendAuthEmail) -> None:
+        email = send_auth_email_data.email
+        message_type = send_auth_email_data.message_type.value
         confirmation_code = await self.create_confirmation_code(email)
-        app.send_task(
-            name=TaskType.send_confirmation_email_code.value,
-            args=[
-                email,
-                confirmation_code,
-            ],
-            queue=Queue.notification.value,
+        if message_type in (MessageType.verify_email, MessageType.two_factor_auth):
+            app.send_task(
+                name=TaskType.send_confirmation_email_code.value,
+                args=[
+                    email,
+                    confirmation_code,
+                ],
+                queue=Queue.notification.value,
+            )
+
+        if message_type == MessageType.reset_password.value:
+            user = await self.get_user_by_email(email)
+            app.send_task(
+                name=TaskType.send_reset_password_email_data.value,
+                args=[
+                    user.login,
+                    email,
+                    confirmation_code,
+                ],
+                queue=Queue.notification.value,
+            )
+
+    async def reset_password(self, reset_password_data: ResetPasswordRequest) -> None:
+        await self.verify_confirmation_code(
+            reset_password_data.email,
+            reset_password_data.confirmation_code,
         )
+
+        if reset_password_data.password != reset_password_data.password_confirmation:
+            raise InvalidPasswordError
+
+        user = await self.get_user_by_email(reset_password_data.email)
+        user_partial_update_data = UserPartialUpdate(
+            password=reset_password_data.password
+        )
+        await self.partial_update_user(user.id, user_partial_update_data)
 
     async def make_admin(self, user_id: int) -> None:
         if not await self.user_repository.make_admin(user_id):
@@ -257,7 +292,11 @@ class UserService:
         if not verify_password(login_data.password, user.encrypted_password):
             raise InvalidPasswordError
 
-        await self.send_confirmation_code(user.email)
+        send_auth_email_data = SendAuthEmail(
+            email=user.email,
+            message_type=MessageType.two_factor_auth,
+        )
+        await self.send_confirmation_code(send_auth_email_data)
         return user.email
 
     async def is_admin(self, user_id: int) -> bool:

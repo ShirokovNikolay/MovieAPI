@@ -79,12 +79,46 @@ class EmailService:
 
     @classmethod
     async def send_confirmation_email_code(
-        cls, email: EmailStr, confirmation_code: str,
+        cls,
+        email: EmailStr,
+        confirmation_code: str,
     ) -> None:
         subject = "Confirm your email address"
         body = f"Your confirmation code is {confirmation_code}"
         await cls.send_email(
             subject=subject,
             body=body,
+            to_email=email,
+        )
+
+    @classmethod
+    async def send_reset_password_email_data(
+        cls,
+        login: str,
+        email: EmailStr,
+        confirmation_code: str,
+    ) -> None:
+        subject = "Восстановление доступа к приложению MovieAPI"
+        body_template = """
+        Здравствуйте!
+
+        Мы получили запрос на восстановление доступа к вашему аккаунту.
+        
+        Ваш логин: {login}
+        
+        Чтобы войти, создайте новый пароль, используя код подтверждения.
+        
+        Ваш код подтверждения: {confirmation_code}
+        
+        Код подтверждения действует 1 минуту.
+        
+        Если вы не запрашивали восстановление, просто проигнорируйте это письмо.
+        """
+        await cls.send_email(
+            subject=subject,
+            body=body_template.format(
+                login=login,
+                confirmation_code=confirmation_code,
+            ),
             to_email=email,
         )
