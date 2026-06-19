@@ -59,6 +59,12 @@ class MethodType(StrEnum):
     delete = "DELETE"
 
 
+class MessageType(StrEnum):
+    verify_email = "verify_email"
+    two_factor_auth = "two_factor_auth"
+    reset_password = "reset_password"
+
+
 TOKEN_TYPE: str = "type"
 ACCESS_TOKEN_TYPE: str = "access"
 REFRESH_TOKEN_TYPE: str = "refresh"

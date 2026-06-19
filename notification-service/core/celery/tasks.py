@@ -32,3 +32,20 @@ def send_confirmation_email_code(
             confirmation_code=confirmation_code,
         ),
     )
+
+
+@app.task(
+    name=TaskType.send_reset_password_email_data.value,
+)
+def send_reset_password_email_data(
+    login: str,
+    email: EmailStr,
+    confirmation_code: str,
+) -> None:
+    asyncio.run(
+        EmailService.send_reset_password_email_data(
+            login=login,
+            email=email,
+            confirmation_code=confirmation_code,
+        )
+    )

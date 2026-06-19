@@ -10,7 +10,7 @@ from dependencies.annotations.security import (
     GetLoginDataDep,
 )
 from dependencies.annotations.services import UserServiceDep
-from schemas.auth import ConfirmEmailRequest
+from schemas.auth import ConfirmEmailRequest, SendAuthEmail, ResetPasswordRequest
 from schemas.token_info import TokenInfo
 from schemas.user import (
     UserRegistration,
@@ -46,12 +46,12 @@ async def login_user(
     return await user_service.authenticate_user(login_data)
 
 
-@router.post("/confirmation_code")
+@router.post("/send-confirmation-code")
 async def send_confirmation_code(
-    email: EmailStr,
+    send_auth_email_data: SendAuthEmail,
     user_service: UserServiceDep,
 ) -> None:
-    await user_service.send_confirmation_code(email)
+    await user_service.send_confirmation_code(send_auth_email_data)
 
 
 @router.post("/confirm-email")
@@ -60,6 +60,14 @@ async def confirm_email(
     user_service: UserServiceDep,
 ) -> TokenInfo:
     return await user_service.confirm_email(confirm_email_request)
+
+
+@router.post("/reset-password")
+async def reset_password(
+    reset_password_data: ResetPasswordRequest,
+    user_service: UserServiceDep,
+) -> None:
+    await user_service.reset_password(reset_password_data)
 
 
 @router.post(
