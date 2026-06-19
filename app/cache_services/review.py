@@ -1,6 +1,6 @@
 from typing import cast
 
-from core.redis.cache_service import CacheService
+from core.redis.service import RedisService
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from schemas.review import (
     ReviewCreate,
@@ -18,7 +18,7 @@ class ReviewCacheService:
     def __init__(
         self,
         review_service: ReviewService,
-        cache_service: CacheService,
+        cache_service: RedisService,
     ) -> None:
         self.review_service = review_service
         self.cache_service = cache_service
@@ -28,7 +28,7 @@ class ReviewCacheService:
         size: int = 10,
         page: int = 1,
     ) -> ReviewWithUserResponseList:
-        key = CacheService.create_cache_key("reviews", size=size, page=page)
+        key = RedisService.create_cache_key("reviews", size=size, page=page)
         cached_reviews_response = await self.cache_service.get(
             key,
             ReviewWithUserResponseList,
@@ -45,7 +45,7 @@ class ReviewCacheService:
         return reviews_response
 
     async def get_review_by_id(self, review_id: int) -> ReviewWithUserResponse:
-        key = CacheService.create_cache_key("review", review_id=review_id)
+        key = RedisService.create_cache_key("review", review_id=review_id)
         cached_review_response = await self.cache_service.get(
             key,
             ReviewWithUserResponse,
@@ -67,7 +67,7 @@ class ReviewCacheService:
         size: int = 10,
         page: int = 1,
     ) -> ReviewWithMovieResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "reviews",
             user_id=user_id,
             size=size,
@@ -97,7 +97,7 @@ class ReviewCacheService:
         user_id: int,
         movie_id: int,
     ) -> ReviewResponse:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "review",
             user_id=user_id,
             movie_id=movie_id,
@@ -123,7 +123,7 @@ class ReviewCacheService:
         size: int = 10,
         page: int = 1,
     ) -> ReviewWithUserResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "reviews",
             movie_id=movie_id,
             size=size,
@@ -154,7 +154,7 @@ class ReviewCacheService:
         size: int,
         page: int,
     ) -> ReviewWithUserResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "reviews:low-rated",
             movie_id=movie_id,
             size=size,
@@ -185,7 +185,7 @@ class ReviewCacheService:
         size: PaginationSizeDep = 10,
         page: PaginationPageDep = 1,
     ) -> ReviewWithUserResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "reviews:top-rated",
             movie_id=movie_id,
             size=size,
@@ -216,7 +216,7 @@ class ReviewCacheService:
         size: int,
         page: int,
     ) -> ReviewWithUserResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "reviews:top-newest",
             movie_id=movie_id,
             size=size,
@@ -247,7 +247,7 @@ class ReviewCacheService:
         size: int,
         page: int,
     ) -> ReviewWithUserResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "reviews:top-oldest",
             movie_id=movie_id,
             size=size,
@@ -281,7 +281,7 @@ class ReviewCacheService:
             user_id,
             create_review_data,
         )
-        key = CacheService.create_cache_key("review")
+        key = RedisService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return review_response
@@ -297,7 +297,7 @@ class ReviewCacheService:
             review_id,
             update_review_data,
         )
-        key = CacheService.create_cache_key("review")
+        key = RedisService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return review_response
@@ -313,7 +313,7 @@ class ReviewCacheService:
             review_id,
             update_review_data,
         )
-        key = CacheService.create_cache_key("review")
+        key = RedisService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
         return review_response
@@ -327,6 +327,6 @@ class ReviewCacheService:
             current_user_id,
             review_id,
         )
-        key = CacheService.create_cache_key("review")
+        key = RedisService.create_cache_key("review")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)

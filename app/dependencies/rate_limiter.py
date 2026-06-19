@@ -7,7 +7,7 @@ from starlette.requests import Request
 from core.exceptions.base import TooManyRequestsError
 from core.redis.client import RedisClient
 from core.redis.rate_limiter import RateLimiter
-from dependencies.redis_client import get_redis_client_for_rate_limiter
+from dependencies.redis_client import get_rate_limiter_redis_client
 
 
 def rate_limit_dependency_factory(
@@ -40,7 +40,7 @@ def rate_limit_dependency_factory(
 async def get_rate_limiter(
     redis_client: Annotated[
         RedisClient,
-        Depends(get_redis_client_for_rate_limiter),
+        Depends(get_rate_limiter_redis_client),
     ],
 ) -> AsyncGenerator[RateLimiter]:
     try:

@@ -3,7 +3,7 @@ from typing import Any
 from core.redis.client import RedisClient
 
 
-class CacheService:
+class RedisService:
     def __init__(self, redis: RedisClient) -> None:
         self.redis = redis
 

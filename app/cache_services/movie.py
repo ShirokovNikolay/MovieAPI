@@ -1,6 +1,6 @@
 from typing import cast
 
-from core.redis.cache_service import CacheService
+from core.redis.service import RedisService
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from schemas.movie import (
     MovieCreate,
@@ -19,15 +19,15 @@ class MovieCacheService:
     def __init__(
         self,
         movie_service: MovieService,
-        cache_service_for_movie: CacheService,
-        cache_service_for_watch_history: CacheService,
+        cache_service_for_movie: RedisService,
+        cache_service_for_watch_history: RedisService,
     ) -> None:
         self.movie_service = movie_service
         self.cache_service_for_movie = cache_service_for_movie
         self.cache_service_for_watch_history = cache_service_for_watch_history
 
     async def get_movie_by_id(self, movie_id: int) -> MovieWithGenreResponse:
-        key = CacheService.create_cache_key("movie", movie_id=movie_id)
+        key = RedisService.create_cache_key("movie", movie_id=movie_id)
         cached_movie_response = await self.cache_service_for_movie.get(
             key,
             MovieWithGenreResponse,
@@ -44,7 +44,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieWithGenreResponseList:
-        key = CacheService.create_cache_key("movies", size=size, page=page)
+        key = RedisService.create_cache_key("movies", size=size, page=page)
         cached_movies_response = await self.cache_service_for_movie.get(
             key,
             MovieWithGenreResponseList,
@@ -62,7 +62,7 @@ class MovieCacheService:
         size: PaginationSizeDep = 10,
         page: PaginationPageDep = 1,
     ) -> MovieWithGenreResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "movies",
             size=size,
             page=page,
@@ -89,7 +89,7 @@ class MovieCacheService:
         size: int = 10,
         page: int = 1,
     ) -> MovieResponseList:
-        key = CacheService.create_cache_key(
+        key = RedisService.create_cache_key(
             "movies",
             genre_id=genre_id,
             size=size,
@@ -119,7 +119,7 @@ class MovieCacheService:
             user_id,
             create_watch_history_data,
         )
-        key = CacheService.create_cache_key("watch_history")
+        key = RedisService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service_for_watch_history.delete_by_pattern(pattern)
         return movie_response
@@ -129,7 +129,7 @@ class MovieCacheService:
         create_movie_data: MovieCreate,
     ) -> MovieWithGenreResponse:
         movie_response = await self.movie_service.create_movie(create_movie_data)
-        key = CacheService.create_cache_key("movie")
+        key = RedisService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
@@ -143,7 +143,7 @@ class MovieCacheService:
             movie_id,
             update_movie_data,
         )
-        key = CacheService.create_cache_key("movie")
+        key = RedisService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
@@ -157,13 +157,13 @@ class MovieCacheService:
             movie_id,
             update_movie_data,
         )
-        key = CacheService.create_cache_key("movie")
+        key = RedisService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
         return movie_response
 
     async def delete_movie_by_id(self, movie_id: int) -> None:
         await self.movie_service.delete_movie_by_id(movie_id)
-        key = CacheService.create_cache_key("movie")
+        key = RedisService.create_cache_key("movie")
         pattern = key + "*"
         await self.cache_service_for_movie.delete_by_pattern(pattern)
