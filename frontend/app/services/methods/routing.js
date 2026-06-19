@@ -33,6 +33,22 @@
                     this.error = "";
                     return;
                 }
+                if (hash === "#/reset-password") {
+                    this.currentView = "reset-password";
+                    this.error = "";
+                    this.success = "";
+                    this.resetStep = "form";
+                    this.resetEmail = "";
+                    this.resetCode = "";
+                    this.resetNewPassword = "";
+                    this.resetConfirmPassword = "";
+                    // Очищаем таймер если был
+                    if (this.resetTimerInterval) {
+                        clearInterval(this.resetTimerInterval);
+                        this.resetTimerInterval = null;
+                    }
+                    return;
+                }
                 if (hash === "#/profile") {
                     if (!this.isAuthenticated) {
                         this.goLogin();

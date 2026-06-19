@@ -3,8 +3,14 @@
     var parseResponseJson = window.ApiClient.parseResponseJson;
     var readErrorMessage = window.ApiClient.readErrorMessage;
 
-    function confirmEmail(payload) {
-        return fetch(apiUrl("/api/v1/auth/confirm-email"), {
+    // ОТПРАВКА КОДА (универсальный метод с message_type)
+    function sendConfirmationCode(email, messageType) {
+        var payload = {
+            email: email,
+            message_type: messageType, // "verify_email" | "two_factor_auth" | "reset_password"
+        };
+
+        return fetch(apiUrl("/api/v1/auth/send-confirmation-code"), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -21,30 +27,15 @@
         });
     }
 
-    // ПОВТОРНАЯ ОТПРАВКА 2FA КОДА (используем тот же эндпоинт)
-    function resend2FACode(email) {
-        return fetch(apiUrl("/api/v1/auth/confirmation_code?email=" + encodeURIComponent(email)), {
+    // ПОДТВЕРЖДЕНИЕ 2FA КОДА
+    function confirmEmail(payload) {
+        return fetch(apiUrl("/api/v1/auth/confirm-email"), {
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 Accept: "application/json",
             },
-        }).then(function (res) {
-            return parseResponseJson(res).then(function (data) {
-                if (!res.ok) {
-                    throw new Error(readErrorMessage(data));
-                }
-                return data;
-            });
-        });
-    }
-
-    // ОТПРАВКА КОДА НА ПОЧТУ
-    function sendConfirmationCode(email) {
-        return fetch(apiUrl("/api/v1/auth/confirmation_code?email=" + encodeURIComponent(email)), {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-            },
+            body: JSON.stringify(payload),
         }).then(function (res) {
             return parseResponseJson(res).then(function (data) {
                 if (!res.ok) {
@@ -74,13 +65,13 @@
         });
     }
 
-    // СТАРАЯ РЕГИСТРАЦИЯ (оставляем для совместимости, но не используем)
+    // СТАРАЯ РЕГИСТРАЦИЯ (для совместимости)
     function registerUser(payload) {
-        // Можно оставить или удалить
         console.warn("registerUser is deprecated, use registerUserWithCode");
         return registerUserWithCode(payload);
     }
 
+    // ЛОГИН (возвращает email)
     function loginUser(username, password) {
         var body = new URLSearchParams();
         body.set("username", username);
@@ -97,7 +88,26 @@
                 if (!res.ok) {
                     throw new Error(readErrorMessage(data));
                 }
-                window.TokenStore.setTokens(data.access_token, data.refresh_token);
+                // data - это строка с email
+                return data;
+            });
+        });
+    }
+
+    // СБРОС ПАРОЛЯ
+    function resetPassword(payload) {
+        return fetch(apiUrl("/api/v1/auth/reset-password"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(payload),
+        }).then(function (res) {
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
                 return data;
             });
         });
@@ -108,12 +118,12 @@
     }
 
     window.ApiAuth = {
-        registerUser: registerUser, // оставляем для обратной совместимости
-        confirmEmail: confirmEmail,
+        registerUser: registerUser, // для обратной совместимости
         registerUserWithCode: registerUserWithCode,
-        sendConfirmationCode: sendConfirmationCode,
+        sendConfirmationCode: sendConfirmationCode, // универсальный метод
+        confirmEmail: confirmEmail,
         loginUser: loginUser,
+        resetPassword: resetPassword,
         logout: logout,
-        resend2FACode: resend2FACode,
     };
 })();
