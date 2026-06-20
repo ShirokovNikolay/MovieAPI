@@ -33,7 +33,7 @@ async def get_presign_url(
     ],
 ) -> PresignUrlResponse:
     return await http_request_service.get_schema_from_request(
-        url=settings.mediaservice.create_presign_url_endpoint,
+        url=settings.media_service.create_presign_url_endpoint,
         method=MethodType.post.value,  # type: ignore[arg-type]
         json=presign_url_create.model_dump(),
         response_schema=PresignUrlResponse,  # type: ignore[arg-type]

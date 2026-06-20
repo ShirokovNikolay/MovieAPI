@@ -47,5 +47,5 @@ def send_reset_password_email_data(
             login=login,
             email=email,
             confirmation_code=confirmation_code,
-        )
+        ),
     )

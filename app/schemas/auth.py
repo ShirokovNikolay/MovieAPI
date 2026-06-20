@@ -3,7 +3,6 @@ from typing import Annotated
 from annotated_types import Len
 from pydantic import BaseModel, EmailStr
 
-from core.constants import MessageType
 from schemas.user import LoginConstraint, PasswordConstraint
 
 ConfirmationCodeConstraint = Annotated[
@@ -24,6 +23,23 @@ class UserLogin(BaseModel):
     password: PasswordConstraint
 
 
+class SendConfirmationCodeRequest(BaseModel):
+    """
+    Модель для отправки кода подтверждения на почту.
+    """
+
+    temporary_token: str
+
+
+class VerifyRegisterUser(BaseModel):
+    """
+    Модель для подтверждения почты для регистрации пользователя.
+    """
+
+    temporary_registration_token: str
+    confirmation_code: ConfirmationCodeConstraint
+
+
 class ConfirmEmailRequest(BaseModel):
     """
     Модель для двухфакторной аутентификации:
@@ -34,15 +50,6 @@ class ConfirmEmailRequest(BaseModel):
     confirmation_code: ConfirmationCodeConstraint
 
 
-class SendAuthEmail(BaseModel):
-    """
-    Модель для отправки писем, связанных с аутентификацией, на почту.
-    """
-
-    email: EmailStr
-    message_type: MessageType
-
-
 class ResetPasswordRequest(BaseModel):
     """
     Модель для смены пароля.
@@ -51,4 +58,3 @@ class ResetPasswordRequest(BaseModel):
     email: EmailStr
     password: PasswordConstraint
     password_confirmation: PasswordConstraint
-    confirmation_code: ConfirmationCodeConstraint
