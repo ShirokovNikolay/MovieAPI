@@ -58,6 +58,14 @@ class AuthJWTConfig(BaseModel):
     refresh_token_expire_minutes: int = 30 * 24 * 60
 
 
+class ConfirmationCodeJWTConfig(BaseModel):
+    secret_key: str = "secret_key"
+    algorithm: str = "HS256"
+    temporary_token_registration_expire_minutes: int = 15
+    temporary_token_two_factor_expire_minutes: int = 15
+    temporary_token_reset_password_expire_minutes: int = 15
+
+
 class MediaServiceConfig(BaseModel):
     host: str = "mediaservice"
     port: int = 8000
@@ -82,10 +90,13 @@ class Settings(BaseSettings):
     redis: RedisConfig = RedisConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     auth_jwt: AuthJWTConfig = AuthJWTConfig()
+    confirmation_code_jwt: ConfirmationCodeJWTConfig = ConfirmationCodeJWTConfig()
     http_bearer: HTTPBearer = HTTPBearer()
-    oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer("/api/v1/auth/login")
-    mediaservice: MediaServiceConfig = MediaServiceConfig()
-    notificationservice: NotificationServiceConfig = NotificationServiceConfig()
+    oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
+        "/api/v1/auth/confirm-email",
+    )
+    media_service: MediaServiceConfig = MediaServiceConfig()
+    notification_service: NotificationServiceConfig = NotificationServiceConfig()
     debug: bool = False
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(

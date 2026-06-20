@@ -4,8 +4,15 @@ from typing import Any
 import jwt
 
 from core.config import settings
-from core.constants import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, TOKEN_TYPE
-from schemas.user import UserResponse
+from core.constants import (
+    ACCESS_TOKEN_TYPE,
+    REFRESH_TOKEN_TYPE,
+    REGISTRATION_TEMPORARY_TOKEN_TYPE,
+    RESET_PASSWORD_TEMPORARY_TOKEN_TYPE,
+    TOKEN_TYPE,
+    TWO_FACTOR_VERIFICATION_TEMPORARY_TOKEN_TYPE,
+)
+from schemas.user import UserRegistration, UserResponse
 
 
 def encode_jwt(
@@ -40,6 +47,53 @@ def decode_jwt(
     )
 
 
+def create_user_payload_for_access_token(user: UserResponse) -> dict[str, str]:
+    payload = {
+        "sub": str(user.id),
+        "login": user.login,
+        "email": user.email,
+    }
+    return payload
+
+
+def create_user_payload_for_refresh_token(user: UserResponse) -> dict[str, str]:
+    payload = {
+        "sub": str(user.id),
+    }
+    return payload
+
+
+def create_user_payload_for_registration_temporary_token(
+    user: UserRegistration,
+) -> dict[str, str]:
+    payload = {
+        "sub": user.login,
+        "login": user.login,
+        "email": user.email,
+    }
+    return payload
+
+
+def create_user_payload_for_two_factor_verification_temporary_token(
+    user: UserResponse,
+) -> dict[str, str]:
+    payload = {
+        "sub": str(user.id),
+        "email": user.email,
+    }
+    return payload
+
+
+def create_user_payload_for_reset_password_temporary_token(
+    user: UserResponse,
+) -> dict[str, str]:
+    payload = {
+        "sub": str(user.id),
+        "email": user.email,
+    }
+    return payload
+
+
 def create_access_token(user: UserResponse) -> str:
     payload = create_user_payload_for_access_token(user)
     payload.update(
@@ -62,17 +116,40 @@ def create_refresh_token(user: UserResponse) -> str:
     )
 
 
-def create_user_payload_for_access_token(user: UserResponse) -> dict[str, str]:
-    payload = {
-        "sub": str(user.id),
-        "login": user.login,
-        "email": user.email,
-    }
-    return payload
+def create_registration_temporary_token(user: UserRegistration) -> str:
+    payload = create_user_payload_for_registration_temporary_token(user)
+    payload.update(
+        {TOKEN_TYPE: REGISTRATION_TEMPORARY_TOKEN_TYPE},
+    )
+    return encode_jwt(
+        payload=payload,
+        secret_key=settings.confirmation_code_jwt.secret_key,
+        algorithm=settings.confirmation_code_jwt.algorithm,
+        expires_minutes=settings.confirmation_code_jwt.temporary_token_registration_expire_minutes,
+    )
 
 
-def create_user_payload_for_refresh_token(user: UserResponse) -> dict[str, str]:
-    payload = {
-        "sub": str(user.id),
-    }
-    return payload
+def create_two_factor_verification_temporary_token(user: UserResponse) -> str:
+    payload = create_user_payload_for_two_factor_verification_temporary_token(user)
+    payload.update(
+        {TOKEN_TYPE: TWO_FACTOR_VERIFICATION_TEMPORARY_TOKEN_TYPE},
+    )
+    return encode_jwt(
+        payload=payload,
+        secret_key=settings.confirmation_code_jwt.secret_key,
+        algorithm=settings.confirmation_code_jwt.algorithm,
+        expires_minutes=settings.confirmation_code_jwt.temporary_token_two_factor_expire_minutes,
+    )
+
+
+def create_reset_password_temporary_token(user: UserResponse) -> str:
+    payload = create_user_payload_for_reset_password_temporary_token(user)
+    payload.update(
+        {TOKEN_TYPE: RESET_PASSWORD_TEMPORARY_TOKEN_TYPE},
+    )
+    return encode_jwt(
+        payload=payload,
+        secret_key=settings.confirmation_code_jwt.secret_key,
+        algorithm=settings.confirmation_code_jwt.algorithm,
+        expires_minutes=settings.confirmation_code_jwt.temporary_token_reset_password_expire_minutes,
+    )

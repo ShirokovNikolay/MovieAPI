@@ -34,7 +34,7 @@ def get_user_by_access_token(
         payload=payload,
         target_token_type=ACCESS_TOKEN_TYPE,
     )
-    user_id: int = cast(int, payload["sub"])
+    user_id = cast(int, payload["sub"])
     return user_id
 
 
@@ -48,7 +48,7 @@ def get_user_by_refresh_token(
         payload=payload,
         target_token_type=REFRESH_TOKEN_TYPE,
     )
-    user_id: int = cast(int, payload["sub"])
+    user_id = cast(int, payload["sub"])
     return user_id
 
 
