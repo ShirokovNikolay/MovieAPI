@@ -2,19 +2,20 @@ from fastapi import (
     APIRouter,
     status,
 )
-from pydantic import EmailStr
 
-from dependencies.annotations.cache_services import UserCacheServiceDep
 from dependencies.annotations.security import (
     AuthUserByRefreshTokenDep,
     GetLoginDataDep,
 )
 from dependencies.annotations.services import UserServiceDep
-from schemas.auth import ConfirmEmailRequest, SendAuthEmail, ResetPasswordRequest
-from schemas.token_info import TokenInfo
+from schemas.auth import (
+    ResetPasswordRequest,
+    SendConfirmationCodeRequest,
+    VerifyRegisterUser,
+)
+from schemas.token_info import TemporaryTokenInfo, TokenInfo
 from schemas.user import (
     UserRegistration,
-    UserResponse,
 )
 
 router = APIRouter(
@@ -25,41 +26,46 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
+    response_model=TemporaryTokenInfo,
+    status_code=status.HTTP_200_OK,
 )
 async def register_user(
     registration_user_data: UserRegistration,
-    user_service: UserCacheServiceDep,
-) -> UserResponse:
-    return await user_service.create_user(registration_user_data)
+    user_service: UserServiceDep,
+) -> TemporaryTokenInfo:
+    return await user_service.register_user(registration_user_data)
+
+
+@router.post("/register/resend-confirmation-code")
+async def resend_register_confirmation_code(
+    send_confirmation_code_request: SendConfirmationCodeRequest,
+    user_service: UserServiceDep,
+) -> None:
+    await user_service.send_register_confirmation_code(send_confirmation_code_request)
+
+
+@router.post(
+    "/register/verify",
+    response_model=TokenInfo,
+    status_code=status.HTTP_200_OK,
+)
+async def register_user(
+    verify_register_user_data: VerifyRegisterUser,
+    user_service: UserServiceDep,
+) -> TokenInfo:
+    return await user_service.verify_register_user(verify_register_user_data)
 
 
 @router.post(
     "/login",
+    response_model=TemporaryTokenInfo,
     status_code=status.HTTP_200_OK,
 )
 async def login_user(
     login_data: GetLoginDataDep,
     user_service: UserServiceDep,
-) -> EmailStr:
+) -> TemporaryTokenInfo:
     return await user_service.authenticate_user(login_data)
-
-
-@router.post("/send-confirmation-code")
-async def send_confirmation_code(
-    send_auth_email_data: SendAuthEmail,
-    user_service: UserServiceDep,
-) -> None:
-    await user_service.send_confirmation_code(send_auth_email_data)
-
-
-@router.post("/confirm-email")
-async def confirm_email(
-    confirm_email_request: ConfirmEmailRequest,
-    user_service: UserServiceDep,
-) -> TokenInfo:
-    return await user_service.confirm_email(confirm_email_request)
 
 
 @router.post("/reset-password")
@@ -68,6 +74,25 @@ async def reset_password(
     user_service: UserServiceDep,
 ) -> None:
     await user_service.reset_password(reset_password_data)
+
+
+@router.post(
+    "/send-confirmation-code",
+)
+async def send_confirmation_code(
+    temporary_token_data: TemporaryTokenInfo,
+    user_service: UserServiceDep,
+) -> None:
+    await user_service.send_confirmation_code(temporary_token_data)
+
+
+@router.post("/confirm-email")
+async def confirm_email(
+    temporary_token_data: TemporaryTokenInfo,
+    confirmation_code: str,
+    user_service: UserServiceDep,
+) -> TokenInfo:
+    return await user_service.confirm_email(temporary_token_data, confirmation_code)
 
 
 @router.post(

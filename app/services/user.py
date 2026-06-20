@@ -6,7 +6,11 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.celery.celery_app import app
-from core.constants import BEARER_TOKEN_TYPE, UserRole, MessageType
+from core.config import settings
+from core.constants import (
+    BEARER_TOKEN_TYPE,
+    UserRole,
+)
 from core.exceptions.auth import InvalidPasswordError
 from core.exceptions.confirmation_code import (
     EmailConfirmationCodeNotFoundError,
@@ -20,16 +24,22 @@ from core.exceptions.user import (
     UserLoginNotFoundError,
 )
 from core.redis import RedisService
-from core.security.jwt_utils import create_access_token, create_refresh_token
+from core.security.jwt_utils import (
+    create_access_token,
+    create_refresh_token,
+    create_registration_temporary_token,
+    create_two_factor_verification_temporary_token,
+    decode_jwt,
+)
 from core.security.password_utils import hash_password, verify_password
 from repositories import UserRepository
 from schemas.auth import (
-    ConfirmEmailRequest,
-    UserLogin,
-    SendAuthEmail,
     ResetPasswordRequest,
+    SendConfirmationCodeRequest,
+    UserLogin,
+    VerifyRegisterUser,
 )
-from schemas.token_info import TokenInfo
+from schemas.token_info import TemporaryTokenInfo, TokenInfo
 from schemas.user import (
     UserCreate,
     UserPartialUpdate,
@@ -84,6 +94,122 @@ class UserService:
             page=page,
         )
 
+    @staticmethod
+    def convert_registration_to_create_schema(
+        user_registration_data: UserRegistration,
+    ) -> UserCreate:
+        user_create_data = user_registration_data.model_dump(
+            exclude={"confirmation_code", "password"},
+        )
+        password = user_registration_data.password
+        encrypted_password = hash_password(password)
+        user_create_data["encrypted_password"] = encrypted_password
+        return UserCreate(**user_create_data)
+
+    async def register_user(
+        self,
+        registration_user_data: UserRegistration,
+    ) -> TemporaryTokenInfo:
+        if await self.user_repository.user_login_exists(registration_user_data.login):
+            raise UserLoginAlreadyExistsError(registration_user_data.login)
+
+        if await self.user_repository.user_email_exists(registration_user_data.email):
+            raise UserEmailAlreadyExistsError(registration_user_data.email)
+
+        create_user_data = self.convert_registration_to_create_schema(
+            registration_user_data,
+        )
+        temporary_token = create_registration_temporary_token(registration_user_data)
+        ttl_seconds = (
+            settings.confirmation_code_jwt.temporary_token_registration_expire_minutes
+            * 60
+        )
+        await self.redis_service.set(
+            key=f"{temporary_token}",
+            value=create_user_data.model_dump_json(),
+            ttl=ttl_seconds,
+        )
+        send_confirmation_code_request = SendConfirmationCodeRequest(
+            temporary_token=temporary_token,
+        )
+        await self.send_register_confirmation_code(send_confirmation_code_request)
+        return TemporaryTokenInfo(
+            temporary_token=temporary_token,
+            token_type=BEARER_TOKEN_TYPE,
+        )
+
+    async def create_user(self, user: UserCreate) -> UserResponse:
+        if await self.user_repository.user_login_exists(user.login):
+            raise UserLoginAlreadyExistsError(user.login)
+
+        if await self.user_repository.user_email_exists(user.email):
+            raise UserEmailAlreadyExistsError(user.email)
+
+        user = await self.user_repository.create_user(user)
+        app.send_task(
+            name=TaskType.send_welcome_email.value,
+            args=[
+                user.email,
+                user.name,
+            ],
+            queue=Queue.notification.value,
+        )
+        return UserResponse.model_validate(user)
+
+    async def send_register_confirmation_code(
+        self,
+        send_confirmation_code_request: SendConfirmationCodeRequest,
+    ) -> None:
+        token = send_confirmation_code_request.temporary_token
+        payload = decode_jwt(
+            token=token,
+            secret_key=settings.confirmation_code_jwt.secret_key,
+            algorithm=settings.confirmation_code_jwt.algorithm,
+        )
+        email = payload["email"]
+        confirmation_code = await self.create_confirmation_code(email)
+        app.send_task(
+            name=TaskType.send_confirmation_email_code.value,
+            args=[
+                email,
+                confirmation_code,
+            ],
+            queue=Queue.notification.value,
+        )
+
+    async def verify_register_user(
+        self,
+        verify_register_user_data: VerifyRegisterUser,
+    ) -> TokenInfo:
+        token = verify_register_user_data.temporary_registration_token
+        user_data_create_json = await self.redis_service.get(key=f"{token}")
+        user_data_create = UserCreate.model_validate_json(user_data_create_json)
+        user = await self.create_user(user_data_create)
+        access_token = create_access_token(user)
+        refresh_token = create_refresh_token(user)
+        return TokenInfo(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type=BEARER_TOKEN_TYPE,
+        )
+
+    async def authenticate_user(self, login_data: UserLogin) -> TemporaryTokenInfo:
+        user = await self.user_repository.get_user_by_login(login_data.login)
+        if user is None:
+            raise UserLoginNotFoundError(login_data.login)
+
+        if not verify_password(login_data.password, user.encrypted_password):
+            raise InvalidPasswordError
+
+        user = UserResponse.model_validate(user)
+        temporary_token = create_two_factor_verification_temporary_token(user)
+        token_data = TemporaryTokenInfo(
+            temporary_token=temporary_token,
+            token_type=BEARER_TOKEN_TYPE,
+        )
+
+        return token_data
+
     async def get_confirmation_code(self, email: EmailStr) -> str:
         confirmation_code = await self.redis_service.get(f"auth:email:{email}")
         if confirmation_code is None:
@@ -104,64 +230,6 @@ class UserService:
                 confirmation_code=confirmation_code,
             )
 
-    async def confirm_email(
-        self,
-        confirm_email_request: ConfirmEmailRequest,
-    ) -> TokenInfo:
-        await self.verify_confirmation_code(
-            confirm_email_request.email,
-            confirm_email_request.confirmation_code,
-        )
-        user = await self.get_user_by_email(confirm_email_request.email)
-        access_token = create_access_token(user)
-        refresh_token = create_refresh_token(user)
-        return TokenInfo(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type=BEARER_TOKEN_TYPE,
-        )
-
-    @staticmethod
-    def convert_registration_to_create_schema(
-        user_registration_data: UserRegistration,
-    ) -> UserCreate:
-        user_create_data = user_registration_data.model_dump(
-            exclude={"confirmation_code", "password"},
-        )
-        password = user_registration_data.password
-        encrypted_password = hash_password(password)
-        user_create_data["encrypted_password"] = encrypted_password
-        return UserCreate(**user_create_data)
-
-    async def create_user(
-        self,
-        registration_user_data: UserRegistration,
-    ) -> UserResponse:
-        if await self.user_repository.user_login_exists(registration_user_data.login):
-            raise UserLoginAlreadyExistsError(registration_user_data.login)
-
-        if await self.user_repository.user_email_exists(registration_user_data.email):
-            raise UserEmailAlreadyExistsError(registration_user_data.email)
-
-        await self.verify_confirmation_code(
-            registration_user_data.email,
-            registration_user_data.confirmation_code,
-        )
-
-        create_user_data = self.convert_registration_to_create_schema(
-            registration_user_data,
-        )
-        user = await self.user_repository.create_user(create_user_data)
-        app.send_task(
-            name=TaskType.send_welcome_email.value,
-            args=[
-                registration_user_data.email,
-                registration_user_data.name,
-            ],
-            queue=Queue.notification.value,
-        )
-        return UserResponse.model_validate(user)
-
     async def create_confirmation_code(self, email: EmailStr) -> str:
         confirmation_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
         await self.redis_service.set(
@@ -170,32 +238,6 @@ class UserService:
             ttl=60,
         )
         return confirmation_code
-
-    async def send_confirmation_code(self, send_auth_email_data: SendAuthEmail) -> None:
-        email = send_auth_email_data.email
-        message_type = send_auth_email_data.message_type.value
-        confirmation_code = await self.create_confirmation_code(email)
-        if message_type in (MessageType.verify_email, MessageType.two_factor_auth):
-            app.send_task(
-                name=TaskType.send_confirmation_email_code.value,
-                args=[
-                    email,
-                    confirmation_code,
-                ],
-                queue=Queue.notification.value,
-            )
-
-        if message_type == MessageType.reset_password.value:
-            user = await self.get_user_by_email(email)
-            app.send_task(
-                name=TaskType.send_reset_password_email_data.value,
-                args=[
-                    user.login,
-                    email,
-                    confirmation_code,
-                ],
-                queue=Queue.notification.value,
-            )
 
     async def reset_password(self, reset_password_data: ResetPasswordRequest) -> None:
         await self.verify_confirmation_code(
@@ -208,13 +250,9 @@ class UserService:
 
         user = await self.get_user_by_email(reset_password_data.email)
         user_partial_update_data = UserPartialUpdate(
-            password=reset_password_data.password
+            password=reset_password_data.password,
         )
         await self.partial_update_user(user.id, user_partial_update_data)
-
-    async def make_admin(self, user_id: int) -> None:
-        if not await self.user_repository.make_admin(user_id):
-            raise UserIdNotFoundError(user_id)
 
     async def update_user(
         self,
@@ -284,27 +322,16 @@ class UserService:
         if not await self.user_repository.delete_user_by_login(login):
             raise UserLoginNotFoundError(login)
 
-    async def authenticate_user(self, login_data: UserLogin) -> EmailStr:
-        user = await self.user_repository.get_user_by_login(login_data.login)
-        if user is None:
-            raise UserLoginNotFoundError(login_data.login)
-
-        if not verify_password(login_data.password, user.encrypted_password):
-            raise InvalidPasswordError
-
-        send_auth_email_data = SendAuthEmail(
-            email=user.email,
-            message_type=MessageType.two_factor_auth,
-        )
-        await self.send_confirmation_code(send_auth_email_data)
-        return user.email
-
     async def is_admin(self, user_id: int) -> bool:
         role = await self.user_repository.get_user_role(user_id)
         if role is None:
             raise UserIdNotFoundError(user_id)
 
         return role == UserRole.admin.value
+
+    async def make_admin(self, user_id: int) -> None:
+        if not await self.user_repository.make_admin(user_id):
+            raise UserIdNotFoundError(user_id)
 
     async def refresh_access_token(self, user_id: int) -> TokenInfo:
         user = await self.get_user_by_id(user_id)

@@ -100,7 +100,6 @@ class UserRegistration(UserBase):
     """
 
     password: PasswordConstraint
-    confirmation_code: ConfirmationCode
 
 
 class UserUpdate(UserBase):

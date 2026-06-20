@@ -50,11 +50,11 @@ class UserCacheService:
         await self.cache_service.set(key, users_response)
         return users_response
 
-    async def create_user(
+    async def register_user(
         self,
         registration_user_data: UserRegistration,
     ) -> UserResponse:
-        user_response = await self.user_service.create_user(registration_user_data)
+        user_response = await self.user_service.register_user(registration_user_data)
         key = RedisService.create_cache_key("user")
         pattern = key + "*"
         await self.cache_service.delete_by_pattern(pattern)
