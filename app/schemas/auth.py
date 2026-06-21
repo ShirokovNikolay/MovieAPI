@@ -45,6 +45,14 @@ class ResetPasswordRequest(BaseModel):
     Модель для смены пароля.
     """
 
-    email: EmailStr
+    reset_password_token: str
     password: PasswordConstraint
     password_confirmation: PasswordConstraint
+
+
+class RecoverAccountRequest(BaseModel):
+    """
+    Модель для восстановления доступа к аккаунту.
+    """
+
+    email: EmailStr
