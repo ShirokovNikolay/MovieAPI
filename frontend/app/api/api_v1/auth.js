@@ -64,8 +64,6 @@
     }
 
     // ============ ВХОД (2FA) ============
-
-    // ШАГ 1: Логин (получаем временный токен)
     function loginUser(username, password) {
         var body = new URLSearchParams();
         body.set("username", username);
@@ -74,21 +72,20 @@
         return fetch(apiUrl("/api/v1/auth/login/"), {
             method: "POST",
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded",  // ← form-data
+                "Content-Type": "application/x-www-form-urlencoded",
                 Accept: "application/json",
             },
-            body: body.toString(),  // ← form-data, не JSON
+            body: body.toString(),
         }).then(function (res) {
             return parseResponseJson(res).then(function (data) {
                 if (!res.ok) {
                     throw new Error(readErrorMessage(data));
                 }
-                return data; // { token: "...", token_type: "bearer" }
+                return data;
             });
         });
     }
 
-    // ШАГ 2: Подтверждение 2FA кода
     function verifyLogin(token, confirmationCode) {
         return fetch(apiUrl("/api/v1/auth/login/verify"), {
             method: "POST",
@@ -105,12 +102,11 @@
                 if (!res.ok) {
                     throw new Error(readErrorMessage(data));
                 }
-                return data; // { access_token, refresh_token, token_type }
+                return data;
             });
         });
     }
 
-    // ПОВТОРНАЯ ОТПРАВКА 2FA КОДА
     function resendLoginCode(token) {
         return fetch(apiUrl("/api/v1/auth/login/resend-confirmation-code"), {
             method: "POST",
@@ -133,13 +129,52 @@
 
     // ============ ВОССТАНОВЛЕНИЕ ПАРОЛЯ ============
 
-    function sendResetCode(email) {
-        var payload = {
-            email: email,
-            message_type: "reset_password",
-        };
+    // ШАГ 1: Отправка email для восстановления
+    function recoverAccount(email) {
+        return fetch(apiUrl("/api/v1/auth/recover/"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify({
+                email: email,
+            }),
+        }).then(function (res) {
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data; // { token: "...", token_type: "bearer" }
+            });
+        });
+    }
 
-        return fetch(apiUrl("/api/v1/auth/send-confirmation-code"), {
+    // ШАГ 2: Подтверждение кода восстановления
+    function verifyRecovery(token, confirmationCode) {
+        return fetch(apiUrl("/api/v1/auth/recover/verify"), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify({
+                token: token,
+                confirmation_code: confirmationCode,
+            }),
+        }).then(function (res) {
+            return parseResponseJson(res).then(function (data) {
+                if (!res.ok) {
+                    throw new Error(readErrorMessage(data));
+                }
+                return data; // { token: "...", token_type: "bearer" } - токен для смены пароля
+            });
+        });
+    }
+
+    // ШАГ 3: Смена пароля
+    function resetPassword(payload) {
+        return fetch(apiUrl("/api/v1/auth/recover/reset-password"), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -156,14 +191,17 @@
         });
     }
 
-    function resetPassword(payload) {
-        return fetch(apiUrl("/api/v1/auth/reset-password"), {
+    // ПОВТОРНАЯ ОТПРАВКА КОДА ВОССТАНОВЛЕНИЯ
+    function resendRecoveryCode(token) {
+        return fetch(apiUrl("/api/v1/auth/recover/resend-confirmation-code"), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({
+                token: token,
+            }),
         }).then(function (res) {
             return parseResponseJson(res).then(function (data) {
                 if (!res.ok) {
@@ -194,8 +232,10 @@
         resendLoginCode: resendLoginCode,
 
         // Восстановление
-        sendResetCode: sendResetCode,
+        recoverAccount: recoverAccount,
+        verifyRecovery: verifyRecovery,
         resetPassword: resetPassword,
+        resendRecoveryCode: resendRecoveryCode,
 
         // Общее
         logout: logout,

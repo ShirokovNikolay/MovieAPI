@@ -174,6 +174,8 @@
                 resetCode: '',
                 resetNewPassword: '',
                 resetConfirmPassword: '',
+                resetToken: '',
+                resetPasswordToken: '',
                 resetResendTimer: 60,
                 resetCanResend: false,
                 resetTimerInterval: null,
