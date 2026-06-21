@@ -1,6 +1,6 @@
 import pytest
 
-from core.constants import TOKEN_TYPE
+from core.constants import TOKEN_TYPE_FIELD
 from tests.utils.data_generators.base import generate_string
 
 
@@ -14,7 +14,7 @@ def payload() -> dict[str, str | int]:
         "sub": sub,
         "login": login,
         "email": email,
-        TOKEN_TYPE: token_type,
+        TOKEN_TYPE_FIELD: token_type,
     }
 
     return data

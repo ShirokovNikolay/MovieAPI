@@ -59,15 +59,17 @@ class MethodType(StrEnum):
     delete = "DELETE"
 
 
-TOKEN_TYPE = "type"
+TOKEN_TYPE_FIELD = "type"
+EMAIL_FIELD = "email"
+
 ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
-REGISTRATION_TEMPORARY_TOKEN_TYPE = "registration_temporary_token"
-TWO_FACTOR_VERIFICATION_TEMPORARY_TOKEN_TYPE = "two_factor_verification_temporary_token"
-RECOVER_ACCOUNT_TEMPORARY_TOKEN_TYPE = "recover_account_temporary_token"
-RESET_PASSWORD_TEMPORARY_TOKEN_TYPE = "reset_password_temporary_token"
+REGISTRATION_TOKEN_TYPE = "registration"
+TWO_FACTOR_TOKEN_TYPE = "two_factor"
+RECOVER_TOKEN_TYPE = "recover"
+RESET_PASSWORD_TOKEN_TYPE = "reset_password"
 
-BEARER_TOKEN_TYPE: str = "Bearer"
+BEARER_TOKEN_TYPE = "Bearer"
 
 BASE_ERROR = (
     NotFoundError

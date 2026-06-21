@@ -16,9 +16,9 @@ class TokenInfo(BaseModel):
 class TemporaryTokenInfo(BaseModel):
     """
     Модель для вывода информации о токенах,
-    предназначенных для временного доступа к
+    предназначенных для доступа к
     отправке кодов подтверждения на почту.
     """
 
-    temporary_token: str
+    token: str
     token_type: str = BEARER_TOKEN_TYPE
