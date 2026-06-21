@@ -206,12 +206,20 @@
                 this.registrationToken,
                 this.confirmationCode.trim()
             )
-                .then(function () {
-                // Мгновенный редирект без задержки
-                window.location.hash = "#/login";
-                window.location.reload();
-            })
+                .then(function (data) {
+                    window.TokenStore.setTokens(data.access_token, data.refresh_token);
+
+                    window.location.hash = "#/";
+                    window.location.reload();
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Неверный код подтверждения";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
         },
+
 
         // ПОВТОРНАЯ ОТПРАВКА КОДА РЕГИСТРАЦИИ
         onResendCode: function () {
