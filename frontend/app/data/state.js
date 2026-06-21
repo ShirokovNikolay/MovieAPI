@@ -198,6 +198,7 @@
 
                 // Для двухфакторной аутентификации
                 loginStep: 'form', // 'form' | 'verify'
+                loginToken: '',
                 loginEmail: '', // email из ответа /login
                 loginCode: '', // 6-значный код
                 loginResendTimer: 60,

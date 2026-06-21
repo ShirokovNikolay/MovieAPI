@@ -6,19 +6,23 @@
             this.error = "";
             this.loading = true;
 
-            window.ApiAuth.loginUser(this.loginForm.username, this.loginForm.password)
-                .then(function (email) {
-                    self.loginEmail = email;
-                    self.loginStep = 'verify';
-                    self.success = "Код подтверждения отправлен на почту";
-                    self.startLoginResendTimer(60);
-                })
-                .catch(function (e) {
-                    self.error = e.message || "Не удалось войти";
-                })
-                .finally(function () {
-                    self.loading = false;
-                });
+            // Передаем username и password отдельно (не JSON)
+            window.ApiAuth.loginUser(
+                this.loginForm.username.trim(),
+                this.loginForm.password
+            )
+            .then(function (data) {
+                self.loginToken = data.token;
+                self.loginStep = 'verify';
+                self.success = "Код подтверждения отправлен на почту";
+                self.startLoginResendTimer(60);
+            })
+            .catch(function (e) {
+                self.error = e.message || "Не удалось войти";
+            })
+            .finally(function () {
+                self.loading = false;
+            });
         },
 
         // ПОДТВЕРЖДЕНИЕ 2FA КОДА
@@ -27,11 +31,24 @@
             this.error = "";
             this.loading = true;
 
-            window.ApiAuth.confirmEmail({
-                email: this.loginEmail,
-                confirmation_code: this.loginCode.trim(),
-            })
+            if (this.loginCode.trim().length !== 6) {
+                this.error = "Введите 6-значный код";
+                this.loading = false;
+                return;
+            }
+
+            if (!this.loginToken) {
+                this.error = "Ошибка: токен не найден. Попробуйте войти заново.";
+                this.loading = false;
+                return;
+            }
+
+            window.ApiAuth.verifyLogin(
+                this.loginToken,
+                this.loginCode.trim()
+            )
                 .then(function (data) {
+                    // Сохраняем токены доступа
                     window.TokenStore.setTokens(data.access_token, data.refresh_token);
                     window.location.hash = "#/";
                     window.location.reload();
@@ -51,7 +68,13 @@
             this.success = "";
             this.loading = true;
 
-            window.ApiAuth.sendConfirmationCode(this.loginEmail, "two_factor_auth")
+            if (!this.loginToken) {
+                this.error = "Ошибка: токен не найден. Попробуйте войти заново.";
+                this.loading = false;
+                return;
+            }
+
+            window.ApiAuth.resendLoginCode(this.loginToken)
                 .then(function () {
                     self.success = "Новый код отправлен на почту";
                     self.startLoginResendTimer(60);
@@ -68,6 +91,7 @@
         onBackToLogin: function () {
             this.loginStep = 'form';
             this.loginCode = '';
+            this.loginToken = '';
             this.error = '';
             this.success = '';
             if (this.loginTimerInterval) {
