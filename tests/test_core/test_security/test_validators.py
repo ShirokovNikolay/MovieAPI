@@ -1,6 +1,6 @@
 import pytest
 
-from core.constants import TOKEN_TYPE
+from core.constants import TOKEN_TYPE_FIELD
 from core.security.validators import validate_token_payload
 from tests.utils.data_generators.base import generate_string
 
@@ -8,7 +8,7 @@ from tests.utils.data_generators.base import generate_string
 def test_validate_token_payload_no_sub(payload: dict[str, str | int]) -> None:
     payload.pop("sub")
     with pytest.raises(KeyError):
-        validate_token_payload(payload, target_token_type=payload[TOKEN_TYPE])
+        validate_token_payload(payload, target_token_type=payload[TOKEN_TYPE_FIELD])
 
 
 def test_validate_token_payload_invalid_data_token_type(
@@ -17,5 +17,5 @@ def test_validate_token_payload_invalid_data_token_type(
     with pytest.raises(TypeError):
         validate_token_payload(
             payload,
-            target_token_type=payload[TOKEN_TYPE] + generate_string(),
+            target_token_type=payload[TOKEN_TYPE_FIELD] + generate_string(),
         )

@@ -9,6 +9,7 @@ from core.celery.celery_app import app
 from core.config import settings
 from core.constants import (
     BEARER_TOKEN_TYPE,
+    EMAIL_FIELD,
     UserRole,
 )
 from core.exceptions.auth import InvalidPasswordError
@@ -26,11 +27,11 @@ from core.exceptions.user import (
 from core.redis import RedisService
 from core.security.jwt_utils import (
     create_access_token,
-    create_recover_account_temporary_token,
+    create_recover_token,
     create_refresh_token,
-    create_registration_temporary_token,
-    create_reset_password_temporary_token,
-    create_two_factor_verification_temporary_token,
+    create_registration_token,
+    create_reset_password_token,
+    create_two_factor_token,
     decode_jwt,
 )
 from core.security.password_utils import hash_password, verify_password
@@ -122,10 +123,9 @@ class UserService:
         create_user_data = self.convert_registration_to_create_schema(
             registration_user_data,
         )
-        temporary_token = create_registration_temporary_token(registration_user_data)
+        temporary_token = create_registration_token(registration_user_data)
         ttl_seconds = (
-            settings.confirmation_code_jwt.temporary_token_registration_expire_minutes
-            * 60
+            settings.confirmation_code_jwt.registration_token_expire_minutes * 60
         )
         await self.redis_service.set(
             key=f"{temporary_token}",
@@ -137,7 +137,7 @@ class UserService:
         )
         await self.send_register_confirmation_code(send_confirmation_code_request)
         return TemporaryTokenInfo(
-            temporary_token=temporary_token,
+            token=temporary_token,
             token_type=BEARER_TOKEN_TYPE,
         )
 
@@ -169,7 +169,7 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
-        email = payload["email"]
+        email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
         app.send_task(
             name=TaskType.send_confirmation_email_code.value,
@@ -191,7 +191,7 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
-        email = payload["email"]
+        email = payload[EMAIL_FIELD]
         await self.verify_confirmation_code(
             email,
             confirmation_code,
@@ -216,13 +216,13 @@ class UserService:
             raise InvalidPasswordError
 
         user = UserResponse.model_validate(user)
-        token = create_two_factor_verification_temporary_token(user)
+        token = create_two_factor_token(user)
         send_confirmation_code_request = SendConfirmationCodeRequest(
             token=token,
         )
         await self.send_authenticate_confirmation_code(send_confirmation_code_request)
         return TemporaryTokenInfo(
-            temporary_token=token,
+            token=token,
             token_type=BEARER_TOKEN_TYPE,
         )
 
@@ -236,7 +236,7 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
-        email = payload["email"]
+        email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
         app.send_task(
             name=TaskType.send_confirmation_email_code.value,
@@ -258,7 +258,7 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
-        email = payload["email"]
+        email = payload[EMAIL_FIELD]
         await self.verify_confirmation_code(
             email,
             confirmation_code,
@@ -306,7 +306,7 @@ class UserService:
         recover_account_data: RecoverAccountRequest,
     ) -> TemporaryTokenInfo:
         email = recover_account_data.email
-        token = create_recover_account_temporary_token(email)
+        token = create_recover_token(email)
         send_confirmation_code_request = SendConfirmationCodeRequest(
             token=token,
         )
@@ -314,7 +314,7 @@ class UserService:
             send_confirmation_code_request,
         )
         return TemporaryTokenInfo(
-            temporary_token=token,
+            token=token,
             token_type=BEARER_TOKEN_TYPE,
         )
 
@@ -328,7 +328,7 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
-        email = payload["email"]
+        email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
         app.send_task(
             name=TaskType.send_confirmation_email_code.value,
@@ -350,12 +350,12 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
-        email = payload["email"]
+        email = payload[EMAIL_FIELD]
         await self.verify_confirmation_code(email, confirmation_code)
         user = await self.get_user_by_email(email)
-        reset_password_token = create_reset_password_temporary_token(user)
+        reset_password_token = create_reset_password_token(user)
         return TemporaryTokenInfo(
-            temporary_token=reset_password_token,
+            token=reset_password_token,
             token_type=BEARER_TOKEN_TYPE,
         )
 
@@ -371,7 +371,7 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
-        email = payload["email"]
+        email = payload[EMAIL_FIELD]
         user = await self.get_user_by_email(email)
         user_partial_update_data = UserPartialUpdate(
             password=reset_password_data.password,

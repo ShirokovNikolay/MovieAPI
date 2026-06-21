@@ -61,10 +61,10 @@ class AuthJWTConfig(BaseModel):
 class ConfirmationCodeJWTConfig(BaseModel):
     secret_key: str = "secret_key"
     algorithm: str = "HS256"
-    temporary_token_registration_expire_minutes: int = 15
-    temporary_token_two_factor_expire_minutes: int = 15
-    temporary_token_recover_account_expire_minutes: int = 15
-    temporary_token_reset_password_expire_minutes: int = 15
+    registration_token_expire_minutes: int = 15
+    two_factor_token_expire_minutes: int = 15
+    recover_token_expire_minutes: int = 15
+    reset_password_token_expire_minutes: int = 15
 
 
 class MediaServiceConfig(BaseModel):
@@ -94,7 +94,7 @@ class Settings(BaseSettings):
     confirmation_code_jwt: ConfirmationCodeJWTConfig = ConfirmationCodeJWTConfig()
     http_bearer: HTTPBearer = HTTPBearer()
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
-        "/api/v1/auth/confirm-email",
+        "/api/v1/auth/login/",
     )
     media_service: MediaServiceConfig = MediaServiceConfig()
     notification_service: NotificationServiceConfig = NotificationServiceConfig()
