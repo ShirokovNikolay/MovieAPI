@@ -273,7 +273,8 @@
         },
 
         // ==================== ВОССТАНОВЛЕНИЕ ПАРОЛЯ ====================
-        // ШАГ 1: Отправка кода для восстановления
+
+        // ШАГ 1: Отправка email для восстановления
         onSendResetCode: function () {
             var self = this;
             this.error = "";
@@ -288,8 +289,13 @@
                 return;
             }
 
-            window.ApiAuth.sendResetCode(email)
-                .then(function () {
+            window.ApiAuth.recoverAccount(email)
+                .then(function (data) {
+                    // Сохраняем временный токен
+                    self.resetToken = data.token;
+                    // Сохраняем email для отображения
+                    self.resetEmail = email;
+                    // Переключаем на шаг подтверждения
                     self.resetStep = 'verify';
                     self.success = "Код восстановления отправлен на почту";
                     self.startResetResendTimer(60);
@@ -302,7 +308,7 @@
                 });
         },
 
-        // ШАГ 2: Подтверждение кода и переход к смене пароля
+        // ШАГ 2: Подтверждение кода восстановления
         onVerifyResetCode: function () {
             var self = this;
             this.error = "";
@@ -315,9 +321,28 @@
                 return;
             }
 
-            // Переходим к шагу смены пароля
-            self.resetStep = 'change';
-            self.loading = false;
+            if (!this.resetToken) {
+                this.error = "Ошибка: токен не найден. Попробуйте начать заново.";
+                this.loading = false;
+                return;
+            }
+
+            window.ApiAuth.verifyRecovery(
+                this.resetToken,
+                this.resetCode.trim()
+            )
+                .then(function (data) {
+                    // Сохраняем новый токен для смены пароля
+                    self.resetPasswordToken = data.token;
+                    // Переключаем на шаг смены пароля
+                    self.resetStep = 'change';
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Неверный код подтверждения";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
         },
 
         // ШАГ 3: Смена пароля
@@ -339,11 +364,16 @@
                 return;
             }
 
+            if (!this.resetPasswordToken) {
+                this.error = "Ошибка: токен не найден. Попробуйте начать заново.";
+                this.loading = false;
+                return;
+            }
+
             var payload = {
-                email: this.resetEmail,
+                reset_password_token: this.resetPasswordToken,
                 password: this.resetNewPassword,
                 password_confirmation: this.resetConfirmPassword,
-                confirmation_code: this.resetCode.trim(),
             };
 
             window.ApiAuth.resetPassword(payload)
@@ -359,30 +389,20 @@
                 });
         },
 
-        // СБРОС ВОССТАНОВЛЕНИЯ (возврат к логину)
-        onResetBackToLogin: function () {
-            this.resetStep = 'form';
-            this.resetEmail = '';
-            this.resetCode = '';
-            this.resetNewPassword = '';
-            this.resetConfirmPassword = '';
-            this.error = '';
-            this.success = '';
-            if (this.resetTimerInterval) {
-                clearInterval(this.resetTimerInterval);
-                this.resetTimerInterval = null;
-            }
-            this.currentView = 'login';
-        },
-
-        // ПОВТОРНАЯ ОТПРАВКА КОДА ДЛЯ ВОССТАНОВЛЕНИЯ
+        // ПОВТОРНАЯ ОТПРАВКА КОДА ВОССТАНОВЛЕНИЯ
         onResendResetCode: function () {
             var self = this;
             this.error = "";
             this.success = "";
             this.loading = true;
 
-            window.ApiAuth.sendResetCode(this.resetEmail)
+            if (!this.resetToken) {
+                this.error = "Ошибка: токен не найден. Попробуйте начать заново.";
+                this.loading = false;
+                return;
+            }
+
+            window.ApiAuth.resendRecoveryCode(this.resetToken)
                 .then(function () {
                     self.success = "Новый код отправлен на почту";
                     self.startResetResendTimer(60);
@@ -393,6 +413,24 @@
                 .finally(function () {
                     self.loading = false;
                 });
+        },
+
+        // ВОЗВРАТ К ФОРМЕ ВОССТАНОВЛЕНИЯ
+        onResetBackToLogin: function () {
+            this.resetStep = 'form';
+            this.resetEmail = '';
+            this.resetCode = '';
+            this.resetNewPassword = '';
+            this.resetConfirmPassword = '';
+            this.resetToken = '';
+            this.resetPasswordToken = '';
+            this.error = '';
+            this.success = '';
+            if (this.resetTimerInterval) {
+                clearInterval(this.resetTimerInterval);
+                this.resetTimerInterval = null;
+            }
+            this.currentView = 'login';
         },
 
         // ТАЙМЕР ДЛЯ ВОССТАНОВЛЕНИЯ
