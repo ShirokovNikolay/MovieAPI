@@ -11,7 +11,7 @@ from dependencies.annotations.services import UserServiceDep
 from schemas.auth import (
     ResetPasswordRequest,
     SendConfirmationCodeRequest,
-    VerifyRegisterUser,
+    VerifyUserEmail,
 )
 from schemas.token_info import TemporaryTokenInfo, TokenInfo
 from schemas.user import (
@@ -50,7 +50,7 @@ async def resend_register_confirmation_code(
     status_code=status.HTTP_200_OK,
 )
 async def register_user(
-    verify_register_user_data: VerifyRegisterUser,
+    verify_register_user_data: VerifyUserEmail,
     user_service: UserServiceDep,
 ) -> TokenInfo:
     return await user_service.verify_register_user(verify_register_user_data)
@@ -66,6 +66,24 @@ async def login_user(
     user_service: UserServiceDep,
 ) -> TemporaryTokenInfo:
     return await user_service.authenticate_user(login_data)
+
+
+@router.post("/login/resend-confirmation-code")
+async def resend_authenticate_confirmation_code(
+    send_confirmation_code_request: SendConfirmationCodeRequest,
+    user_service: UserServiceDep,
+) -> None:
+    await user_service.send_authenticate_confirmation_code(
+        send_confirmation_code_request,
+    )
+
+
+@router.post("/login/verify")
+async def verify_authenticate_user(
+    verify_authenticate_user_data: VerifyUserEmail,
+    user_service: UserServiceDep,
+) -> TokenInfo:
+    return await user_service.verify_authenticate_user(verify_authenticate_user_data)
 
 
 @router.post("/reset-password")

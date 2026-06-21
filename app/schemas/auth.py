@@ -28,25 +28,15 @@ class SendConfirmationCodeRequest(BaseModel):
     Модель для отправки кода подтверждения на почту.
     """
 
-    temporary_token: str
+    token: str
 
 
-class VerifyRegisterUser(BaseModel):
+class VerifyUserEmail(BaseModel):
     """
-    Модель для подтверждения почты для регистрации пользователя.
-    """
-
-    temporary_registration_token: str
-    confirmation_code: ConfirmationCodeConstraint
-
-
-class ConfirmEmailRequest(BaseModel):
-    """
-    Модель для двухфакторной аутентификации:
-    подтверждение через дополнительный код.
+    Модель для подтверждения почты пользователя.
     """
 
-    email: EmailStr
+    token: str
     confirmation_code: ConfirmationCodeConstraint
 
 
