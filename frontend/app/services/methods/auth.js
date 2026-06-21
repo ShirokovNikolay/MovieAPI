@@ -97,102 +97,13 @@
         },
 
         // ==================== РЕГИСТРАЦИЯ ====================
-        // ОТПРАВКА КОДА НА ПОЧТУ (регистрация)
-        onSendCode: function () {
-            var self = this;
-            this.error = "";
-            this.success = "";
-            this.loading = true;
-
-            this.registrationData = {
-                surname: this.registerForm.surname.trim(),
-                name: this.registerForm.name.trim(),
-                login: this.registerForm.login.trim(),
-                email: this.registerForm.email.trim(),
-                password: this.registerForm.password,
-            };
-
-            window.ApiAuth.sendConfirmationCode(this.registrationData.email, "verify_email")
-                .then(function () {
-                    self.registerStep = 'verify';
-                    self.success = "Код подтверждения отправлен на почту";
-                    self.startResendTimer(60);
-                })
-                .catch(function (e) {
-                    self.error = e.message || "Не удалось отправить код";
-                })
-                .finally(function () {
-                    self.loading = false;
-                });
-        },
-
-        // ПОДТВЕРЖДЕНИЕ КОДА И РЕГИСТРАЦИЯ
-        onVerifyCode: function () {
-            var self = this;
-            this.error = "";
-            this.success = "";
-            this.loading = true;
-
-            var payload = {
-                surname: this.registrationData.surname,
-                name: this.registrationData.name,
-                login: this.registrationData.login,
-                email: this.registrationData.email,
-                password: this.registrationData.password,
-                confirmation_code: this.confirmationCode.trim(),
-            };
-
-            window.ApiAuth.registerUserWithCode(payload)
-                .then(function () {
-                    window.location.hash = "#/";
-                    window.location.reload();
-                })
-                .catch(function (e) {
-                    self.error = e.message || "Неверный код подтверждения";
-                })
-                .finally(function () {
-                    self.loading = false;
-                });
-        },
-
-        // ПОВТОРНАЯ ОТПРАВКА КОДА (регистрация)
-        onResendCode: function () {
-            var self = this;
-            this.error = "";
-            this.success = "";
-            this.loading = true;
-
-            window.ApiAuth.sendConfirmationCode(this.registrationData.email, "verify_email")
-                .then(function () {
-                    self.success = "Новый код отправлен на почту";
-                    self.startResendTimer(60);
-                })
-                .catch(function (e) {
-                    self.error = e.message || "Не удалось отправить код";
-                })
-                .finally(function () {
-                    self.loading = false;
-                });
-        },
-
-        // ВОЗВРАТ К ФОРМЕ РЕГИСТРАЦИИ
-        onBackToRegister: function () {
-            this.registerStep = 'form';
-            this.confirmationCode = '';
-            this.error = '';
-            this.success = '';
-            if (this.timerInterval) {
-                clearInterval(this.timerInterval);
-                this.timerInterval = null;
-            }
-        },
-
-        // ОБНОВЛЕННАЯ РЕГИСТРАЦИЯ
+        // ОБНОВЛЕННАЯ РЕГИСТРАЦИЯ (ШАГ 1)
         onRegister: function () {
             var self = this;
             this.error = "";
             this.success = "";
 
+            // Валидация
             if (this.registerForm.password.length < 8) {
                 this.error = "Пароль должен быть минимум 8 символов";
                 return;
@@ -209,7 +120,112 @@
                 return;
             }
 
-            this.onSendCode();
+            if (this.registerForm.surname.trim().length < 2) {
+                this.error = "Фамилия должна быть минимум 2 символа";
+                return;
+            }
+
+            if (this.registerForm.name.trim().length < 2) {
+                this.error = "Имя должно быть минимум 2 символа";
+                return;
+            }
+
+            // Отправляем запрос на регистрацию
+            this.loading = true;
+            var payload = {
+                surname: this.registerForm.surname.trim(),
+                name: this.registerForm.name.trim(),
+                login: this.registerForm.login.trim(),
+                email: this.registerForm.email.trim(),
+                password: this.registerForm.password,
+            };
+
+            window.ApiAuth.registerUser(payload)
+                .then(function (data) {
+                    // Сохраняем временный токен
+                    self.registrationToken = data.token;
+                    // Сохраняем email для отображения
+                    self.registrationData.email = payload.email;
+                    // Переключаем на шаг подтверждения
+                    self.registerStep = 'verify';
+                    self.success = "Код подтверждения отправлен на почту";
+                    self.startResendTimer(60);
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Ошибка регистрации";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
+        },
+
+        // ПОДТВЕРЖДЕНИЕ КОДА РЕГИСТРАЦИИ (ШАГ 2)
+        onVerifyCode: function () {
+            var self = this;
+            this.error = "";
+            this.success = "";
+            this.loading = true;
+
+            if (this.confirmationCode.trim().length !== 6) {
+                this.error = "Введите 6-значный код";
+                this.loading = false;
+                return;
+            }
+
+            if (!this.registrationToken) {
+                this.error = "Ошибка: токен не найден. Попробуйте зарегистрироваться заново.";
+                this.loading = false;
+                return;
+            }
+
+            window.ApiAuth.verifyRegistration(
+                this.registrationToken,
+                this.confirmationCode.trim()
+            )
+                .then(function () {
+                // Мгновенный редирект без задержки
+                window.location.hash = "#/login";
+                window.location.reload();
+            })
+        },
+
+        // ПОВТОРНАЯ ОТПРАВКА КОДА РЕГИСТРАЦИИ
+        onResendCode: function () {
+            var self = this;
+            this.error = "";
+            this.success = "";
+            this.loading = true;
+
+            if (!this.registrationToken) {
+                this.error = "Ошибка: токен не найден. Попробуйте зарегистрироваться заново.";
+                this.loading = false;
+                return;
+            }
+
+            window.ApiAuth.resendRegistrationCode(this.registrationToken)
+                .then(function () {
+                    self.success = "Новый код отправлен на почту";
+                    self.startResendTimer(60);
+                })
+                .catch(function (e) {
+                    self.error = e.message || "Не удалось отправить код";
+                })
+                .finally(function () {
+                    self.loading = false;
+                });
+        },
+
+        // ВОЗВРАТ К ФОРМЕ РЕГИСТРАЦИИ
+        onBackToRegister: function () {
+            this.registerStep = 'form';
+            this.confirmationCode = '';
+            this.registrationToken = '';
+            this.error = '';
+            this.success = '';
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
         },
 
         // ТАЙМЕР ДЛЯ РЕГИСТРАЦИИ
@@ -248,7 +264,7 @@
                 return;
             }
 
-            window.ApiAuth.sendConfirmationCode(email, "reset_password")
+            window.ApiAuth.sendResetCode(email)
                 .then(function () {
                     self.resetStep = 'verify';
                     self.success = "Код восстановления отправлен на почту";
@@ -275,10 +291,7 @@
                 return;
             }
 
-            // Проверяем код через бэкенд
-            // Для проверки кода используем тот же confirmEmail?
-            // Если есть отдельный эндпоинт для проверки - используйте его
-            // Пока просто переходим к шагу смены пароля
+            // Переходим к шагу смены пароля
             self.resetStep = 'change';
             self.loading = false;
         },
@@ -345,7 +358,7 @@
             this.success = "";
             this.loading = true;
 
-            window.ApiAuth.sendConfirmationCode(this.resetEmail, "reset_password")
+            window.ApiAuth.sendResetCode(this.resetEmail)
                 .then(function () {
                     self.success = "Новый код отправлен на почту";
                     self.startResetResendTimer(60);
