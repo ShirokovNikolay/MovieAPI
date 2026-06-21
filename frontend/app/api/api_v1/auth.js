@@ -38,7 +38,7 @@
                 if (!res.ok) {
                     throw new Error(readErrorMessage(data));
                 }
-                return data;
+                return data; // { access_token, refresh_token, token_type }
             });
         });
     }
