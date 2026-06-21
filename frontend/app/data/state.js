@@ -155,6 +155,7 @@
 
                 // Для двухэтапной регистрации
                 registerStep: 'form', // 'form' | 'verify'
+                registrationToken: '',
                 registrationData: {
                     surname: '',
                     name: '',
