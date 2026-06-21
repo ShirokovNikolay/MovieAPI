@@ -37,7 +37,7 @@ from schemas.auth import (
     ResetPasswordRequest,
     SendConfirmationCodeRequest,
     UserLogin,
-    VerifyRegisterUser,
+    VerifyUserEmail,
 )
 from schemas.token_info import TemporaryTokenInfo, TokenInfo
 from schemas.user import (
@@ -130,7 +130,7 @@ class UserService:
             ttl=ttl_seconds,
         )
         send_confirmation_code_request = SendConfirmationCodeRequest(
-            temporary_token=temporary_token,
+            token=temporary_token,
         )
         await self.send_register_confirmation_code(send_confirmation_code_request)
         return TemporaryTokenInfo(
@@ -160,7 +160,7 @@ class UserService:
         self,
         send_confirmation_code_request: SendConfirmationCodeRequest,
     ) -> None:
-        token = send_confirmation_code_request.temporary_token
+        token = send_confirmation_code_request.token
         payload = decode_jwt(
             token=token,
             secret_key=settings.confirmation_code_jwt.secret_key,
@@ -179,9 +179,20 @@ class UserService:
 
     async def verify_register_user(
         self,
-        verify_register_user_data: VerifyRegisterUser,
+        verify_register_user_data: VerifyUserEmail,
     ) -> TokenInfo:
-        token = verify_register_user_data.temporary_registration_token
+        token = verify_register_user_data.token
+        confirmation_code = verify_register_user_data.confirmation_code
+        payload = decode_jwt(
+            token,
+            secret_key=settings.confirmation_code_jwt.secret_key,
+            algorithm=settings.confirmation_code_jwt.algorithm,
+        )
+        email = payload["email"]
+        await self.verify_confirmation_code(
+            email,
+            confirmation_code,
+        )
         user_data_create_json = await self.redis_service.get(key=f"{token}")
         user_data_create = UserCreate.model_validate_json(user_data_create_json)
         user = await self.create_user(user_data_create)
@@ -202,13 +213,61 @@ class UserService:
             raise InvalidPasswordError
 
         user = UserResponse.model_validate(user)
-        temporary_token = create_two_factor_verification_temporary_token(user)
-        token_data = TemporaryTokenInfo(
-            temporary_token=temporary_token,
+        token = create_two_factor_verification_temporary_token(user)
+        send_confirmation_code_request = SendConfirmationCodeRequest(
+            token=token,
+        )
+        await self.send_authenticate_confirmation_code(send_confirmation_code_request)
+        return TemporaryTokenInfo(
+            temporary_token=token,
             token_type=BEARER_TOKEN_TYPE,
         )
 
-        return token_data
+    async def send_authenticate_confirmation_code(
+        self,
+        send_confirmation_code_request: SendConfirmationCodeRequest,
+    ) -> None:
+        token = send_confirmation_code_request.token
+        payload = decode_jwt(
+            token=token,
+            secret_key=settings.confirmation_code_jwt.secret_key,
+            algorithm=settings.confirmation_code_jwt.algorithm,
+        )
+        email = payload["email"]
+        confirmation_code = await self.create_confirmation_code(email)
+        app.send_task(
+            name=TaskType.send_confirmation_email_code.value,
+            args=[
+                email,
+                confirmation_code,
+            ],
+            queue=Queue.notification.value,
+        )
+
+    async def verify_authenticate_user(
+        self,
+        verify_authenticate_user_data: VerifyUserEmail,
+    ) -> TokenInfo:
+        token = verify_authenticate_user_data.token
+        confirmation_code = verify_authenticate_user_data.confirmation_code
+        payload = decode_jwt(
+            token,
+            secret_key=settings.confirmation_code_jwt.secret_key,
+            algorithm=settings.confirmation_code_jwt.algorithm,
+        )
+        email = payload["email"]
+        await self.verify_confirmation_code(
+            email,
+            confirmation_code,
+        )
+        user = await self.get_user_by_email(email)
+        access_token = create_access_token(user)
+        refresh_token = create_refresh_token(user)
+        return TokenInfo(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type=BEARER_TOKEN_TYPE,
+        )
 
     async def get_confirmation_code(self, email: EmailStr) -> str:
         confirmation_code = await self.redis_service.get(f"auth:email:{email}")
