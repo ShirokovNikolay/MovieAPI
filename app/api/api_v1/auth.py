@@ -9,6 +9,7 @@ from dependencies.annotations.security import (
 )
 from dependencies.annotations.services import UserServiceDep
 from schemas.auth import (
+    RecoverAccountRequest,
     ResetPasswordRequest,
     SendConfirmationCodeRequest,
     VerifyUserEmail,
@@ -36,7 +37,10 @@ async def register_user(
     return await user_service.register_user(registration_user_data)
 
 
-@router.post("/register/resend-confirmation-code")
+@router.post(
+    "/register/resend-confirmation-code",
+    status_code=status.HTTP_200_OK,
+)
 async def resend_register_confirmation_code(
     send_confirmation_code_request: SendConfirmationCodeRequest,
     user_service: UserServiceDep,
@@ -47,9 +51,9 @@ async def resend_register_confirmation_code(
 @router.post(
     "/register/verify",
     response_model=TokenInfo,
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
 )
-async def register_user(
+async def verify_register_user(
     verify_register_user_data: VerifyUserEmail,
     user_service: UserServiceDep,
 ) -> TokenInfo:
@@ -68,7 +72,10 @@ async def login_user(
     return await user_service.authenticate_user(login_data)
 
 
-@router.post("/login/resend-confirmation-code")
+@router.post(
+    "/login/resend-confirmation-code",
+    status_code=status.HTTP_200_OK,
+)
 async def resend_authenticate_confirmation_code(
     send_confirmation_code_request: SendConfirmationCodeRequest,
     user_service: UserServiceDep,
@@ -78,12 +85,46 @@ async def resend_authenticate_confirmation_code(
     )
 
 
-@router.post("/login/verify")
+@router.post(
+    "/login/verify",
+    status_code=status.HTTP_200_OK,
+    response_model=TokenInfo,
+)
 async def verify_authenticate_user(
     verify_authenticate_user_data: VerifyUserEmail,
     user_service: UserServiceDep,
 ) -> TokenInfo:
     return await user_service.verify_authenticate_user(verify_authenticate_user_data)
+
+
+@router.post(
+    "/recover-account",
+    response_model=TemporaryTokenInfo,
+    status_code=status.HTTP_200_OK,
+)
+async def recover_account(
+    recover_account_data: RecoverAccountRequest,
+    user_service: UserServiceDep,
+) -> TemporaryTokenInfo:
+    return await user_service.recover_account(recover_account_data)
+
+
+@router.post("/recover-account/resend-confirmation-code")
+async def resend_recover_account_confirmation_code(
+    send_confirmation_code_request: SendConfirmationCodeRequest,
+    user_service: UserServiceDep,
+) -> None:
+    return await user_service.send_recover_account_confirmation_code(
+        send_confirmation_code_request,
+    )
+
+
+@router.post("/recover-account/verify")
+async def verify_recover_account(
+    verify_recover_account_data: VerifyUserEmail,
+    user_service: UserServiceDep,
+) -> TemporaryTokenInfo:
+    return await user_service.verify_recover_account(verify_recover_account_data)
 
 
 @router.post("/reset-password")
@@ -92,25 +133,6 @@ async def reset_password(
     user_service: UserServiceDep,
 ) -> None:
     await user_service.reset_password(reset_password_data)
-
-
-@router.post(
-    "/send-confirmation-code",
-)
-async def send_confirmation_code(
-    temporary_token_data: TemporaryTokenInfo,
-    user_service: UserServiceDep,
-) -> None:
-    await user_service.send_confirmation_code(temporary_token_data)
-
-
-@router.post("/confirm-email")
-async def confirm_email(
-    temporary_token_data: TemporaryTokenInfo,
-    confirmation_code: str,
-    user_service: UserServiceDep,
-) -> TokenInfo:
-    return await user_service.confirm_email(temporary_token_data, confirmation_code)
 
 
 @router.post(

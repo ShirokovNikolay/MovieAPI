@@ -64,6 +64,7 @@ ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
 REGISTRATION_TEMPORARY_TOKEN_TYPE = "registration_temporary_token"
 TWO_FACTOR_VERIFICATION_TEMPORARY_TOKEN_TYPE = "two_factor_verification_temporary_token"
+RECOVER_ACCOUNT_TEMPORARY_TOKEN_TYPE = "recover_account_temporary_token"
 RESET_PASSWORD_TEMPORARY_TOKEN_TYPE = "reset_password_temporary_token"
 
 BEARER_TOKEN_TYPE: str = "Bearer"

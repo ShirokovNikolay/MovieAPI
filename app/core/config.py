@@ -63,6 +63,7 @@ class ConfirmationCodeJWTConfig(BaseModel):
     algorithm: str = "HS256"
     temporary_token_registration_expire_minutes: int = 15
     temporary_token_two_factor_expire_minutes: int = 15
+    temporary_token_recover_account_expire_minutes: int = 15
     temporary_token_reset_password_expire_minutes: int = 15
 
 

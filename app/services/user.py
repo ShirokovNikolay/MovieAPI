@@ -26,14 +26,17 @@ from core.exceptions.user import (
 from core.redis import RedisService
 from core.security.jwt_utils import (
     create_access_token,
+    create_recover_account_temporary_token,
     create_refresh_token,
     create_registration_temporary_token,
+    create_reset_password_temporary_token,
     create_two_factor_verification_temporary_token,
     decode_jwt,
 )
 from core.security.password_utils import hash_password, verify_password
 from repositories import UserRepository
 from schemas.auth import (
+    RecoverAccountRequest,
     ResetPasswordRequest,
     SendConfirmationCodeRequest,
     UserLogin,
@@ -298,16 +301,78 @@ class UserService:
         )
         return confirmation_code
 
-    async def reset_password(self, reset_password_data: ResetPasswordRequest) -> None:
-        await self.verify_confirmation_code(
-            reset_password_data.email,
-            reset_password_data.confirmation_code,
+    async def recover_account(
+        self,
+        recover_account_data: RecoverAccountRequest,
+    ) -> TemporaryTokenInfo:
+        email = recover_account_data.email
+        token = create_recover_account_temporary_token(email)
+        send_confirmation_code_request = SendConfirmationCodeRequest(
+            token=token,
+        )
+        await self.send_recover_account_confirmation_code(
+            send_confirmation_code_request,
+        )
+        return TemporaryTokenInfo(
+            temporary_token=token,
+            token_type=BEARER_TOKEN_TYPE,
         )
 
-        if reset_password_data.password != reset_password_data.password_confirmation:
+    async def send_recover_account_confirmation_code(
+        self,
+        send_confirmation_code_request: SendConfirmationCodeRequest,
+    ) -> None:
+        token = send_confirmation_code_request.token
+        payload = decode_jwt(
+            token,
+            secret_key=settings.confirmation_code_jwt.secret_key,
+            algorithm=settings.confirmation_code_jwt.algorithm,
+        )
+        email = payload["email"]
+        confirmation_code = await self.create_confirmation_code(email)
+        app.send_task(
+            name=TaskType.send_confirmation_email_code.value,
+            args=[
+                email,
+                confirmation_code,
+            ],
+            queue=Queue.notification.value,
+        )
+
+    async def verify_recover_account(
+        self,
+        verify_recover_account_data: VerifyUserEmail,
+    ) -> TemporaryTokenInfo:
+        token = verify_recover_account_data.token
+        confirmation_code = verify_recover_account_data.confirmation_code
+        payload = decode_jwt(
+            token,
+            secret_key=settings.confirmation_code_jwt.secret_key,
+            algorithm=settings.confirmation_code_jwt.algorithm,
+        )
+        email = payload["email"]
+        await self.verify_confirmation_code(email, confirmation_code)
+        user = await self.get_user_by_email(email)
+        reset_password_token = create_reset_password_temporary_token(user)
+        return TemporaryTokenInfo(
+            temporary_token=reset_password_token,
+            token_type=BEARER_TOKEN_TYPE,
+        )
+
+    async def reset_password(self, reset_password_data: ResetPasswordRequest) -> None:
+        token = reset_password_data.reset_password_token
+        password = reset_password_data.password
+        password_confirmation = reset_password_data.password_confirmation
+        if password != password_confirmation:
             raise InvalidPasswordError
 
-        user = await self.get_user_by_email(reset_password_data.email)
+        payload = decode_jwt(
+            token,
+            secret_key=settings.confirmation_code_jwt.secret_key,
+            algorithm=settings.confirmation_code_jwt.algorithm,
+        )
+        email = payload["email"]
+        user = await self.get_user_by_email(email)
         user_partial_update_data = UserPartialUpdate(
             password=reset_password_data.password,
         )
