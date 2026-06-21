@@ -25,13 +25,15 @@ from core.exceptions.user import (
     UserLoginNotFoundError,
 )
 from core.redis import RedisService
-from core.security.jwt_utils import (
+from core.security.jwt_utils.token_factory import (
     create_access_token,
     create_recover_token,
     create_refresh_token,
     create_registration_token,
     create_reset_password_token,
     create_two_factor_token,
+)
+from core.security.jwt_utils.token_factory_utils import (
     decode_jwt,
 )
 from core.security.password_utils import hash_password, verify_password
