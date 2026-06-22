@@ -1,5 +1,3 @@
-from pydantic import EmailStr
-
 from core.config import settings
 from core.constants import (
     ACCESS_TOKEN_TYPE,
@@ -10,7 +8,7 @@ from core.constants import (
     TOKEN_TYPE_FIELD,
     TWO_FACTOR_TOKEN_TYPE,
 )
-from core.security.jwt_utils.token_factory_utils import (
+from core.security.jwt.utils import (
     create_access_token_payload,
     create_recover_token_payload,
     create_refresh_token_payload,
@@ -70,8 +68,8 @@ def create_two_factor_token(user: UserResponse) -> str:
     )
 
 
-def create_recover_token(email: EmailStr) -> str:
-    payload = create_recover_token_payload(email)
+def create_recover_token(user: UserResponse) -> str:
+    payload = create_recover_token_payload(user)
     payload.update(
         {TOKEN_TYPE_FIELD: RECOVER_TOKEN_TYPE},
     )
