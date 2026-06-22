@@ -75,6 +75,8 @@ class UserService:
         должен использоваться строго внутри монолита.
         """
         user = await self.user_repository.get_user_by_login(login)
+        if user is None:
+            raise UserLoginNotFoundError(login)
         return user.encrypted_password
 
     async def create_user(self, user: UserCreate) -> UserResponse:

@@ -15,7 +15,7 @@ class DataBaseConfig(BaseModel):
     echo: bool = False
 
     @property
-    def url_database(self) -> str:
+    def url(self) -> str:
         return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db_name}"
 
 
@@ -47,7 +47,7 @@ class RabbitMQConfig(BaseModel):
     password: str = "guest"
 
     @property
-    def url_rabbitmq(self) -> str:
+    def url(self) -> str:
         return f"amqp://{self.user}:{self.password}@{self.host}:{self.port}/"
 
 
@@ -58,13 +58,36 @@ class AuthJWTConfig(BaseModel):
     refresh_token_expire_minutes: int = 30 * 24 * 60
 
 
-class ConfirmationCodeJWTConfig(BaseModel):
+class RegistrationJWTConfig(BaseModel):
     secret_key: str = "secret_key"
     algorithm: str = "HS256"
-    registration_token_expire_minutes: int = 15
-    two_factor_token_expire_minutes: int = 15
-    recover_token_expire_minutes: int = 15
-    reset_password_token_expire_minutes: int = 15
+    expire_minutes: int = 15
+
+
+class TwoFactorJWTConfig(BaseModel):
+    secret_key: str = "secret_key"
+    algorithm: str = "HS256"
+    expire_minutes: int = 15
+
+
+class RecoverJWTConfig(BaseModel):
+    secret_key: str = "secret_key"
+    algorithm: str = "HS256"
+    expire_minutes: int = 15
+
+
+class ResetPasswordJWTConfig(BaseModel):
+    secret_key: str = "secret_key"
+    algorithm: str = "HS256"
+    expire_minutes: int = 15
+
+
+class JWTConfig(BaseModel):
+    auth: AuthJWTConfig = AuthJWTConfig()
+    registration: RegistrationJWTConfig = RegistrationJWTConfig()
+    two_factor_auth: TwoFactorJWTConfig = TwoFactorJWTConfig()
+    recover: RecoverJWTConfig = RecoverJWTConfig()
+    reset_password: ResetPasswordJWTConfig = ResetPasswordJWTConfig()
 
 
 class MediaServiceConfig(BaseModel):
@@ -90,8 +113,7 @@ class Settings(BaseSettings):
     database: DataBaseConfig = DataBaseConfig()
     redis: RedisConfig = RedisConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
-    auth_jwt: AuthJWTConfig = AuthJWTConfig()
-    confirmation_jwt: ConfirmationCodeJWTConfig = ConfirmationCodeJWTConfig()
+    jwt: JWTConfig = JWTConfig()
     http_bearer: HTTPBearer = HTTPBearer()
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
         "/api/v1/auth/login/",

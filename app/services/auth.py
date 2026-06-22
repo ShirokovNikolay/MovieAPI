@@ -23,7 +23,7 @@ from core.security.jwt.token_factory import (
     create_recover_token,
     create_registration_token,
     create_reset_password_token,
-    create_two_factor_token,
+    create_two_factor_auth_token,
 )
 from core.security.jwt.utils import decode_jwt
 from core.security.password_utils import verify_password
@@ -61,7 +61,7 @@ class AuthService:
             user_registration_data,
         )
         token = create_registration_token(user_registration_data)
-        ttl_seconds = settings.confirmation_jwt.registration_token_expire_minutes * 60
+        ttl_seconds = settings.jwt.registration.expire_minutes * 60
         await self.auth_redis_service.set(
             key=f"registration:{token}",
             value=user_create_data.model_dump_json(),
@@ -83,8 +83,8 @@ class AuthService:
         token = send_confirmation_code_request.token
         payload = decode_jwt(
             token=token,
-            secret_key=settings.confirmation_jwt.secret_key,
-            algorithm=settings.confirmation_jwt.algorithm,
+            secret_key=settings.jwt.registration.secret_key,
+            algorithm=settings.jwt.registration.algorithm,
         )
         email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
@@ -105,8 +105,8 @@ class AuthService:
         confirmation_code = verify_register_user_data.confirmation_code
         payload = decode_jwt(
             token,
-            secret_key=settings.confirmation_jwt.secret_key,
-            algorithm=settings.confirmation_jwt.algorithm,
+            secret_key=settings.jwt.registration.secret_key,
+            algorithm=settings.jwt.registration.algorithm,
         )
         email = payload[EMAIL_FIELD]
         await self.verify_confirmation_code(
@@ -128,9 +128,9 @@ class AuthService:
             raise InvalidPasswordError
 
     async def authenticate_user(self, login_data: UserLogin) -> TemporaryTokenInfo:
-        user = await self.user_service.get_user_by_login(login_data.login)
         await self.verify_login_data(login_data)
-        token = create_two_factor_token(user)
+        user = await self.user_service.get_user_by_login(login_data.login)
+        token = create_two_factor_auth_token(user)
         send_confirmation_code_request = SendConfirmationCodeRequest(
             token=token,
         )
@@ -147,8 +147,8 @@ class AuthService:
         token = send_confirmation_code_request.token
         payload = decode_jwt(
             token=token,
-            secret_key=settings.confirmation_jwt.secret_key,
-            algorithm=settings.confirmation_jwt.algorithm,
+            secret_key=settings.jwt.two_factor_auth.secret_key,
+            algorithm=settings.jwt.two_factor_auth.algorithm,
         )
         email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
@@ -169,8 +169,8 @@ class AuthService:
         confirmation_code = verify_authenticate_user_data.confirmation_code
         payload = decode_jwt(
             token,
-            secret_key=settings.confirmation_jwt.secret_key,
-            algorithm=settings.confirmation_jwt.algorithm,
+            secret_key=settings.jwt.two_factor_auth.secret_key,
+            algorithm=settings.jwt.two_factor_auth.algorithm,
         )
         email = payload[EMAIL_FIELD]
         await self.verify_confirmation_code(
@@ -234,8 +234,8 @@ class AuthService:
         token = send_confirmation_code_request.token
         payload = decode_jwt(
             token,
-            secret_key=settings.confirmation_jwt.secret_key,
-            algorithm=settings.confirmation_jwt.algorithm,
+            secret_key=settings.jwt.recover.secret_key,
+            algorithm=settings.jwt.recover.algorithm,
         )
         login = payload[LOGIN_FIELD]
         email = payload[EMAIL_FIELD]
@@ -258,8 +258,8 @@ class AuthService:
         confirmation_code = verify_recover_account_data.confirmation_code
         payload = decode_jwt(
             token,
-            secret_key=settings.confirmation_jwt.secret_key,
-            algorithm=settings.confirmation_jwt.algorithm,
+            secret_key=settings.jwt.recover.secret_key,
+            algorithm=settings.jwt.recover.algorithm,
         )
         email = payload[EMAIL_FIELD]
         await self.verify_confirmation_code(email, confirmation_code)
@@ -279,8 +279,8 @@ class AuthService:
 
         payload = decode_jwt(
             token,
-            secret_key=settings.confirmation_jwt.secret_key,
-            algorithm=settings.confirmation_jwt.algorithm,
+            secret_key=settings.jwt.reset_password.secret_key,
+            algorithm=settings.jwt.reset_password.algorithm,
         )
         email = payload[EMAIL_FIELD]
         user = await self.user_service.get_user_by_email(email)
