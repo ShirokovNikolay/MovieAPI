@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette import status
 
-from dependencies.annotations.services import UserServiceDep
+from dependencies.annotations.services import AuthServiceDep
 from schemas.auth import (
     RecoverAccountRequest,
     ResetPasswordRequest,
@@ -23,17 +23,17 @@ router = APIRouter(
 )
 async def recover_account(
     recover_account_data: RecoverAccountRequest,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> TemporaryTokenInfo:
-    return await user_service.recover_account(recover_account_data)
+    return await auth_service.recover_account(recover_account_data)
 
 
 @router.post("/resend-confirmation-code")
 async def resend_recover_account_confirmation_code(
     send_confirmation_code_request: SendConfirmationCodeRequest,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> None:
-    return await user_service.send_recover_account_confirmation_code(
+    return await auth_service.send_recover_account_confirmation_code(
         send_confirmation_code_request,
     )
 
@@ -41,14 +41,14 @@ async def resend_recover_account_confirmation_code(
 @router.post("/verify")
 async def verify_recover_account(
     verify_recover_account_data: VerifyUserEmail,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> TemporaryTokenInfo:
-    return await user_service.verify_recover_account(verify_recover_account_data)
+    return await auth_service.verify_recover_account(verify_recover_account_data)
 
 
 @router.post("/reset-password")
 async def reset_password(
     reset_password_data: ResetPasswordRequest,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> None:
-    await user_service.reset_password(reset_password_data)
+    await auth_service.reset_password(reset_password_data)

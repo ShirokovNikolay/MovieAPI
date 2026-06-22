@@ -32,7 +32,7 @@ class RedisDataBaseConfig(BaseModel):
     reviews: int = 4
     favorite_movies: int = 5
     watch_history: int = 6
-    confirmation_codes: int = 7
+    auth: int = 7
 
 
 class RedisConfig(BaseModel):
@@ -91,7 +91,7 @@ class Settings(BaseSettings):
     redis: RedisConfig = RedisConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     auth_jwt: AuthJWTConfig = AuthJWTConfig()
-    confirmation_code_jwt: ConfirmationCodeJWTConfig = ConfirmationCodeJWTConfig()
+    confirmation_jwt: ConfirmationCodeJWTConfig = ConfirmationCodeJWTConfig()
     http_bearer: HTTPBearer = HTTPBearer()
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
         "/api/v1/auth/login/",

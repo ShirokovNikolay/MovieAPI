@@ -50,6 +50,6 @@ get_watch_history_redis_client = redis_client_factory(
     db=settings.redis.db.watch_history,
 )
 
-get_confirmation_code_redis_client = redis_client_factory(
-    db=settings.redis.db.confirmation_codes,
+get_auth_redis_client = redis_client_factory(
+    db=settings.redis.db.auth,
 )
