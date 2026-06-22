@@ -6,7 +6,7 @@ from fastapi import (
 from dependencies.annotations.security import (
     AuthUserByRefreshTokenDep,
 )
-from dependencies.annotations.services import UserServiceDep
+from dependencies.annotations.services import AuthServiceDep
 from schemas.token_info import TokenInfo
 
 router = APIRouter(
@@ -22,6 +22,6 @@ router = APIRouter(
 )
 async def refresh_access_token(
     user_id: AuthUserByRefreshTokenDep,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> TokenInfo:
-    return await user_service.refresh_access_token(user_id)
+    return await auth_service.refresh_access_token(user_id)

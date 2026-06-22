@@ -7,9 +7,9 @@ from packages.rabbitmq import RabbitMQService, get_rabbitmq_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database.connection import session_factory
-from core.redis import RedisService
-from dependencies.redis_services import get_confirmation_code_redis_service
+from dependencies.redis_services import get_auth_redis_service
 from services import GenreService, MovieService, ReviewService, UserService
+from services.auth import AuthService
 from services.favorite_movie import FavoriteMovieService
 from services.http_request import HttpRequestService
 from services.watch_history import WatchHistoryService
@@ -95,16 +95,29 @@ async def get_user_service(
         AsyncSession,
         Depends(get_db),
     ],
-    redis_service: Annotated[
-        RedisService,
-        Depends(
-            get_confirmation_code_redis_service,
-        ),
-    ],
 ) -> AsyncGenerator[UserService]:
     try:
-        user_service = UserService(session, redis_service)
+        user_service = UserService(session)
         yield user_service
+    finally:
+        """
+        Действия после view.
+        """
+
+
+async def get_auth_service(
+    user_service: Annotated[
+        UserService,
+        Depends(get_user_service),
+    ],
+    auth_redis_service: Annotated[
+        AuthService,
+        Depends(get_auth_redis_service),
+    ],
+) -> AsyncGenerator[AuthService]:
+    try:
+        auth_service = AuthService(user_service, auth_redis_service)
+        yield auth_service
     finally:
         """
         Действия после view.

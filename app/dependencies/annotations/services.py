@@ -4,6 +4,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies.services import (
+    get_auth_service,
     get_db,
     get_favorite_movie_service,
     get_genre_service,
@@ -20,6 +21,7 @@ from services import (
     UserService,
     WatchHistoryService,
 )
+from services.auth import AuthService
 
 DbSessionDep = Annotated[
     AsyncSession,
@@ -60,6 +62,13 @@ UserServiceDep = Annotated[
     UserService,
     Depends(
         get_user_service,
+    ),
+]
+
+AuthServiceDep = Annotated[
+    AuthService,
+    Depends(
+        get_auth_service,
     ),
 ]
 

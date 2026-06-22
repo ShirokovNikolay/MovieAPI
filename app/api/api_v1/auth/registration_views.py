@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette import status
 
-from dependencies.annotations.services import UserServiceDep
+from dependencies.annotations.services import AuthServiceDep
 from schemas.auth import SendConfirmationCodeRequest, VerifyUserEmail
 from schemas.token_info import TemporaryTokenInfo, TokenInfo
 from schemas.user import UserRegistration
@@ -19,9 +19,9 @@ router = APIRouter(
 )
 async def register_user(
     registration_user_data: UserRegistration,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> TemporaryTokenInfo:
-    return await user_service.register_user(registration_user_data)
+    return await auth_service.register_user(registration_user_data)
 
 
 @router.post(
@@ -30,9 +30,9 @@ async def register_user(
 )
 async def resend_register_confirmation_code(
     send_confirmation_code_request: SendConfirmationCodeRequest,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> None:
-    await user_service.send_register_confirmation_code(send_confirmation_code_request)
+    await auth_service.send_register_confirmation_code(send_confirmation_code_request)
 
 
 @router.post(
@@ -42,6 +42,6 @@ async def resend_register_confirmation_code(
 )
 async def verify_register_user(
     verify_register_user_data: VerifyUserEmail,
-    user_service: UserServiceDep,
+    auth_service: AuthServiceDep,
 ) -> TokenInfo:
-    return await user_service.verify_register_user(verify_register_user_data)
+    return await auth_service.verify_register_user(verify_register_user_data)
