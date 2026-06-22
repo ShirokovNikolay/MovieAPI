@@ -7,6 +7,7 @@ from packages.rabbitmq import RabbitMQService, get_rabbitmq_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database.connection import session_factory
+from core.redis import RedisService
 from dependencies.redis_services import get_auth_redis_service
 from services import GenreService, MovieService, ReviewService, UserService
 from services.auth import AuthService
@@ -111,7 +112,7 @@ async def get_auth_service(
         Depends(get_user_service),
     ],
     auth_redis_service: Annotated[
-        AuthService,
+        RedisService,
         Depends(get_auth_redis_service),
     ],
 ) -> AsyncGenerator[AuthService]:

@@ -18,7 +18,7 @@ async def copy_file(message: IncomingMessage) -> None:
             settings.minio.temporary_prefix,
             "",
         )
-        prefix_url = settings.minio.url_minio.replace("minio", "localhost")
+        prefix_url = settings.minio.url.replace("minio", "localhost")
         updated_object_url_list = [prefix_url, bucket_name, destination_object_name]
         updated_object_url = "/".join(updated_object_url_list)
 

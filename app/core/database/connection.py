@@ -14,7 +14,7 @@ class Base(DeclarativeBase):
 
 
 engine = create_async_engine(
-    url=settings.database.url_database,
+    url=settings.database.url,
     echo=settings.database.echo,
 )
 

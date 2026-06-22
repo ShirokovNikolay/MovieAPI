@@ -14,7 +14,7 @@ class MinioConfig(BaseModel):
     temporary_prefix: str = "tmp/"
 
     @property
-    def url_minio(self) -> str:
+    def url(self) -> str:
         return f"http://{self.host}:{self.port}"
 
 

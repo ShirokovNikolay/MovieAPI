@@ -15,7 +15,7 @@ from core.security.jwt.utils import (
     create_refresh_token_payload,
     create_registration_token_payload,
     create_reset_password_token_payload,
-    create_two_factor_token_payload,
+    create_two_factor_auth_token_payload,
     encode_jwt,
 )
 from schemas.token_info import TokenInfo
@@ -29,7 +29,7 @@ def create_access_token(user: UserResponse) -> str:
     )
     return encode_jwt(
         payload,
-        expires_minutes=settings.auth_jwt.access_token_expire_minutes,
+        expires_minutes=settings.jwt.auth.access_token_expire_minutes,
     )
 
 
@@ -40,7 +40,7 @@ def create_refresh_token(user: UserResponse) -> str:
     )
     return encode_jwt(
         payload,
-        expires_minutes=settings.auth_jwt.refresh_token_expire_minutes,
+        expires_minutes=settings.jwt.auth.refresh_token_expire_minutes,
     )
 
 
@@ -61,22 +61,22 @@ def create_registration_token(user: UserRegistration) -> str:
     )
     return encode_jwt(
         payload=payload,
-        secret_key=settings.confirmation_jwt.secret_key,
-        algorithm=settings.confirmation_jwt.algorithm,
-        expires_minutes=settings.confirmation_jwt.registration_token_expire_minutes,
+        secret_key=settings.jwt.registration.secret_key,
+        algorithm=settings.jwt.registration.algorithm,
+        expires_minutes=settings.jwt.registration.expire_minutes,
     )
 
 
-def create_two_factor_token(user: UserResponse) -> str:
-    payload = create_two_factor_token_payload(user)
+def create_two_factor_auth_token(user: UserResponse) -> str:
+    payload = create_two_factor_auth_token_payload(user)
     payload.update(
         {TOKEN_TYPE_FIELD: TWO_FACTOR_TOKEN_TYPE},
     )
     return encode_jwt(
         payload=payload,
-        secret_key=settings.confirmation_jwt.secret_key,
-        algorithm=settings.confirmation_jwt.algorithm,
-        expires_minutes=settings.confirmation_jwt.two_factor_token_expire_minutes,
+        secret_key=settings.jwt.two_factor_auth.secret_key,
+        algorithm=settings.jwt.two_factor_auth.algorithm,
+        expires_minutes=settings.jwt.two_factor_auth.expire_minutes,
     )
 
 
@@ -87,9 +87,9 @@ def create_recover_token(user: UserResponse) -> str:
     )
     return encode_jwt(
         payload=payload,
-        secret_key=settings.confirmation_jwt.secret_key,
-        algorithm=settings.confirmation_jwt.algorithm,
-        expires_minutes=settings.confirmation_jwt.recover_token_expire_minutes,
+        secret_key=settings.jwt.recover.secret_key,
+        algorithm=settings.jwt.recover.algorithm,
+        expires_minutes=settings.jwt.recover.expire_minutes,
     )
 
 
@@ -100,7 +100,7 @@ def create_reset_password_token(user: UserResponse) -> str:
     )
     return encode_jwt(
         payload=payload,
-        secret_key=settings.confirmation_jwt.secret_key,
-        algorithm=settings.confirmation_jwt.algorithm,
-        expires_minutes=settings.confirmation_jwt.reset_password_token_expire_minutes,
+        secret_key=settings.jwt.reset_password.secret_key,
+        algorithm=settings.jwt.reset_password.algorithm,
+        expires_minutes=settings.jwt.reset_password.expire_minutes,
     )

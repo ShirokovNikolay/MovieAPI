@@ -13,9 +13,9 @@ from schemas.user import UserRegistration, UserResponse
 
 def encode_jwt(
     payload: dict[str, Any],
-    secret_key: str = settings.auth_jwt.secret_key,
-    algorithm: str = settings.auth_jwt.algorithm,
-    expires_minutes: int = settings.auth_jwt.access_token_expire_minutes,
+    secret_key: str = settings.jwt.auth.secret_key,
+    algorithm: str = settings.jwt.auth.algorithm,
+    expires_minutes: int = settings.jwt.auth.access_token_expire_minutes,
 ) -> str:
     to_encode = payload.copy()
     now = datetime.now(UTC)
@@ -33,8 +33,8 @@ def encode_jwt(
 
 def decode_jwt(
     token: str,
-    secret_key: str = settings.auth_jwt.secret_key,
-    algorithm: str = settings.auth_jwt.algorithm,
+    secret_key: str = settings.jwt.auth.secret_key,
+    algorithm: str = settings.jwt.auth.algorithm,
 ) -> dict[str, Any]:
     return jwt.decode(
         token,
@@ -70,7 +70,7 @@ def create_registration_token_payload(
     return payload
 
 
-def create_two_factor_token_payload(
+def create_two_factor_auth_token_payload(
     user: UserResponse,
 ) -> dict[str, str]:
     payload = {

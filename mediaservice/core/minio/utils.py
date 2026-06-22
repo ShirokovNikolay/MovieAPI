@@ -12,7 +12,7 @@ from core.minio.service import MinioService
 @asynccontextmanager
 async def get_s3_client(
     service_name: str = "s3",
-    endpoint_url: str = settings.minio.url_minio,
+    endpoint_url: str = settings.minio.url,
     aws_access_key_id: str = settings.minio.access_key,
     aws_secret_access_key: str = settings.minio.secret_key,
 ) -> AsyncGenerator[S3Client]:
