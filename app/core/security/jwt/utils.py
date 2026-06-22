@@ -2,11 +2,11 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
-from pydantic import EmailStr
 
 from core.config import settings
 from core.constants import (
     EMAIL_FIELD,
+    LOGIN_FIELD,
 )
 from schemas.user import UserRegistration, UserResponse
 
@@ -46,7 +46,7 @@ def decode_jwt(
 def create_access_token_payload(user: UserResponse) -> dict[str, str]:
     payload = {
         "sub": str(user.id),
-        "login": user.login,
+        LOGIN_FIELD: user.login,
         EMAIL_FIELD: user.email,
     }
     return payload
@@ -64,7 +64,7 @@ def create_registration_token_payload(
 ) -> dict[str, str]:
     payload = {
         "sub": user.login,
-        "login": user.login,
+        LOGIN_FIELD: user.login,
         EMAIL_FIELD: user.email,
     }
     return payload
@@ -80,6 +80,17 @@ def create_two_factor_token_payload(
     return payload
 
 
+def create_recover_token_payload(
+    user: UserResponse,
+) -> dict[str, str]:
+    payload = {
+        "sub": str(user.id),
+        EMAIL_FIELD: user.email,
+        LOGIN_FIELD: user.login,
+    }
+    return payload
+
+
 def create_reset_password_token_payload(
     user: UserResponse,
 ) -> dict[str, str]:
@@ -87,11 +98,4 @@ def create_reset_password_token_payload(
         "sub": str(user.id),
         EMAIL_FIELD: user.email,
     }
-    return payload
-
-
-def create_recover_token_payload(
-    email: EmailStr,
-) -> dict[str, str]:
-    payload = {EMAIL_FIELD: email}
     return payload

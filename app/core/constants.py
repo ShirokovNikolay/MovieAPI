@@ -60,6 +60,7 @@ class MethodType(StrEnum):
 
 
 TOKEN_TYPE_FIELD = "type"
+LOGIN_FIELD = "login"
 EMAIL_FIELD = "email"
 
 ACCESS_TOKEN_TYPE = "access"

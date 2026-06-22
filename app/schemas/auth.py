@@ -40,6 +40,14 @@ class VerifyUserEmail(BaseModel):
     confirmation_code: ConfirmationCodeConstraint
 
 
+class RecoverAccountRequest(BaseModel):
+    """
+    Модель для восстановления доступа к аккаунту.
+    """
+
+    email: EmailStr
+
+
 class ResetPasswordRequest(BaseModel):
     """
     Модель для смены пароля.
@@ -48,11 +56,3 @@ class ResetPasswordRequest(BaseModel):
     reset_password_token: str
     password: PasswordConstraint
     password_confirmation: PasswordConstraint
-
-
-class RecoverAccountRequest(BaseModel):
-    """
-    Модель для восстановления доступа к аккаунту.
-    """
-
-    email: EmailStr

@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from core.security.jwt_utils.token_factory_utils import encode_jwt, decode_jwt
+from core.security.jwt.utils import encode_jwt, decode_jwt
 
 
 @pytest.fixture(scope="function")

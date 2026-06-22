@@ -10,6 +10,7 @@ from core.config import settings
 from core.constants import (
     BEARER_TOKEN_TYPE,
     EMAIL_FIELD,
+    LOGIN_FIELD,
     UserRole,
 )
 from core.exceptions.auth import InvalidPasswordError
@@ -25,7 +26,7 @@ from core.exceptions.user import (
     UserLoginNotFoundError,
 )
 from core.redis import RedisService
-from core.security.jwt_utils.token_factory import (
+from core.security.jwt.token_factory import (
     create_access_token,
     create_recover_token,
     create_refresh_token,
@@ -33,7 +34,7 @@ from core.security.jwt_utils.token_factory import (
     create_reset_password_token,
     create_two_factor_token,
 )
-from core.security.jwt_utils.token_factory_utils import (
+from core.security.jwt.utils import (
     decode_jwt,
 )
 from core.security.password_utils import hash_password, verify_password
@@ -308,7 +309,8 @@ class UserService:
         recover_account_data: RecoverAccountRequest,
     ) -> TemporaryTokenInfo:
         email = recover_account_data.email
-        token = create_recover_token(email)
+        user = await self.get_user_by_email(email)
+        token = create_recover_token(user)
         send_confirmation_code_request = SendConfirmationCodeRequest(
             token=token,
         )
@@ -330,11 +332,13 @@ class UserService:
             secret_key=settings.confirmation_code_jwt.secret_key,
             algorithm=settings.confirmation_code_jwt.algorithm,
         )
+        login = payload[LOGIN_FIELD]
         email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
         app.send_task(
-            name=TaskType.send_confirmation_email_code.value,
+            name=TaskType.send_reset_password_email_data.value,
             args=[
+                login,
                 email,
                 confirmation_code,
             ],
