@@ -175,7 +175,7 @@ class UserService:
         email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
         app.send_task(
-            name=TaskType.send_confirmation_email_code.value,
+            name=TaskType.send_confirm_registration_email.value,
             args=[
                 email,
                 confirmation_code,
@@ -242,7 +242,7 @@ class UserService:
         email = payload[EMAIL_FIELD]
         confirmation_code = await self.create_confirmation_code(email)
         app.send_task(
-            name=TaskType.send_confirmation_email_code.value,
+            name=TaskType.send_confirm_login_email.value,
             args=[
                 email,
                 confirmation_code,

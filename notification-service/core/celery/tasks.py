@@ -20,14 +20,29 @@ def send_welcome_email(email: str, name: str) -> None:
 
 
 @app.task(
-    name=TaskType.send_confirmation_email_code.value,
+    name=TaskType.send_confirm_registration_email.value,
 )
-def send_confirmation_email_code(
+def send_confirm_registration_email(
     email: EmailStr,
     confirmation_code: str,
 ) -> None:
     asyncio.run(
-        EmailService.send_confirmation_email_code(
+        EmailService.send_confirm_registration_email(
+            email,
+            confirmation_code,
+        ),
+    )
+
+
+@app.task(
+    name=TaskType.send_confirm_login_email.value,
+)
+def send_confirm_login_email(
+    email: EmailStr,
+    confirmation_code: str,
+) -> None:
+    asyncio.run(
+        EmailService.send_confirm_login_email(
             email=email,
             confirmation_code=confirmation_code,
         ),
