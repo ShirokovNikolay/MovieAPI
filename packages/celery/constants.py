@@ -9,7 +9,10 @@ class Queue(StrEnum):
 class TaskType(StrEnum):
     delete_temporary_file = "mediaservice.media.delete_temporary_file"
     send_welcome_email = "notification-service.email.send-welcome-email"
-    send_confirmation_email_code = "notification-service.email.confirm_email"
+    send_confirm_registration_email = (
+        "notification-service.email.send-confirm-registration-email"
+    )
+    send_confirm_login_email = "notification-service.email.confirm-login-email"
     send_reset_password_email_data = (
         "notification-service.email.send_reset_password_email_data"
     )

@@ -78,16 +78,60 @@ class EmailService:
         )
 
     @classmethod
-    async def send_confirmation_email_code(
+    async def send_confirm_registration_email(
         cls,
         email: EmailStr,
         confirmation_code: str,
     ) -> None:
-        subject = "Confirm your email address"
-        body = f"Your confirmation code is {confirmation_code}"
+        subject = "🔑 MovieAPI — Код подтверждения регистрации"
+        # ruff: disable[W293, E501]
+        body_template = """
+                Здравствуйте!
+                
+                Спасибо за регистрацию в MovieAPI.
+                
+                Для завершения создания аккаунта и подтверждения вашего email-адреса,
+                
+                пожалуйста, введите следующий код на странице регистрации: {confirmation_code}
+                
+                Код действителен в течение 60 секунд.
+                
+                Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо.
+                
+                — Команда MovieAPI
+                """
+        # ruff: enable[W293, E501]
         await cls.send_email(
             subject=subject,
-            body=body,
+            body=body_template.format(confirmation_code=confirmation_code),
+            to_email=email,
+        )
+
+    @classmethod
+    async def send_confirm_login_email(
+        cls,
+        email: EmailStr,
+        confirmation_code: str,
+    ) -> None:
+        subject = "🛡️ Код безопасности для входа в MovieAPI"
+        # ruff: disable[W293, E501]
+        body_template = """
+        Здравствуйте!
+        
+        Выполнен запрос на вход в ваш аккаунт MovieAPI.
+        
+        Для подтверждения личности введите одноразовый код безопасности: {confirmation_code}
+        
+        Код действует 60 секунд. Никому не сообщайте этот код.
+        
+        Если вы не запрашивали вход в аккаунт MovieAPI, просто проигнорируйте это письмо.
+        
+        — Команда MovieAPI
+        """
+        # ruff: enable[W293, E501]
+        await cls.send_email(
+            subject=subject,
+            body=body_template.format(confirmation_code=confirmation_code),
             to_email=email,
         )
 
@@ -98,7 +142,8 @@ class EmailService:
         email: EmailStr,
         confirmation_code: str,
     ) -> None:
-        subject = "Восстановление доступа к приложению MovieAPI"
+        subject = "🛡️ Восстановление доступа к приложению MovieAPI"
+        # ruff: disable[W293]
         body_template = """
         Здравствуйте!
 
@@ -110,10 +155,11 @@ class EmailService:
         
         Ваш код подтверждения: {confirmation_code}
         
-        Код подтверждения действует 1 минуту.
-        
+        Код подтверждения действует 60 секунд.
+
         Если вы не запрашивали восстановление, просто проигнорируйте это письмо.
         """
+        # ruff: enable[W293]
         await cls.send_email(
             subject=subject,
             body=body_template.format(
