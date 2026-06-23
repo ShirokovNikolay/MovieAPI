@@ -35,12 +35,6 @@ class RedisClient:
     async def get(self, key: str) -> str | None:
         return cast(str | None, await self._redis.get(key))
 
-    async def get_integer(self, key: str) -> int | None:
-        value = await self._redis.get(key)
-        if value is not None:
-            return int(value)
-        return None
-
     async def exists(self, key: str) -> bool:
         return cast(bool, await self._redis.exists(key))
 

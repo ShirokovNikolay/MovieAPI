@@ -1,5 +1,6 @@
 from typing import Any
 
+from core.constants import AnyPydanticType, PrimitiveType
 from core.redis.client import RedisClient
 
 
@@ -7,14 +8,56 @@ class RedisService:
     def __init__(self, redis: RedisClient) -> None:
         self.redis = redis
 
-    async def get(self, key: str, schema: Any = None) -> Any:
+    async def get(
+        self,
+        key: str,
+        schema: AnyPydanticType | None = None,
+        is_integer: bool = False,
+        is_float: bool = False,
+        is_boolean: bool = False,
+    ) -> PrimitiveType | AnyPydanticType | None:
+        if schema is not None:
+            return await self._get_schema(key, schema)
+
+        if is_integer:
+            return await self._get_integer(key)
+
+        if is_float:
+            return await self._get_float(key)
+
+        if is_boolean:
+            return await self._get_boolean(key)
+
+        return await self.redis.get(key)
+
+    async def _get_schema(
+        self,
+        key: str,
+        schema: AnyPydanticType,
+    ) -> AnyPydanticType | None:
         value = await self.redis.get(key)
         if value is not None:
             return self.convert_string_to_object(value, schema)
         return None
 
-    async def get_integer(self, key: str) -> int | None:
-        return await self.redis.get_integer(key)
+    async def _get_integer(self, key: str) -> int | None:
+        value = await self.redis.get(key)
+        if value is not None:
+            return int(value)
+        return None
+
+    async def _get_float(self, key: str) -> float | None:
+        value = await self.redis.get(key)
+        if value is not None:
+            return float(value)
+        return None
+
+    async def _get_boolean(self, key: str) -> bool | None:
+        boolean = {"True": True, "False": False}
+        value = await self.redis.get(key)
+        if value is not None:
+            return boolean[value]
+        return None
 
     async def set(self, key: str, value: Any, ttl: int = 300) -> None:
         encoded_value = self.convert_object_to_string(value)

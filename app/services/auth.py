@@ -74,7 +74,7 @@ class AuthService:
         key = ":".join(key_list)
         await self.auth_redis_service.set(
             key=key,
-            value=user_create_data.model_dump_json(),
+            value=user_create_data,
             ttl=ttl_seconds,
         )
         send_confirmation_code_request = SendConfirmationCodeRequest(
@@ -232,8 +232,9 @@ class AuthService:
         attempt_counter_key_list = [key, ATTEMPT_FIELD]
         attempt_counter_key = ":".join(attempt_counter_key_list)
         await self.auth_redis_service.incr_by(attempt_counter_key)
-        count_confirm_code_attempts = await self.auth_redis_service.get_integer(
+        count_confirm_code_attempts = await self.auth_redis_service.get(
             attempt_counter_key,
+            is_integer=True,
         )
         if count_confirm_code_attempts == MAX_CONFIRM_CODE_ATTEMPTS:
             await self.auth_redis_service.delete(key)
