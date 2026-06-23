@@ -14,8 +14,11 @@ services:
       RABBITMQ__HOST: rabbitmq
       RABBITMQ__PORT: 5672
 
-      MEDIASERVICE__HOST: mediaservice
-      MEDIASERVICE__PORT: 8000
+      MEDIA_SERVICE__HOST: media-service
+      MEDIA_SERVICE__PORT: 8000
+
+      NOTIFICATION_SERVICE__HOST: notification-service
+      NOTIFICATION_SERVICE__PORT: 8000
     ports:
       - "8000:8000"
     develop:
@@ -31,7 +34,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      mediaservice:
+      media-service:
         condition: service_healthy
       notification-service:
         condition: service_healthy
@@ -42,11 +45,11 @@ services:
       timeout: 2s
       retries: 3
 
-  mediaservice:
+  media-service:
     build:
       context: .
-      dockerfile: mediaservice/Dockerfile
-    container_name: mediaservice
+      dockerfile: media-service/Dockerfile
+    container_name: media-service
     environment:
       MINIO__HOST: minio
       MINIO__PORT: 9000
@@ -56,12 +59,12 @@ services:
       - "8001:8000"
     develop:
       watch:
-        - path: ./mediaservice
+        - path: media-service
           action: sync+restart
-          target: /mediaservice
+          target: /media-service
         - path: ./packages
           action: sync+restart
-          target: /mediaservice/packages
+          target: /media-service/packages
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       start_period: 3s
@@ -182,12 +185,12 @@ services:
       timeout: 2s
       retries: 5
 
-  celery-worker-mediaservice:
+  celery-worker-media-service:
     build:
       context: .
-      dockerfile: mediaservice/Dockerfile
-    container_name: celery-worker-mediaservice
-    command: uv run celery --app core.celery.celery_app worker -Q mediaservice --loglevel=INFO
+      dockerfile: media-service/Dockerfile
+    container_name: celery-worker-media-service
+    command: uv run celery --app core.celery.celery_app worker -Q media-service --loglevel=INFO
     environment:
       MINIO__HOST: minio
       MINIO__PORT: 9000
@@ -195,9 +198,9 @@ services:
       MINIO__SECRET_KEY: adminadmin
     develop:
       watch:
-        - path: mediaservice
+        - path: media-service
           action: sync+restart
-          target: /mediaservice
+          target: /media-service
     depends_on:
       rabbitmq:
         condition: service_healthy

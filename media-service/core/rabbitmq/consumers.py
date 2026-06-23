@@ -31,7 +31,7 @@ async def copy_file(message: IncomingMessage) -> None:
 
         async with get_rabbitmq_service() as rabbitmq_service:
             exchange = await rabbitmq_service.declare_exchange(
-                name=Exchange.mediaservice,
+                name=Exchange.media_service,
                 type=ExchangeType.direct,
                 durable=True,
             )

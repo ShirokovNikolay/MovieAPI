@@ -79,14 +79,14 @@ class UserService:
             raise UserLoginNotFoundError(login)
         return user.encrypted_password
 
-    async def create_user(self, user: UserCreate) -> UserResponse:
-        if await self.user_repository.user_login_exists(user.login):
-            raise UserLoginAlreadyExistsError(user.login)
+    async def create_user(self, user_create_data: UserCreate) -> UserResponse:
+        if await self.user_repository.user_login_exists(user_create_data.login):
+            raise UserLoginAlreadyExistsError(user_create_data.login)
 
-        if await self.user_repository.user_email_exists(user.email):
-            raise UserEmailAlreadyExistsError(user.email)
+        if await self.user_repository.user_email_exists(user_create_data.email):
+            raise UserEmailAlreadyExistsError(user_create_data.email)
 
-        user = await self.user_repository.create_user(user)
+        user = await self.user_repository.create_user(user_create_data)
         app.send_task(
             name=TaskType.send_welcome_email.value,
             args=[

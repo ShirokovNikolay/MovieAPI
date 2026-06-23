@@ -24,11 +24,11 @@ repos:
           args: ["app"]
 
         - id: mypy
-          alias: mypy mediaservice
-          name: Run mypy mediaservice
+          alias: mypy media-service
+          name: Run mypy media-service
           language: system
           exclude: tests
-          args: ["mediaservice"]
+          args: ["media-service"]
 
         - id: mypy
           alias: mypy notification-service
