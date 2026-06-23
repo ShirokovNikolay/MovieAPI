@@ -7,9 +7,11 @@ from pydantic import EmailStr
 from core.celery.celery_app import app
 from core.config import settings
 from core.constants import (
+    ATTEMPT_FIELD,
     BEARER_TOKEN_TYPE,
     EMAIL_FIELD,
     LOGIN_FIELD,
+    MAX_CONFIRM_CODE_ATTEMPTS,
     ConfirmationCodeType,
 )
 from core.exceptions.auth import InvalidPasswordError
@@ -132,6 +134,7 @@ class AuthService:
         )
         user_create_data = UserCreate.model_validate_json(user_create_data_json)
         user = await self.user_service.create_user(user_create_data)
+        await self.auth_redis_service.delete(key)
         return create_auth_token(user)
 
     async def verify_login_data(self, login_data: UserLogin) -> None:
@@ -210,6 +213,7 @@ class AuthService:
             raise EmailConfirmationCodeNotFoundError(
                 email=email,
             )
+
         return cast(str, confirmation_code)
 
     async def verify_confirmation_code(
@@ -219,8 +223,22 @@ class AuthService:
         confirmation_code_type: ConfirmationCodeType,
     ) -> None:
         sent_confirmation_code = await self.get_confirmation_code(
-            email, confirmation_code_type,
+            email,
+            confirmation_code_type,
         )
+
+        key_list = [confirmation_code_type, email]
+        key = ":".join(key_list)
+        attempt_counter_key_list = [key, ATTEMPT_FIELD]
+        attempt_counter_key = ":".join(attempt_counter_key_list)
+        await self.auth_redis_service.incr_by(attempt_counter_key)
+        count_confirm_code_attempts = await self.auth_redis_service.get_integer(
+            attempt_counter_key,
+        )
+        if count_confirm_code_attempts == MAX_CONFIRM_CODE_ATTEMPTS:
+            await self.auth_redis_service.delete(key)
+            await self.auth_redis_service.delete(attempt_counter_key)
+
         if confirmation_code != sent_confirmation_code:
             raise InvalidEmailConfirmationCodeError(
                 email=email,
@@ -237,9 +255,16 @@ class AuthService:
         )
         key_list = [confirmation_code_type.value, email]
         key = ":".join(key_list)
+        attempt_counter_key_list = [key, ATTEMPT_FIELD]
+        attempt_counter_key = ":".join(attempt_counter_key_list)
         await self.auth_redis_service.set(
             key=key,
             value=confirmation_code,
+            ttl=60,
+        )
+        await self.auth_redis_service.set(
+            key=attempt_counter_key,
+            value=0,
             ttl=60,
         )
         return confirmation_code
