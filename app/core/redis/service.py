@@ -13,9 +13,15 @@ class RedisService:
             return self.convert_string_to_object(value, schema)
         return None
 
+    async def get_integer(self, key: str) -> int | None:
+        return await self.redis.get_integer(key)
+
     async def set(self, key: str, value: Any, ttl: int = 300) -> None:
         encoded_value = self.convert_object_to_string(value)
         await self.redis.set(key, encoded_value, ttl)
+
+    async def incr_by(self, key: str, amount: int = 1) -> int:
+        return await self.redis.incr_by(key, amount)
 
     async def expire(self, key: str, ttl: int) -> None:
         await self.redis.expire(key, ttl)
@@ -37,7 +43,7 @@ class RedisService:
         return ":".join(result)
 
     @staticmethod
-    def convert_string_to_object(value: str, schema: Any) -> Any:
+    def convert_string_to_object(value: str | int, schema: Any) -> Any:
         if schema is None:
             return value
         return schema.model_validate_json(value)
