@@ -42,7 +42,7 @@ class VerifyUserEmail(BaseModel):
 
 class RecoverAccountRequest(BaseModel):
     """
-    Модель для восстановления доступа к аккаунту.
+    Модель для получения токена для восстановления доступа к аккаунту.
     """
 
     email: EmailStr
@@ -50,7 +50,7 @@ class RecoverAccountRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     """
-    Модель для смены пароля.
+    Модель для смены пароля по токену.
     """
 
     reset_password_token: str
