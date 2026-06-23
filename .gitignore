@@ -221,6 +221,6 @@ __marimo__/
 
 .secrets
 config.local.yaml
-mediaservice/.env
+media-service/.env
 notification-service/.env
 .env.docker-compose

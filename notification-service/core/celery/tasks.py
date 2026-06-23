@@ -19,7 +19,7 @@ def send_welcome_email(email: str, name: str) -> None:
     )
 
 
-@app.task(
+@app.task(  # type: ignore[untyped-decorator]
     name=TaskType.send_confirm_registration_email.value,
 )
 def send_confirm_registration_email(
@@ -34,7 +34,7 @@ def send_confirm_registration_email(
     )
 
 
-@app.task(
+@app.task(  # type: ignore[untyped-decorator]
     name=TaskType.send_confirm_login_email.value,
 )
 def send_confirm_login_email(
@@ -49,7 +49,7 @@ def send_confirm_login_email(
     )
 
 
-@app.task(
+@app.task(  # type: ignore[untyped-decorator]
     name=TaskType.send_reset_password_email_data.value,
 )
 def send_reset_password_email_data(

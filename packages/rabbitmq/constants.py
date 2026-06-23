@@ -5,13 +5,13 @@ from packages.rabbitmq.utils import create_exchange_name, create_queue_name
 
 class ConsumerType(StrEnum):
     app = "app"
-    mediaservice = "mediaservice"
+    media_service = "media-service"
     notification_service = "notification-service"
 
 
 class ProducerType(StrEnum):
     app = "app"
-    mediaservice = "mediaservice"
+    media_service = "media-service"
     notification_service = "notification-service"
 
 
@@ -36,8 +36,8 @@ class Exchange(StrEnum):
         entity="content",
         exchange_type=ExchangeType.direct,
     )
-    mediaservice = create_exchange_name(
-        producer=ProducerType.mediaservice,
+    media_service = create_exchange_name(
+        producer=ProducerType.media_service,
         entity="content",
         exchange_type=ExchangeType.direct,
     )
@@ -60,12 +60,12 @@ class Queue(StrEnum):
         action=ActionType.update_movie_source_url,
     )
     copy_file = create_queue_name(
-        consumer=ConsumerType.mediaservice,
+        consumer=ConsumerType.media_service,
         entity="content",
         action=ActionType.copy_file,
     )
     delete_file = create_queue_name(
-        consumer=ConsumerType.mediaservice,
+        consumer=ConsumerType.media_service,
         entity="content",
         action=ActionType.delete_file,
     )

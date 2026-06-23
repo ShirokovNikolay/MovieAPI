@@ -91,7 +91,7 @@ class JWTConfig(BaseModel):
 
 
 class MediaServiceConfig(BaseModel):
-    host: str = "mediaservice"
+    host: str = "media-service"
     port: int = 8000
 
     @property

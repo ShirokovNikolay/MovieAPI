@@ -1,4 +1,5 @@
 import random
+from typing import cast
 
 from packages.celery.constants import Queue, TaskType
 from pydantic import EmailStr
@@ -186,7 +187,7 @@ class AuthService:
             raise EmailConfirmationCodeNotFoundError(
                 email=email,
             )
-        return confirmation_code
+        return cast(str, confirmation_code)
 
     async def verify_confirmation_code(
         self,
@@ -201,7 +202,9 @@ class AuthService:
             )
 
     async def create_confirmation_code(self, email: EmailStr) -> str:
-        confirmation_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+        confirmation_code = "".join(
+            [str(random.randint(0, 9)) for _ in range(6)],  # noqa: S311
+        )
         await self.auth_redis_service.set(
             key=f"auth:email:{email}",
             value=confirmation_code,

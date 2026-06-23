@@ -1,6 +1,6 @@
 FROM python:3.13-bookworm
 
-WORKDIR /mediaservice
+WORKDIR /media-service
 
 RUN pip install uv
 
@@ -10,6 +10,6 @@ RUN uv sync
 
 COPY packages ./packages
 
-COPY mediaservice .
+COPY media-service .
 
 CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
