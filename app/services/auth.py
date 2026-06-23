@@ -6,7 +6,12 @@ from pydantic import EmailStr
 
 from core.celery.celery_app import app
 from core.config import settings
-from core.constants import BEARER_TOKEN_TYPE, EMAIL_FIELD, LOGIN_FIELD
+from core.constants import (
+    BEARER_TOKEN_TYPE,
+    EMAIL_FIELD,
+    LOGIN_FIELD,
+    ConfirmationCodeType,
+)
 from core.exceptions.auth import InvalidPasswordError
 from core.exceptions.confirmation_code import (
     EmailConfirmationCodeNotFoundError,
@@ -63,8 +68,10 @@ class AuthService:
         )
         token = create_registration_token(user_registration_data)
         ttl_seconds = settings.jwt.registration.expire_minutes * 60
+        key_list = [ConfirmationCodeType.registration.value, token]
+        key = ":".join(key_list)
         await self.auth_redis_service.set(
-            key=f"registration:{token}",
+            key=key,
             value=user_create_data.model_dump_json(),
             ttl=ttl_seconds,
         )
@@ -88,7 +95,10 @@ class AuthService:
             algorithm=settings.jwt.registration.algorithm,
         )
         email = payload[EMAIL_FIELD]
-        confirmation_code = await self.create_confirmation_code(email)
+        confirmation_code = await self.create_confirmation_code(
+            email,
+            confirmation_code_type=ConfirmationCodeType.registration,
+        )
         app.send_task(
             name=TaskType.send_confirm_registration_email.value,
             args=[
@@ -113,11 +123,14 @@ class AuthService:
         await self.verify_confirmation_code(
             email,
             confirmation_code,
+            confirmation_code_type=ConfirmationCodeType.registration,
         )
-        user_data_create_json = await self.auth_redis_service.get(
-            key=f"registration:{token}",
+        key_list = [ConfirmationCodeType.registration.value, token]
+        key = ":".join(key_list)
+        user_create_data_json = await self.auth_redis_service.get(
+            key=key,
         )
-        user_create_data = UserCreate.model_validate_json(user_data_create_json)
+        user_create_data = UserCreate.model_validate_json(user_create_data_json)
         user = await self.user_service.create_user(user_create_data)
         return create_auth_token(user)
 
@@ -152,7 +165,10 @@ class AuthService:
             algorithm=settings.jwt.two_factor_auth.algorithm,
         )
         email = payload[EMAIL_FIELD]
-        confirmation_code = await self.create_confirmation_code(email)
+        confirmation_code = await self.create_confirmation_code(
+            email,
+            confirmation_code_type=ConfirmationCodeType.two_factor_auth,
+        )
         app.send_task(
             name=TaskType.send_confirm_login_email.value,
             args=[
@@ -177,12 +193,19 @@ class AuthService:
         await self.verify_confirmation_code(
             email,
             confirmation_code,
+            confirmation_code_type=ConfirmationCodeType.two_factor_auth,
         )
         user = await self.user_service.get_user_by_email(email)
         return create_auth_token(user)
 
-    async def get_confirmation_code(self, email: EmailStr) -> str:
-        confirmation_code = await self.auth_redis_service.get(f"auth:email:{email}")
+    async def get_confirmation_code(
+        self,
+        email: EmailStr,
+        confirmation_code_type: ConfirmationCodeType,
+    ) -> str:
+        key_list = [confirmation_code_type, email]
+        key = ":".join(key_list)
+        confirmation_code = await self.auth_redis_service.get(key)
         if confirmation_code is None:
             raise EmailConfirmationCodeNotFoundError(
                 email=email,
@@ -193,20 +216,29 @@ class AuthService:
         self,
         email: EmailStr,
         confirmation_code: str,
+        confirmation_code_type: ConfirmationCodeType,
     ) -> None:
-        sent_confirmation_code = await self.get_confirmation_code(email)
+        sent_confirmation_code = await self.get_confirmation_code(
+            email, confirmation_code_type,
+        )
         if confirmation_code != sent_confirmation_code:
             raise InvalidEmailConfirmationCodeError(
                 email=email,
                 confirmation_code=confirmation_code,
             )
 
-    async def create_confirmation_code(self, email: EmailStr) -> str:
+    async def create_confirmation_code(
+        self,
+        email: EmailStr,
+        confirmation_code_type: ConfirmationCodeType,
+    ) -> str:
         confirmation_code = "".join(
             [str(random.randint(0, 9)) for _ in range(6)],  # noqa: S311
         )
+        key_list = [confirmation_code_type.value, email]
+        key = ":".join(key_list)
         await self.auth_redis_service.set(
-            key=f"auth:email:{email}",
+            key=key,
             value=confirmation_code,
             ttl=60,
         )
@@ -242,7 +274,10 @@ class AuthService:
         )
         login = payload[LOGIN_FIELD]
         email = payload[EMAIL_FIELD]
-        confirmation_code = await self.create_confirmation_code(email)
+        confirmation_code = await self.create_confirmation_code(
+            email,
+            confirmation_code_type=ConfirmationCodeType.recover_password,
+        )
         app.send_task(
             name=TaskType.send_reset_password_email_data.value,
             args=[
@@ -265,7 +300,11 @@ class AuthService:
             algorithm=settings.jwt.recover.algorithm,
         )
         email = payload[EMAIL_FIELD]
-        await self.verify_confirmation_code(email, confirmation_code)
+        await self.verify_confirmation_code(
+            email,
+            confirmation_code,
+            confirmation_code_type=ConfirmationCodeType.recover_password,
+        )
         user = await self.user_service.get_user_by_email(email)
         reset_password_token = create_reset_password_token(user)
         return TemporaryTokenInfo(

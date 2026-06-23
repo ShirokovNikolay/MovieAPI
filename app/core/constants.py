@@ -59,6 +59,12 @@ class MethodType(StrEnum):
     delete = "DELETE"
 
 
+class ConfirmationCodeType(StrEnum):
+    registration = "registration"
+    two_factor_auth = "two_factor_auth"
+    recover_password = "recover"
+
+
 TOKEN_TYPE_FIELD = "type"
 LOGIN_FIELD = "login"
 EMAIL_FIELD = "email"
