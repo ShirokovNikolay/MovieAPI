@@ -1,12 +1,54 @@
 (function () {
     window.AppMethodsAuth = {
+        // ==================== УПРАВЛЕНИЕ СООБЩЕНИЯМИ ====================
+
+        // Показать сообщение об ошибке (заменяет success)
+        showError: function (message, autoClear = true) {
+            this.error = message;
+            this.success = ''; // Очищаем успешное сообщение
+            if (autoClear) {
+                this.clearMessagesAfterDelay(5000);
+            }
+        },
+
+        // Показать сообщение об успехе (заменяет error)
+        showSuccess: function (message, autoClear = true) {
+            this.success = message;
+            this.error = ''; // Очищаем сообщение об ошибке
+            if (autoClear) {
+                this.clearMessagesAfterDelay(5000);
+            }
+        },
+
+        // Очистить все сообщения
+        clearMessages: function () {
+            this.error = '';
+            this.success = '';
+            if (this.messageTimeout) {
+                clearTimeout(this.messageTimeout);
+                this.messageTimeout = null;
+            }
+        },
+
+        // Автоматическая очистка через заданное время
+        clearMessagesAfterDelay: function (delay) {
+            var self = this;
+            if (this.messageTimeout) {
+                clearTimeout(this.messageTimeout);
+            }
+            this.messageTimeout = setTimeout(function () {
+                self.error = '';
+                self.success = '';
+                self.messageTimeout = null;
+            }, delay);
+        },
+
         // ==================== ЛОГИН С 2FA ====================
         onLogin: function () {
             var self = this;
-            this.error = "";
+            this.clearMessages();
             this.loading = true;
 
-            // Передаем username и password отдельно (не JSON)
             window.ApiAuth.loginUser(
                 this.loginForm.username.trim(),
                 this.loginForm.password
@@ -14,11 +56,59 @@
             .then(function (data) {
                 self.loginToken = data.token;
                 self.loginStep = 'verify';
-                self.success = "Код подтверждения отправлен на почту";
+                self.showSuccess("✅ Код подтверждения отправлен на почту");
                 self.startLoginResendTimer(60);
             })
             .catch(function (e) {
-                self.error = e.message || "Не удалось войти";
+                var message = e.message || "Не удалось войти";
+                var lowerMessage = message.toLowerCase();
+                var errorText = "";
+
+                // 🔥 ОБРАБОТКА ОШИБОК ЛОГИНА
+                if (lowerMessage.includes("invalid") ||
+                    lowerMessage.includes("неверн") ||
+                    lowerMessage.includes("не правильн") ||
+                    lowerMessage.includes("incorrect")) {
+                    if (lowerMessage.includes("password") || lowerMessage.includes("парол")) {
+                        errorText = "❌ Неверный пароль. Пожалуйста, проверьте правильность введенного пароля.";
+                        self.loginForm.password = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('login-password');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("login") || lowerMessage.includes("логин") || lowerMessage.includes("username")) {
+                        errorText = "❌ Неверный логин. Пожалуйста, проверьте правильность введенного логина.";
+                        self.loginForm.username = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('login-username');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else {
+                        errorText = "❌ Неверный логин или пароль. Попробуйте еще раз.";
+                    }
+                } else if (lowerMessage.includes("not found") ||
+                           lowerMessage.includes("не найден") ||
+                           lowerMessage.includes("does not exist")) {
+                    errorText = "❌ Пользователь с таким логином не найден. Проверьте правильность введенного логина.";
+                    self.loginForm.username = '';
+                    setTimeout(function () {
+                        var input = document.getElementById('login-username');
+                        if (input) {
+                            input.focus();
+                            input.select();
+                        }
+                    }, 100);
+                } else {
+                    errorText = "❌ " + message;
+                }
+
+                self.showError(errorText);
             })
             .finally(function () {
                 self.loading = false;
@@ -28,17 +118,17 @@
         // ПОДТВЕРЖДЕНИЕ 2FA КОДА
         onVerifyLoginCode: function () {
             var self = this;
-            this.error = "";
+            this.clearMessages();
             this.loading = true;
 
             if (this.loginCode.trim().length !== 6) {
-                this.error = "Введите 6-значный код";
+                this.showError("Введите 6-значный код");
                 this.loading = false;
                 return;
             }
 
             if (!this.loginToken) {
-                this.error = "Ошибка: токен не найден. Попробуйте войти заново.";
+                this.showError("❌ Ошибка: токен не найден. Попробуйте войти заново.");
                 this.loading = false;
                 return;
             }
@@ -48,44 +138,122 @@
                 this.loginCode.trim()
             )
                 .then(function (data) {
-                    // Сохраняем токены доступа
                     window.TokenStore.setTokens(data.access_token, data.refresh_token);
                     window.location.hash = "#/";
                     window.location.reload();
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Неверный код подтверждения";
+                    var message = e.message || "Неверный код подтверждения";
+                    var lowerMessage = message.toLowerCase();
+                    var errorText = "";
+
+                    if (lowerMessage.includes("does not exist") ||
+                        lowerMessage.includes("не существует") ||
+                        lowerMessage.includes("not found") ||
+                        lowerMessage.includes("не найден")) {
+                        errorText = "❌ Код подтверждения не найден. Возможно, он уже был использован или истек. Запросите новый код.";
+                        self.loginCode = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('login-code-input');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("expired") ||
+                               lowerMessage.includes("истек") ||
+                               lowerMessage.includes("timeout") ||
+                               lowerMessage.includes("не действителен") ||
+                               lowerMessage.includes("срок действия") ||
+                               lowerMessage.includes("устарел")) {
+                        errorText = "⏰ Срок действия кода истек. Запросите новый код.";
+                        self.loginCode = '';
+                        setTimeout(function () {
+                            self.onResendLoginCode();
+                        }, 2000);
+                    } else if (lowerMessage.includes("not valid") ||
+                               lowerMessage.includes("недействителен") ||
+                               lowerMessage.includes("invalid") ||
+                               lowerMessage.includes("неверн") ||
+                               lowerMessage.includes("не правильн")) {
+                        errorText = "❌ Неверный код подтверждения. Проверьте правильность введенных цифр.";
+                        self.loginCode = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('login-code-input');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("attempt") ||
+                               lowerMessage.includes("попытк") ||
+                               lowerMessage.includes("blocked") ||
+                               lowerMessage.includes("заблокирован") ||
+                               lowerMessage.includes("too many")) {
+                        errorText = "⚠️ Слишком много неудачных попыток. Доступ временно заблокирован.";
+                        self.loginBlocked = true;
+                        setTimeout(function () {
+                            self.loginBlocked = false;
+                            self.onResendLoginCode();
+                        }, 5000);
+                    } else {
+                        errorText = "❌ " + message;
+                    }
+
+                    self.showError(errorText);
                 })
                 .finally(function () {
                     self.loading = false;
                 });
         },
 
+
         // ПОВТОРНАЯ ОТПРАВКА 2FA КОДА
         onResendLoginCode: function () {
             var self = this;
-            this.error = "";
-            this.success = "";
+            this.clearMessages();
             this.loading = true;
 
             if (!this.loginToken) {
-                this.error = "Ошибка: токен не найден. Попробуйте войти заново.";
+                this.showError("❌ Ошибка: токен не найден. Попробуйте войти заново.");
                 this.loading = false;
                 return;
             }
 
             window.ApiAuth.resendLoginCode(this.loginToken)
                 .then(function () {
-                    self.success = "Новый код отправлен на почту";
+                    self.showSuccess("✅ Новый код отправлен на почту");
                     self.startLoginResendTimer(60);
+                    self.loginCode = '';
+                    self.loginBlocked = false;
+                    setTimeout(function () {
+                        var input = document.getElementById('login-code-input');
+                        if (input) input.focus();
+                    }, 100);
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Не удалось отправить код";
+                    var message = e.message || "Не удалось отправить код";
+                    var lowerMessage = message.toLowerCase();
+
+                    if (lowerMessage.includes("expired") ||
+                        lowerMessage.includes("истек") ||
+                        lowerMessage.includes("timeout")) {
+                        self.showError("⏰ Срок действия сессии истек. Пожалуйста, войдите заново.");
+                        setTimeout(function () {
+                            self.onBackToLogin();
+                        }, 2000);
+                    } else if (lowerMessage.includes("too many") ||
+                               lowerMessage.includes("много")) {
+                        self.showError("⚠️ Слишком много запросов. Подождите немного.");
+                    } else {
+                        self.showError("❌ " + message);
+                    }
                 })
                 .finally(function () {
                     self.loading = false;
                 });
         },
+
 
         // ВОЗВРАТ К ФОРМЕ ЛОГИНА
         onBackToLogin: function () {
@@ -124,37 +292,35 @@
         // ОБНОВЛЕННАЯ РЕГИСТРАЦИЯ (ШАГ 1)
         onRegister: function () {
             var self = this;
-            this.error = "";
-            this.success = "";
+            this.clearMessages();
 
             // Валидация
             if (this.registerForm.password.length < 8) {
-                this.error = "Пароль должен быть минимум 8 символов";
+                this.showError("Пароль должен быть минимум 8 символов");
                 return;
             }
 
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(this.registerForm.email.trim())) {
-                this.error = "Введите корректный email";
+                this.showError("Введите корректный email");
                 return;
             }
 
             if (this.registerForm.login.trim().length < 3) {
-                this.error = "Логин должен быть минимум 3 символа";
+                this.showError("Логин должен быть минимум 3 символа");
                 return;
             }
 
             if (this.registerForm.surname.trim().length < 2) {
-                this.error = "Фамилия должна быть минимум 2 символа";
+                this.showError("Фамилия должна быть минимум 2 символа");
                 return;
             }
 
             if (this.registerForm.name.trim().length < 2) {
-                this.error = "Имя должно быть минимум 2 символа";
+                this.showError("Имя должно быть минимум 2 символа");
                 return;
             }
 
-            // Отправляем запрос на регистрацию
             this.loading = true;
             var payload = {
                 surname: this.registerForm.surname.trim(),
@@ -166,38 +332,81 @@
 
             window.ApiAuth.registerUser(payload)
                 .then(function (data) {
-                    // Сохраняем временный токен
                     self.registrationToken = data.token;
-                    // Сохраняем email для отображения
                     self.registrationData.email = payload.email;
-                    // Переключаем на шаг подтверждения
                     self.registerStep = 'verify';
-                    self.success = "Код подтверждения отправлен на почту";
+                    self.showSuccess("✅ Код подтверждения отправлен на почту");
                     self.startResendTimer(60);
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Ошибка регистрации";
+                    var message = e.message || "Ошибка регистрации";
+                    var lowerMessage = message.toLowerCase();
+                    var errorText = "";
+
+                    // 🔥 ОБРАБОТКА ОШИБОК УНИКАЛЬНОСТИ
+                    if (lowerMessage.includes("login") &&
+                        (lowerMessage.includes("already exists") ||
+                         lowerMessage.includes("already taken") ||
+                         lowerMessage.includes("существует") ||
+                         lowerMessage.includes("занят") ||
+                         lowerMessage.includes("используется"))) {
+                        errorText = "❌ Логин уже занят. Пожалуйста, выберите другой логин.";
+                        // Очищаем поле логина и ставим фокус
+                        self.registerForm.login = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('reg-login');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("email") &&
+                               (lowerMessage.includes("already exists") ||
+                                lowerMessage.includes("already taken") ||
+                                lowerMessage.includes("существует") ||
+                                lowerMessage.includes("занят") ||
+                                lowerMessage.includes("используется"))) {
+                        errorText = "❌ Email уже используется. Пожалуйста, используйте другой email.";
+                        // Очищаем поле email и ставим фокус
+                        self.registerForm.email = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('reg-email');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("already exists") ||
+                               lowerMessage.includes("существует") ||
+                               lowerMessage.includes("already registered") ||
+                               lowerMessage.includes("already taken")) {
+                        errorText = "❌ Пользователь с таким email или логином уже существует.";
+                    } else {
+                        errorText = "❌ " + message;
+                    }
+
+                    self.showError(errorText);
                 })
                 .finally(function () {
                     self.loading = false;
                 });
         },
 
+
         // ПОДТВЕРЖДЕНИЕ КОДА РЕГИСТРАЦИИ (ШАГ 2)
         onVerifyCode: function () {
             var self = this;
-            this.error = "";
-            this.success = "";
+            this.clearMessages();
             this.loading = true;
 
             if (this.confirmationCode.trim().length !== 6) {
-                this.error = "Введите 6-значный код";
+                this.showError("Введите 6-значный код");
                 this.loading = false;
                 return;
             }
 
             if (!this.registrationToken) {
-                this.error = "Ошибка: токен не найден. Попробуйте зарегистрироваться заново.";
+                this.showError("❌ Ошибка: токен не найден. Попробуйте зарегистрироваться заново.");
                 this.loading = false;
                 return;
             }
@@ -207,18 +416,79 @@
                 this.confirmationCode.trim()
             )
                 .then(function (data) {
-                    window.TokenStore.setTokens(data.access_token, data.refresh_token);
-
-                    window.location.hash = "#/";
-                    window.location.reload();
+                    if (data.access_token) {
+                        window.TokenStore.setTokens(data.access_token, data.refresh_token);
+                        self.showSuccess("✅ Регистрация успешна! Добро пожаловать!");
+                        setTimeout(function () {
+                            window.location.hash = "#/";
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        self.showSuccess("✅ Регистрация успешна! Теперь вы можете войти.");
+                        setTimeout(function () {
+                            window.location.hash = "#/login";
+                            window.location.reload();
+                        }, 1500);
+                    }
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Неверный код подтверждения";
+                    var message = e.message || "Неверный код подтверждения";
+                    var lowerMessage = message.toLowerCase();
+                    var errorText = "";
+
+                    if (lowerMessage.includes("does not exist") ||
+                        lowerMessage.includes("не существует") ||
+                        lowerMessage.includes("not found") ||
+                        lowerMessage.includes("не найден")) {
+                        errorText = "❌ Код подтверждения не найден. Возможно, он уже был использован или истек. Запросите новый код.";
+                        self.confirmationCode = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('code-input');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("expired") ||
+                               lowerMessage.includes("истек") ||
+                               lowerMessage.includes("timeout")) {
+                        errorText = "⏰ Срок действия кода истек. Отправляем новый код...";
+                        setTimeout(function () {
+                            self.onResendCode();
+                        }, 1500);
+                    } else if (lowerMessage.includes("not valid") ||
+                               lowerMessage.includes("недействителен") ||
+                               lowerMessage.includes("invalid")) {
+                        errorText = "❌ Неверный код. Проверьте правильность введенных цифр.";
+                        self.confirmationCode = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('code-input');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("already exists") ||
+                               lowerMessage.includes("существует") ||
+                               lowerMessage.includes("already registered")) {
+                        errorText = "❌ Пользователь с таким email или логином уже существует.";
+                        setTimeout(function () {
+                            self.onBackToRegister();
+                        }, 2000);
+                    } else if (lowerMessage.includes("attempt") ||
+                               lowerMessage.includes("попытк")) {
+                        errorText = "⚠️ Слишком много неудачных попыток. Попробуйте позже.";
+                    } else {
+                        errorText = "❌ " + message;
+                    }
+
+                    self.showError(errorText);
                 })
                 .finally(function () {
                     self.loading = false;
                 });
         },
+
 
 
         // ПОВТОРНАЯ ОТПРАВКА КОДА РЕГИСТРАЦИИ
@@ -236,11 +506,23 @@
 
             window.ApiAuth.resendRegistrationCode(this.registrationToken)
                 .then(function () {
-                    self.success = "Новый код отправлен на почту";
+                    self.success = "✅ Новый код отправлен на почту";
                     self.startResendTimer(60);
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Не удалось отправить код";
+                    var message = e.message || "Не удалось отправить код";
+                    var lowerMessage = message.toLowerCase();
+
+                    if (lowerMessage.includes("expired") ||
+                        lowerMessage.includes("истек") ||
+                        lowerMessage.includes("timeout")) {
+                        self.error = "⏰ Срок действия сессии истек. Пожалуйста, начните регистрацию заново.";
+                        setTimeout(function () {
+                            self.onBackToRegister();
+                        }, 2000);
+                    } else {
+                        self.error = "❌ " + message;
+                    }
                 })
                 .finally(function () {
                     self.loading = false;
@@ -285,52 +567,70 @@
         // ШАГ 1: Отправка email для восстановления
         onSendResetCode: function () {
             var self = this;
-            this.error = "";
-            this.success = "";
+            this.clearMessages();
             this.loading = true;
 
             var email = this.resetEmail.trim();
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                this.error = "Введите корректный email";
+                this.showError("Введите корректный email");
                 this.loading = false;
                 return;
             }
 
             window.ApiAuth.recoverAccount(email)
                 .then(function (data) {
-                    // Сохраняем временный токен
                     self.resetToken = data.token;
-                    // Сохраняем email для отображения
                     self.resetEmail = email;
-                    // Переключаем на шаг подтверждения
                     self.resetStep = 'verify';
-                    self.success = "Код восстановления отправлен на почту";
+                    self.showSuccess("✅ Код восстановления отправлен на почту");
                     self.startResetResendTimer(60);
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Не удалось отправить код";
+                    var message = e.message || "Не удалось отправить код";
+                    var lowerMessage = message.toLowerCase();
+                    var errorText = "";
+
+                    // 🔥 ОБРАБОТКА ОШИБКИ - EMAIL НЕ НАЙДЕН
+                    if (lowerMessage.includes("not found") ||
+                        lowerMessage.includes("не найден") ||
+                        lowerMessage.includes("does not exist") ||
+                        lowerMessage.includes("не существует")) {
+                        errorText = "❌ Пользователь с таким email не найден. Проверьте правильность введенного адреса.";
+                        self.resetEmail = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('reset-email');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else {
+                        errorText = "❌ " + message;
+                    }
+
+                    self.showError(errorText);
                 })
                 .finally(function () {
                     self.loading = false;
                 });
         },
 
+
         // ШАГ 2: Подтверждение кода восстановления
         onVerifyResetCode: function () {
             var self = this;
-            this.error = "";
-            this.success = "";
+            this.clearMessages();
             this.loading = true;
 
             if (this.resetCode.trim().length !== 6) {
-                this.error = "Введите 6-значный код";
+                this.showError("Введите 6-значный код");
                 this.loading = false;
                 return;
             }
 
             if (!this.resetToken) {
-                this.error = "Ошибка: токен не найден. Попробуйте начать заново.";
+                this.showError("❌ Ошибка: токен не найден. Попробуйте начать заново.");
                 this.loading = false;
                 return;
             }
@@ -340,13 +640,70 @@
                 this.resetCode.trim()
             )
                 .then(function (data) {
-                    // Сохраняем новый токен для смены пароля
                     self.resetPasswordToken = data.token;
-                    // Переключаем на шаг смены пароля
-                    self.resetStep = 'change';
+                    self.showSuccess("✅ Код подтвержден! Теперь вы можете установить новый пароль.");
+                    setTimeout(function () {
+                        self.resetStep = 'change';
+                    }, 1000);
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Неверный код подтверждения";
+                    var message = e.message || "Неверный код подтверждения";
+                    var lowerMessage = message.toLowerCase();
+                    var errorText = "";
+
+                    if (lowerMessage.includes("does not exist") ||
+                        lowerMessage.includes("не существует") ||
+                        lowerMessage.includes("not found") ||
+                        lowerMessage.includes("не найден")) {
+                        errorText = "❌ Код подтверждения не найден. Возможно, он уже был использован или истек. Запросите новый код.";
+                        self.resetCode = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('reset-code-input');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("expired") ||
+                               lowerMessage.includes("истек") ||
+                               lowerMessage.includes("timeout") ||
+                               lowerMessage.includes("не действителен") ||
+                               lowerMessage.includes("срок действия") ||
+                               lowerMessage.includes("устарел")) {
+                        errorText = "⏰ Срок действия кода истек. Пожалуйста, запросите новый код.";
+                        self.resetCode = '';
+                        setTimeout(function () {
+                            self.onResendResetCode();
+                        }, 2000);
+                    } else if (lowerMessage.includes("not valid") ||
+                               lowerMessage.includes("недействителен") ||
+                               lowerMessage.includes("invalid") ||
+                               lowerMessage.includes("неверн") ||
+                               lowerMessage.includes("не правильн")) {
+                        errorText = "❌ Неверный код подтверждения. Проверьте правильность введенных цифр.";
+                        self.resetCode = '';
+                        setTimeout(function () {
+                            var input = document.getElementById('reset-code-input');
+                            if (input) {
+                                input.focus();
+                                input.select();
+                            }
+                        }, 100);
+                    } else if (lowerMessage.includes("not found") ||
+                               lowerMessage.includes("не найден")) {
+                        errorText = "❌ Пользователь с таким email не найден.";
+                        setTimeout(function () {
+                            self.onResetBackToLogin();
+                        }, 2000);
+                    } else if (lowerMessage.includes("attempt") ||
+                               lowerMessage.includes("попытк") ||
+                               lowerMessage.includes("too many")) {
+                        errorText = "⚠️ Слишком много неудачных попыток. Попробуйте позже.";
+                    } else {
+                        errorText = "❌ " + message;
+                    }
+
+                    self.showError(errorText);
                 })
                 .finally(function () {
                     self.loading = false;
@@ -356,24 +713,23 @@
         // ШАГ 3: Смена пароля
         onChangePassword: function () {
             var self = this;
-            this.error = "";
-            this.success = "";
+            this.clearMessages();
             this.loading = true;
 
             if (this.resetNewPassword.length < 8) {
-                this.error = "Пароль должен быть минимум 8 символов";
+                this.showError("Пароль должен быть минимум 8 символов");
                 this.loading = false;
                 return;
             }
 
             if (this.resetNewPassword !== this.resetConfirmPassword) {
-                this.error = "Пароли не совпадают";
+                this.showError("Пароли не совпадают");
                 this.loading = false;
                 return;
             }
 
             if (!this.resetPasswordToken) {
-                this.error = "Ошибка: токен не найден. Попробуйте начать заново.";
+                this.showError("❌ Ошибка: токен не найден. Попробуйте начать заново.");
                 this.loading = false;
                 return;
             }
@@ -386,11 +742,11 @@
 
             window.ApiAuth.resetPassword(payload)
                 .then(function () {
-                    self.success = "Пароль успешно изменен! Теперь вы можете войти.";
+                    self.showSuccess("✅ Пароль успешно изменен! Теперь вы можете войти.");
                     self.resetStep = 'done';
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Не удалось изменить пароль";
+                    self.showError(e.message || "❌ Не удалось изменить пароль");
                 })
                 .finally(function () {
                     self.loading = false;
@@ -400,23 +756,34 @@
         // ПОВТОРНАЯ ОТПРАВКА КОДА ВОССТАНОВЛЕНИЯ
         onResendResetCode: function () {
             var self = this;
-            this.error = "";
-            this.success = "";
+            this.clearMessages();
             this.loading = true;
 
             if (!this.resetToken) {
-                this.error = "Ошибка: токен не найден. Попробуйте начать заново.";
+                this.showError("❌ Ошибка: токен не найден. Попробуйте начать заново.");
                 this.loading = false;
                 return;
             }
 
             window.ApiAuth.resendRecoveryCode(this.resetToken)
                 .then(function () {
-                    self.success = "Новый код отправлен на почту";
+                    self.showSuccess("✅ Новый код отправлен на почту");
                     self.startResetResendTimer(60);
                 })
                 .catch(function (e) {
-                    self.error = e.message || "Не удалось отправить код";
+                    var message = e.message || "Не удалось отправить код";
+                    var lowerMessage = message.toLowerCase();
+
+                    if (lowerMessage.includes("expired") ||
+                        lowerMessage.includes("истек") ||
+                        lowerMessage.includes("timeout")) {
+                        self.showError("⏰ Срок действия сессии истек. Начните восстановление заново.");
+                        setTimeout(function () {
+                            self.onResetBackToLogin();
+                        }, 2000);
+                    } else {
+                        self.showError("❌ " + message);
+                    }
                 })
                 .finally(function () {
                     self.loading = false;
@@ -432,8 +799,7 @@
             this.resetConfirmPassword = '';
             this.resetToken = '';
             this.resetPasswordToken = '';
-            this.error = '';
-            this.success = '';
+            this.clearMessages(); // ← используем общий метод
             if (this.resetTimerInterval) {
                 clearInterval(this.resetTimerInterval);
                 this.resetTimerInterval = null;

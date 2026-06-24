@@ -198,11 +198,14 @@
                 movieSourceFile: null,
                 movieSourceFileName: "",
 
+                messageTimeout: null,
+
                 // Для двухфакторной аутентификации
                 loginStep: 'form', // 'form' | 'verify'
                 loginToken: '',
                 loginEmail: '', // email из ответа /login
                 loginCode: '', // 6-значный код
+                loginBlocked: false, // ← НОВОЕ: блокировка при слишком многих попытках
                 loginResendTimer: 60,
                 loginCanResend: false,
                 loginTimerInterval: null,
