@@ -165,6 +165,7 @@
                         window.Api.logout();
                         self.profileData = null;
                         self.goLogin();
+                        window.location.reload();
                     })
                     .catch(function (e) {
                         if (e.message === "REFRESH_EXPIRED") {
