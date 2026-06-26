@@ -42,11 +42,9 @@ async def get_newest_movies() -> MovieEmailSendDataList:
     name=TaskType.prepare_inactive_users.value,
 )
 def prepare_inactive_users() -> dict:
-    print("IN 35")
     loop = asyncio.new_event_loop()
     result = loop.run_until_complete(get_inactive_users())
     loop.close()
-    # result = asyncio.run(get_inactive_users())
     return result.model_dump()
 
 
@@ -54,25 +52,23 @@ def prepare_inactive_users() -> dict:
     name=TaskType.prepare_newest_movies.value,
 )
 def prepare_newest_movies() -> dict:
-    print("IN 43")
     loop = asyncio.new_event_loop()
     result = loop.run_until_complete(get_newest_movies())
     loop.close()
-    # result = asyncio.run(get_newest_movies())
     return result.model_dump()
 
 
-@app.task(name="testing")
+@app.task(
+    name=TaskType.create_chain_user_reminder.value,
+)
 def test() -> None:
-    print("in testing")
     chained_group = group(
         prepare_inactive_users.s().set(queue=Queue.app.value),
         prepare_newest_movies.s().set(queue=Queue.app.value),
     )
 
     notify = app.signature(
-        TaskType.send_spam_email.value,
+        TaskType.send_inactive_user_reminder.value,
         queue=Queue.notification.value,
     )
-    print("IN 55")
     chord(chained_group)(notify)

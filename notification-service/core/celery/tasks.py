@@ -68,7 +68,7 @@ def send_reset_password_email_data(
 
 
 @app.task(  # type: ignore[untyped-decorator]
-    name=TaskType.send_spam_email.value,
+    name=TaskType.send_inactive_user_reminder.value,
 )
 def send_spam_email(
     data: list,
@@ -76,10 +76,11 @@ def send_spam_email(
     user_data_list, movie_data_list = data
     user_data = UserEmailSendDataList.model_validate(user_data_list)
     movie_data = MovieEmailSendDataList.model_validate(movie_data_list)
-    print("send_spam_email")
-    asyncio.run(
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(
         EmailService.send_reminder_email(
             movie_data_list=movie_data,
             user_data_list=user_data,
         ),
     )
+    loop.close()

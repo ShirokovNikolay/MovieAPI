@@ -18,6 +18,7 @@ class TaskType(StrEnum):
         "notification-service.email.send_reset_password_email_data"  # noqa: S105
     )
 
-    prepare_inactive_users = "notification-service.email.prepare_inactive_users"
-    prepare_newest_movies = "notification-service.email.prepare_newest_movies"
-    send_spam_email = "notification-service.email.send-spam-email"
+    prepare_inactive_users = "movie-catalog.email.prepare_inactive_users"
+    prepare_newest_movies = "movie-catalog.email.prepare_newest_movies"
+    create_chain_user_reminder = "movie-catalog.email.create_chain_user_reminder"
+    send_inactive_user_reminder = "notification-service.email.send-inactive-user-email"
