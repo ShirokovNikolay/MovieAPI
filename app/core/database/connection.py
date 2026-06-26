@@ -1,3 +1,4 @@
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
@@ -16,6 +17,7 @@ class Base(DeclarativeBase):
 engine = create_async_engine(
     url=settings.database.url,
     echo=settings.database.echo,
+    poolclass=NullPool,
 )
 
 session_factory = async_sessionmaker(

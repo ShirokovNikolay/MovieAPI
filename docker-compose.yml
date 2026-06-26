@@ -201,6 +201,9 @@ services:
         - path: media-service
           action: sync+restart
           target: /media-service
+        - path: ./packages
+          action: sync+restart
+          target: /media-service/packages
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -216,9 +219,48 @@ services:
         - path: notification-service
           action: sync+restart
           target: /notification-service
+        - path: ./packages
+          action: sync+restart
+          target: /notification-service/packages
     depends_on:
       rabbitmq:
         condition: service_healthy
+
+  celery-worker-app:
+    build:
+      context: ./
+      dockerfile: app/Dockerfile
+    container_name: celery-worker-app
+    command: uv run celery --app core.celery.celery_app worker -Q movie-catalog --loglevel=INFO
+    develop:
+      watch:
+        - path: ./app
+          action: sync+restart
+          target: /app
+        - path: ./packages
+          action: sync+restart
+          target: /app/packages
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  celery-beat-app:
+    build:
+      context: ./
+      dockerfile: app/Dockerfile
+    container_name: celery-beat-app
+    command: uv run celery --app core.celery.celery_app beat --loglevel=INFO
+    develop:
+      watch:
+        - path: ./app
+          action: sync+restart
+          target: /app
+        - path: ./packages
+          action: sync+restart
+          target: /app/packages
+    depends_on:
+      celery-worker-notification-service:
+        condition: service_started
 
   maildev:
     image: maildev/maildev
