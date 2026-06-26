@@ -69,6 +69,17 @@ class UserService:
             page=page,
         )
 
+    async def get_inactive_users(self) -> UserResponseList:
+        users = [
+            UserResponse.model_validate(user)
+            for user in await self.user_repository.get_inactive_users()
+        ]
+        return UserResponseList(
+            user_list=users,
+            page=1,
+            size=1,
+        )
+
     async def get_user_encrypted_password(self, login: str) -> str:
         """
         Метод получения зашифрованного пароля пользователя

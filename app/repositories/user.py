@@ -1,9 +1,9 @@
 from pydantic import EmailStr
-from sqlalchemy import delete, select
+from sqlalchemy import Date, and_, cast, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.constants import UserRole
-from models import User
+from models import User, WatchHistory
 from schemas.user import (
     UserCreate,
     UserPartialUpdate,
@@ -57,6 +57,31 @@ class UserRepository:
         await self.session.commit()
         await self.session.refresh(user)
         return user
+
+    async def get_inactive_users(self) -> list[User]:
+        get_users_never_watch_movies_stmt = (
+            select(User)
+            .outerjoin(WatchHistory, User.id == WatchHistory.user_id)
+            .where(
+                and_(
+                    WatchHistory.id.is_(None),
+                    func.current_date() - cast(User.registration_date, Date) >= 7,
+                ),
+            )
+        )
+        get_users_watch_movies_a_long_time_ago_stmt = (
+            select(User)
+            .join(WatchHistory, User.id == WatchHistory.user_id)
+            .group_by(User.id)
+            .having(
+                func.current_date() - cast(func.max(WatchHistory.watched_at), Date) >= 7,
+            )
+        )
+        result_stmt = get_users_never_watch_movies_stmt.union(
+            get_users_watch_movies_a_long_time_ago_stmt,
+        )
+        result = await self.session.execute(result_stmt)
+        return list(result.all())
 
     async def make_admin(self, user_id: int) -> bool:
         user = await self.get_user_by_id(user_id)

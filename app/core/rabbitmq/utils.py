@@ -16,7 +16,7 @@ from dependencies.redis_client import (
 from dependencies.redis_client import (
     get_watch_history_redis_client as get_watch_history_redis_client_dependency,
 )
-from services import GenreService, MovieService
+from services import GenreService, MovieService, UserService
 
 
 @asynccontextmanager
@@ -101,3 +101,10 @@ async def get_movie_cache_service() -> AsyncGenerator[MovieCacheService]:
             cache_service_for_watch_history,
         )
         yield movie_cache_service
+
+
+@asynccontextmanager
+async def get_user_service() -> AsyncGenerator[UserService]:
+    async with get_session() as session:
+        user_service = UserService(session)
+        yield user_service
