@@ -1,6 +1,7 @@
 import asyncio
 
 from packages.celery.constants import TaskType
+from packages.schemas import MovieEmailSendDataList, UserEmailSendDataList
 from pydantic import EmailStr
 
 from core.celery.celery_app import app
@@ -62,5 +63,23 @@ def send_reset_password_email_data(
             login=login,
             email=email,
             confirmation_code=confirmation_code,
+        ),
+    )
+
+
+@app.task(  # type: ignore[untyped-decorator]
+    name=TaskType.send_spam_email.value,
+)
+def send_spam_email(
+    data: list,
+) -> None:
+    user_data_list, movie_data_list = data
+    user_data = UserEmailSendDataList.model_validate(user_data_list)
+    movie_data = MovieEmailSendDataList.model_validate(movie_data_list)
+    print("send_spam_email")
+    asyncio.run(
+        EmailService.send_reminder_email(
+            movie_data_list=movie_data,
+            user_data_list=user_data,
         ),
     )

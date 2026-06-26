@@ -4,7 +4,7 @@ from packages.schemas import SendEmail
 from service import EmailService
 
 router = APIRouter(
-    tags=["Send email"],
+    tags=["Send Email"],
 )
 
 

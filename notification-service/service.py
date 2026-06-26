@@ -1,6 +1,7 @@
 from email.message import EmailMessage
 
 from aiosmtplib import SMTP
+from packages.schemas import MovieEmailSendDataList, UserEmailSendDataList
 from pydantic import EmailStr
 
 from core.config import settings
@@ -168,3 +169,22 @@ class EmailService:
             ),
             to_email=email,
         )
+
+    @classmethod
+    async def send_reminder_email(
+        cls,
+        movie_data_list: MovieEmailSendDataList,
+        user_data_list: UserEmailSendDataList,
+    ) -> None:
+        subject = "Проверка работы!"
+        body_template = """
+        Данное сообщение предназначено для пользователя {name}!
+        """
+        print("user_data_list", user_data_list)
+        print("movie_data_list", movie_data_list)
+        for user in user_data_list.user_list:
+            await cls.send_email(
+                subject=subject,
+                body=body_template.format(name=user.name),
+                to_email=user.email,
+            )

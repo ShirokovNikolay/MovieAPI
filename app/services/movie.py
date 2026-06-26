@@ -31,7 +31,7 @@ class MovieService:
     def __init__(
         self,
         session: AsyncSession,
-        rabbitmq_service: RabbitMQService,
+        rabbitmq_service: RabbitMQService | None = None,
     ) -> None:
         self.session = session
         self.user_repository = UserRepository(session)

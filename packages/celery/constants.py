@@ -2,6 +2,7 @@ from enum import StrEnum
 
 
 class Queue(StrEnum):
+    app = "movie-catalog"
     mediaservice = "media-service"
     notification = "notification-service"
 
@@ -16,3 +17,7 @@ class TaskType(StrEnum):
     send_reset_password_email_data = (
         "notification-service.email.send_reset_password_email_data"  # noqa: S105
     )
+
+    prepare_inactive_users = "notification-service.email.prepare_inactive_users"
+    prepare_newest_movies = "notification-service.email.prepare_newest_movies"
+    send_spam_email = "notification-service.email.send-spam-email"

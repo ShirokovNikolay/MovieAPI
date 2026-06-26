@@ -43,3 +43,36 @@ class SendEmail(BaseModel):
     subject: str
     to_email: EmailStr
     body: str
+
+
+class UserEmailSendData(BaseModel):
+    """
+    Модель для отправки данных в фоновую задачу по отправке напоминаний о сервисе.
+    """
+
+    email: EmailStr
+    name: str
+
+
+class UserEmailSendDataList(BaseModel):
+    """
+    Список пользователь для массовой рассылки напоминаний о сервисе.
+    """
+
+    user_list: list[UserEmailSendData]
+
+
+class MovieEmailSendData(BaseModel):
+    """
+    Модель для данных о фильме, которые будут упоминаться в спам письме.
+    """
+
+    name: str
+
+
+class MovieEmailSendDataList(BaseModel):
+    """
+    Модель для данных о фильмах, которые будут упоминаться в спам письме.
+    """
+
+    movie_list: list[MovieEmailSendData]
