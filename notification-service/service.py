@@ -1,7 +1,11 @@
 from email.message import EmailMessage
 
 from aiosmtplib import SMTP
-from packages.schemas import MovieEmailSendDataList, UserEmailSendDataList
+from packages.schemas import (
+    MovieEmailSendDataList,
+    UserEmailSendData,
+    UserEmailSendDataList,
+)
 from pydantic import EmailStr
 
 from core.config import settings
@@ -159,6 +163,8 @@ class EmailService:
         Код подтверждения действует 60 секунд.
 
         Если вы не запрашивали восстановление, просто проигнорируйте это письмо.
+        
+        — Команда MovieAPI
         """
         # ruff: enable[W293]
         await cls.send_email(
@@ -171,20 +177,63 @@ class EmailService:
         )
 
     @classmethod
+    async def send_user_reminder_email(
+        cls,
+        user: UserEmailSendData,
+        subject_template: str,
+        body_template: str,
+        **kwargs,
+    ) -> None:
+        await cls.send_email(
+            subject=subject_template.format(name=kwargs["name"]),
+            body=body_template.format(name=kwargs["name"]),
+            to_email=user.email,
+        )
+
+    @classmethod
     async def send_reminder_email(
         cls,
         movie_data_list: MovieEmailSendDataList,
         user_data_list: UserEmailSendDataList,
     ) -> None:
-        subject = "Проверка работы!"
+        subject_template = "{name}, мы по вам соскучились! 🎬 Готовы зажечь экран?"
+
         body_template = """
-        Данное сообщение предназначено для пользователя {name}!
+        Привет, {name}!
+
+        Давно не виделись. Мы заметили, что вы уже целую вечность не заглядывали 
+        
+        в наш кинотеатр, а ведь без вашего мнения обсуждения стали тише...
+        
+        Чтобы исправить это, мы подготовили для вас персональную подборку из
+        
+        свежих новинок, которые вышли совсем недавно. Мы уверены, что среди них 
+        
+        есть тот самый фильм, ради которого стоит устроить уютный вечер с пледом и попкорном.
+        
+        Ваша эксклюзивная подборка новинок:
+        
         """
-        print("user_data_list", user_data_list)
-        print("movie_data_list", movie_data_list)
+
+        movie_template = """
+        {number}) {movie_name}
+        
+        """
+        movies_body = "".join(
+            [
+                movie_template.format(
+                    number=i + 1,
+                    movie_name=movie.name,
+                )
+                for i, movie in enumerate(movie_data_list.movie_list)
+            ],
+        )
+        author_message = "— Команда MovieAPI"
+        body_template += movies_body + author_message
         for user in user_data_list.user_list:
-            await cls.send_email(
-                subject=subject,
-                body=body_template.format(name=user.name),
-                to_email=user.email,
+            await cls.send_user_reminder_email(
+                user,
+                subject_template,
+                body_template,
+                name=user.name,
             )
