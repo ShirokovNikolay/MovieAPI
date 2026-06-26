@@ -12,7 +12,7 @@ app = Celery(
 app.conf.beat_schedule = {
     "run-spam-every-30-seconds": {
         "task": TaskType.create_chain_user_reminder.value,
-        "schedule": 30,
+        "schedule": 5,
         "options": {"queue": Queue.app},
     },
 }
