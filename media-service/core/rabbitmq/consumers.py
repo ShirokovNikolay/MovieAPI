@@ -1,5 +1,5 @@
 from aio_pika import IncomingMessage
-from packages.constants import S3Bucket
+from packages.minio.constants import S3Bucket
 from packages.rabbitmq.constants import Exchange, ExchangeType, Queue
 from packages.rabbitmq.utils import create_message, get_message, get_rabbitmq_service
 

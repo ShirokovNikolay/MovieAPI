@@ -1,28 +1,11 @@
 from datetime import datetime
-from typing import Annotated, ClassVar
+from typing import ClassVar
 
-from annotated_types import MaxLen
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
-from core.constants import (
-    REVIEW_RATING_MAX_VALUE,
-    REVIEW_RATING_MIN_VALUE,
-    REVIEW_TEXT_MAX_LENGTH,
-)
+from schemas.constraints.review import RatingConstraint, ReviewTextConstraint
 from schemas.movie import MovieResponse
 from schemas.user import UserResponse
-
-ReviewTextConstraint = Annotated[
-    str,
-    MaxLen(max_length=REVIEW_TEXT_MAX_LENGTH),
-]
-RatingConstraint = Annotated[
-    int,
-    Field(
-        ge=REVIEW_RATING_MIN_VALUE,
-        le=REVIEW_RATING_MAX_VALUE,
-    ),
-]
 
 
 class ReviewBase(BaseModel):

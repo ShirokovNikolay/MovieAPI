@@ -1,26 +1,8 @@
-from typing import Annotated, ClassVar
+from typing import ClassVar
 
-from annotated_types import Len, MaxLen
 from pydantic import BaseModel, ConfigDict
 
-from core.constants import (
-    GENRE_DESCRIPTION_MAX_LENGTH,
-    GENRE_NAME_MAX_LENGTH,
-    GENRE_NAME_MIN_LENGTH,
-)
-
-NameConstraint = Annotated[
-    str,
-    Len(
-        min_length=GENRE_NAME_MIN_LENGTH,
-        max_length=GENRE_NAME_MAX_LENGTH,
-    ),
-]
-
-DescriptionConstraint = Annotated[
-    str,
-    MaxLen(max_length=GENRE_DESCRIPTION_MAX_LENGTH),
-]
+from schemas.constraints.genre import DescriptionConstraint, NameConstraint
 
 
 class GenreBase(BaseModel):

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from packages.schemas import SendEmail
+from packages.schemas.notification import SendEmailRequest
 
 from service import EmailService
 
@@ -21,7 +21,7 @@ async def send_welcome_email_message(
 
 @router.post("/send-email")
 async def send_email(
-    email_data: SendEmail,
+    email_data: SendEmailRequest,
 ) -> None:
     await EmailService.send_email(
         subject=email_data.subject,

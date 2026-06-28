@@ -67,6 +67,7 @@ class ConfirmationCodeType(StrEnum):
 
 ATTEMPT_FIELD = "attempt"
 MAX_CONFIRM_CODE_ATTEMPTS = 5
+CONFIRMATION_CODE_LENGTH = 6
 
 TOKEN_TYPE_FIELD = "type"
 LOGIN_FIELD = "login"

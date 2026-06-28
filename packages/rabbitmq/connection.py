@@ -11,7 +11,7 @@ RABBIT_MQ_CONNECTION = None
 async def rabbitmq_connection_startup() -> None:
     global RABBIT_MQ_CONNECTION  # noqa: PLW0603
     RABBIT_MQ_CONNECTION = await aio_pika.connect_robust(
-        url=settings.rabbitmq.rabbitmq_url,
+        url=settings.rabbitmq.url,
     )
 
 

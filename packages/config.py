@@ -12,7 +12,7 @@ class RabbitMQConfig(BaseModel):
     password: str = "guest"  # noqa: S105
 
     @property
-    def rabbitmq_url(self) -> str:
+    def url(self) -> str:
         return f"amqp://{self.username}:{self.password}@{self.host}:{self.port}/%2f"
 
 

@@ -1,6 +1,6 @@
-import asyncio
 
 from packages.celery.constants import TaskType
+from packages.celery.utils import sync_run_coroutine_function
 
 from core.minio.utils import get_minio_service
 
@@ -19,6 +19,6 @@ def delete_temporary_file(bucket_name: str, object_name: str) -> None:
                     key=object_name,
                 )
 
-    asyncio.run(
+    sync_run_coroutine_function(
         async_delete_temporary_file(),
     )

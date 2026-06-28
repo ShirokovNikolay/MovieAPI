@@ -1,17 +1,7 @@
-from typing import Annotated
-
-from annotated_types import Len
 from pydantic import BaseModel, EmailStr
 
-from schemas.user import LoginConstraint, PasswordConstraint
-
-ConfirmationCodeConstraint = Annotated[
-    str,
-    Len(
-        min_length=6,
-        max_length=6,
-    ),
-]
+from schemas.constraints.auth import ConfirmationCodeConstraint
+from schemas.constraints.user import LoginConstraint, PasswordConstraint
 
 
 class UserLogin(BaseModel):

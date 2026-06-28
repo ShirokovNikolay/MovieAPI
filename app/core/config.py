@@ -90,6 +90,26 @@ class JWTConfig(BaseModel):
     reset_password: ResetPasswordJWTConfig = ResetPasswordJWTConfig()
 
 
+class ScheduleConfig(BaseModel):
+    minute: str | int = "*"
+    hour: str | int = "*"
+    day_of_week: str | int = "*"
+    day_of_month: str | int = "*"
+    month_of_year: str | int = "*"
+
+
+class CeleryBeatConfig(BaseModel):
+    notify_inactive_users_with_movie_picks: ScheduleConfig = ScheduleConfig(
+        day_of_week="sun",
+        hour=16,
+        minute=0,
+    )
+
+
+class CeleryConfig(BaseModel):
+    beat: CeleryBeatConfig = CeleryBeatConfig()
+
+
 class MediaServiceConfig(BaseModel):
     host: str = "media-service"
     port: int = 8000
@@ -114,6 +134,7 @@ class Settings(BaseSettings):
     redis: RedisConfig = RedisConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
     jwt: JWTConfig = JWTConfig()
+    celery: CeleryConfig = CeleryConfig()
     http_bearer: HTTPBearer = HTTPBearer()
     oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(
         "/api/v1/auth/login/",
