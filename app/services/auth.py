@@ -107,7 +107,7 @@ class AuthService:
                 email,
                 confirmation_code,
             ],
-            queue=Queue.notification.value,
+            queue=Queue.notification_service.value,
         )
 
     async def verify_register_user(
@@ -178,7 +178,7 @@ class AuthService:
                 email,
                 confirmation_code,
             ],
-            queue=Queue.notification.value,
+            queue=Queue.notification_service.value,
         )
 
     async def verify_authenticate_user(
@@ -311,7 +311,7 @@ class AuthService:
                 email,
                 confirmation_code,
             ],
-            queue=Queue.notification.value,
+            queue=Queue.notification_service.value,
         )
 
     async def verify_recover_account(

@@ -1,40 +1,18 @@
 from datetime import date
-from typing import Annotated, ClassVar
+from typing import ClassVar
 
-from annotated_types import Len, MaxLen
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from core.constants import (
-    MOVIE_DESCRIPTION_MAX_LENGTH,
-    MOVIE_NAME_MAX_LENGTH,
-    MOVIE_NAME_MIN_LENGTH,
-    MOVIE_RATING_MAX_VALUE,
-    MOVIE_RATING_MIN_VALUE,
     SortMonotony,
     SortType,
 )
+from schemas.constraints.movie import (
+    DescriptionConstraint,
+    NameConstraint,
+    RatingConstraint,
+)
 from schemas.genre import GenreResponse
-
-NameConstraint = Annotated[
-    str,
-    Len(
-        min_length=MOVIE_NAME_MIN_LENGTH,
-        max_length=MOVIE_NAME_MAX_LENGTH,
-    ),
-]
-
-DescriptionConstraint = Annotated[
-    str,
-    MaxLen(max_length=MOVIE_DESCRIPTION_MAX_LENGTH),
-]
-
-RatingConstraint = Annotated[
-    float,
-    Field(
-        ge=MOVIE_RATING_MIN_VALUE,
-        le=MOVIE_RATING_MAX_VALUE,
-    ),
-]
 
 
 class MovieBase(BaseModel):

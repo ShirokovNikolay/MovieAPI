@@ -216,7 +216,7 @@ services:
     command: uv run celery --app core.celery.celery_app worker -Q notification-service --loglevel=INFO
     develop:
       watch:
-        - path: notification-service
+        - path: ./notification-service
           action: sync+restart
           target: /notification-service
         - path: ./packages

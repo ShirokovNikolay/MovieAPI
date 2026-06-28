@@ -1,7 +1,8 @@
-import asyncio
-
 from packages.celery.constants import TaskType
-from packages.schemas import MovieEmailSendDataList, UserEmailSendDataList
+from packages.celery.utils import sync_run_coroutine_function
+from packages.schemas.notification import (
+    SendInactiveUsersMovieSelectionData,
+)
 from pydantic import EmailStr
 
 from core.celery.celery_app import app
@@ -12,7 +13,7 @@ from service import EmailService
     name=TaskType.send_welcome_email.value,
 )
 def send_welcome_email(email: str, name: str) -> None:
-    asyncio.run(
+    sync_run_coroutine_function(
         EmailService.send_welcome_email(
             email,
             name,
@@ -27,7 +28,7 @@ def send_confirm_registration_email(
     email: EmailStr,
     confirmation_code: str,
 ) -> None:
-    asyncio.run(
+    sync_run_coroutine_function(
         EmailService.send_confirm_registration_email(
             email,
             confirmation_code,
@@ -42,7 +43,7 @@ def send_confirm_login_email(
     email: EmailStr,
     confirmation_code: str,
 ) -> None:
-    asyncio.run(
+    sync_run_coroutine_function(
         EmailService.send_confirm_login_email(
             email=email,
             confirmation_code=confirmation_code,
@@ -58,7 +59,7 @@ def send_reset_password_email_data(
     email: EmailStr,
     confirmation_code: str,
 ) -> None:
-    asyncio.run(
+    sync_run_coroutine_function(
         EmailService.send_reset_password_email_data(
             login=login,
             email=email,
@@ -68,19 +69,20 @@ def send_reset_password_email_data(
 
 
 @app.task(  # type: ignore[untyped-decorator]
-    name=TaskType.send_inactive_user_reminder.value,
+    name=TaskType.send_inactive_users_email.value,
 )
-def send_spam_email(
-    data: list,
-) -> None:
-    user_data_list, movie_data_list = data
-    user_data = UserEmailSendDataList.model_validate(user_data_list)
-    movie_data = MovieEmailSendDataList.model_validate(movie_data_list)
-    loop = asyncio.new_event_loop()
-    loop.run_until_complete(
-        EmailService.send_reminder_email(
-            movie_data_list=movie_data,
-            user_data_list=user_data,
+def send_inactive_users_email(send_inactive_users_email_data: dict) -> None:
+    send_inactive_users_movie_selection_data = (
+        SendInactiveUsersMovieSelectionData.model_validate(
+            send_inactive_users_email_data,
+        )
+    )
+
+    inactive_users = send_inactive_users_movie_selection_data.inactive_users
+    movie_selection = send_inactive_users_movie_selection_data.movie_selection
+    sync_run_coroutine_function(
+        EmailService.send_inactive_users_email(
+            inactive_users=inactive_users,
+            movie_selection=movie_selection,
         ),
     )
-    loop.close()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, status
-from packages.constants import S3Bucket
-from packages.schemas import (
+from packages.minio.constants import S3Bucket
+from packages.schemas.media import (
     ConfirmUploadRequest,
     PresignUrlCreate,
     PresignUrlResponse,

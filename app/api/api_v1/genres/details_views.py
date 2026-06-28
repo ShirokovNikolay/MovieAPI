@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from packages.constants import S3Bucket
+from packages.minio.constants import S3Bucket
 
 from core.constants import BASE_MINIO_URL
 from dependencies.annotations.cache_services import GenreCacheServiceDep

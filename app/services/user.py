@@ -104,7 +104,7 @@ class UserService:
                 user.email,
                 user.name,
             ],
-            queue=Queue.notification.value,
+            queue=Queue.notification_service.value,
         )
         return UserResponse.model_validate(user)
 

@@ -4,8 +4,12 @@ from uuid import uuid4
 
 from fastapi import UploadFile
 from packages.celery.constants import Queue, TaskType
-from packages.constants import S3Bucket
-from packages.schemas import ConfirmUploadRequest, PresignUrlCreate, PresignUrlResponse
+from packages.minio.constants import S3Bucket
+from packages.schemas.media import (
+    ConfirmUploadRequest,
+    PresignUrlCreate,
+    PresignUrlResponse,
+)
 
 from core.celery.celery_app import app
 from core.config import settings
@@ -47,7 +51,7 @@ class MinioService:
                 object_name,
             ],
             countdown=settings.celery.delete_temporary_file_in,
-            queue=Queue.mediaservice.value,
+            queue=Queue.media_service.value,
         )
         return PresignUrlResponse(
             presign_url=presign_url.replace("minio", "localhost"),

@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
-from packages.schemas import PresignUrlCreate, PresignUrlResponse
+from packages.schemas.media import PresignUrlCreate, PresignUrlResponse
 
 from core.config import settings
 from core.constants import MethodType

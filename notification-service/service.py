@@ -1,10 +1,11 @@
 from email.message import EmailMessage
+from typing import Any
 
 from aiosmtplib import SMTP
-from packages.schemas import (
-    MovieEmailSendDataList,
-    UserEmailSendData,
-    UserEmailSendDataList,
+from packages.schemas.notification import (
+    InactiveUser,
+    InactiveUserList,
+    SelectedMovieList,
 )
 from pydantic import EmailStr
 
@@ -177,24 +178,25 @@ class EmailService:
         )
 
     @classmethod
-    async def send_user_reminder_email(
+    async def send_inactive_user_email(
         cls,
-        user: UserEmailSendData,
+        user: InactiveUser,
         subject_template: str,
         body_template: str,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
+        name = kwargs["name"]
         await cls.send_email(
-            subject=subject_template.format(name=kwargs["name"]),
-            body=body_template.format(name=kwargs["name"]),
+            subject=subject_template.format(name=name),
+            body=body_template.format(name=name),
             to_email=user.email,
         )
 
     @classmethod
-    async def send_reminder_email(
+    async def send_inactive_users_email(
         cls,
-        movie_data_list: MovieEmailSendDataList,
-        user_data_list: UserEmailSendDataList,
+        inactive_users: InactiveUserList,
+        movie_selection: SelectedMovieList,
     ) -> None:
         subject_template = "{name}, мы по вам соскучились! 🎬 Готовы зажечь экран?"
 
@@ -225,13 +227,13 @@ class EmailService:
                     number=i + 1,
                     movie_name=movie.name,
                 )
-                for i, movie in enumerate(movie_data_list.movie_list)
+                for i, movie in enumerate(movie_selection.selected_movie_list)
             ],
         )
         author_message = "— Команда MovieAPI"
         body_template += movies_body + author_message
-        for user in user_data_list.user_list:
-            await cls.send_user_reminder_email(
+        for user in inactive_users.inactive_user_list:
+            await cls.send_inactive_user_email(
                 user,
                 subject_template,
                 body_template,
