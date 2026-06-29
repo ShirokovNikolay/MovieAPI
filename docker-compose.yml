@@ -185,6 +185,42 @@ services:
       timeout: 2s
       retries: 5
 
+  celery-beat-app:
+    build:
+      context: ./
+      dockerfile: app/Dockerfile
+    container_name: celery-beat-app
+    command: uv run celery --app core.celery.celery_app beat --loglevel=INFO
+    develop:
+      watch:
+        - path: ./app
+          action: sync+restart
+          target: /app
+        - path: ./packages
+          action: sync+restart
+          target: /app/packages
+    depends_on:
+      celery-worker-notification-service:
+        condition: service_started
+
+  celery-worker-app:
+    build:
+      context: ./
+      dockerfile: app/Dockerfile
+    container_name: celery-worker-app
+    command: uv run celery --app core.celery.celery_app worker -Q movie-catalog --loglevel=INFO
+    develop:
+      watch:
+        - path: ./app
+          action: sync+restart
+          target: /app
+        - path: ./packages
+          action: sync+restart
+          target: /app/packages
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   celery-worker-media-service:
     build:
       context: .
@@ -226,42 +262,6 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  celery-worker-app:
-    build:
-      context: ./
-      dockerfile: app/Dockerfile
-    container_name: celery-worker-app
-    command: uv run celery --app core.celery.celery_app worker -Q movie-catalog --loglevel=INFO
-    develop:
-      watch:
-        - path: ./app
-          action: sync+restart
-          target: /app
-        - path: ./packages
-          action: sync+restart
-          target: /app/packages
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-
-  celery-beat-app:
-    build:
-      context: ./
-      dockerfile: app/Dockerfile
-    container_name: celery-beat-app
-    command: uv run celery --app core.celery.celery_app beat --loglevel=INFO
-    develop:
-      watch:
-        - path: ./app
-          action: sync+restart
-          target: /app
-        - path: ./packages
-          action: sync+restart
-          target: /app/packages
-    depends_on:
-      celery-worker-notification-service:
-        condition: service_started
-
   maildev:
     image: maildev/maildev
     container_name: maidev
@@ -280,11 +280,24 @@ services:
     ports:
       - "5050:80"
 
-  redis_gui:
+  redis-gui:
     image: redis/redisinsight
     container_name: redis_gui
     ports:
       - "5540:5540"
+
+  celery-flower:
+    image: mher/flower
+    container_name: celery-flower
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672/%2f
+      - FLOWER_BASIC_AUTH=admin:admin
+    ports:
+      - "5555:5555"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 
 volumes:
   postgres-data:
