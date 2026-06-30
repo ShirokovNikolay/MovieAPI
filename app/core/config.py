@@ -33,6 +33,7 @@ class RedisDataBaseConfig(BaseModel):
     favorite_movies: int = 5
     watch_history: int = 6
     auth: int = 7
+    celery_backend: int = 8
 
 
 class RedisConfig(BaseModel):
@@ -108,6 +109,7 @@ class CeleryBeatConfig(BaseModel):
 
 class CeleryConfig(BaseModel):
     beat: CeleryBeatConfig = CeleryBeatConfig()
+    base_dir: Path = Path(__file__).parent.parent / ".core" / "celery" / "celery_app"
 
 
 class MediaServiceConfig(BaseModel):
@@ -123,13 +125,9 @@ class NotificationServiceConfig(BaseModel):
     host: str = "notification-service"
     port: int = 8000
 
-    @property
-    def send_email_endpoint(self) -> str:
-        return f"http://{self.host}:{self.port}/api/v1/send-email"
-
 
 class Settings(BaseSettings):
-    BASE_DIR: Path = Path(__file__).parent.parent
+    base_dir: Path = Path(__file__).parent.parent
     database: DataBaseConfig = DataBaseConfig()
     redis: RedisConfig = RedisConfig()
     rabbitmq: RabbitMQConfig = RabbitMQConfig()
@@ -145,7 +143,7 @@ class Settings(BaseSettings):
 
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         case_sensitive=False,
-        env_file=BASE_DIR / ".env",
+        env_file=base_dir / ".env",
         env_nested_delimiter="__",
     )
 

@@ -1,9 +1,11 @@
 from celery import Celery
 from packages.config import settings as package_settings
 
+from core.constants import CELERY_APP_MODULE, CELERY_TASKS_MODULES
+
 app = Celery(
-    "core.celery.celery_app",
+    CELERY_APP_MODULE,
     broker=package_settings.rabbitmq.url,
-    backend="redis://redis:6379/0",
-    include=["core.celery.tasks"],
+    backend=package_settings.redis.url,
+    include=CELERY_TASKS_MODULES,
 )
