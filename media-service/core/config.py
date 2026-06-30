@@ -23,12 +23,12 @@ class CeleryConfig(BaseModel):
 
 
 class Settings(BaseSettings):
-    BASE_DIR: Path = Path(__file__).parent.parent
+    base_dir: Path = Path(__file__).parent.parent
     minio: MinioConfig = MinioConfig()
     celery: CeleryConfig = CeleryConfig()
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         case_sensitive=False,
-        env_file=BASE_DIR / ".env",
+        env_file=base_dir / ".env",
         env_nested_delimiter="__",
     )
 
