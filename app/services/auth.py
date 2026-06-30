@@ -102,7 +102,7 @@ class AuthService:
             confirmation_code_type=ConfirmationCodeType.registration,
         )
         app.send_task(
-            name=TaskType.send_confirm_registration_email.value,
+            name=TaskType.send_registration_confirmation_code_email.value,
             args=[
                 email,
                 confirmation_code,
@@ -173,7 +173,7 @@ class AuthService:
             confirmation_code_type=ConfirmationCodeType.two_factor_auth,
         )
         app.send_task(
-            name=TaskType.send_confirm_login_email.value,
+            name=TaskType.send_auth_confirmation_code_email.value,
             args=[
                 email,
                 confirmation_code,
@@ -305,7 +305,7 @@ class AuthService:
             confirmation_code_type=ConfirmationCodeType.recover_password,
         )
         app.send_task(
-            name=TaskType.send_reset_password_email_data.value,
+            name=TaskType.send_reset_password_confirmation_code_email.value,
             args=[
                 login,
                 email,

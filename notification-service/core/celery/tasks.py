@@ -22,14 +22,14 @@ def send_welcome_email(email: str, name: str) -> None:
 
 
 @app.task(  # type: ignore[untyped-decorator]
-    name=TaskType.send_confirm_registration_email.value,
+    name=TaskType.send_registration_confirmation_code_email.value,
 )
-def send_confirm_registration_email(
+def send_registration_confirmation_code_email(
     email: EmailStr,
     confirmation_code: str,
 ) -> None:
     sync_run_coroutine_function(
-        EmailService.send_confirm_registration_email(
+        EmailService.send_registration_confirmation_code_email(
             email,
             confirmation_code,
         ),
@@ -37,14 +37,14 @@ def send_confirm_registration_email(
 
 
 @app.task(  # type: ignore[untyped-decorator]
-    name=TaskType.send_confirm_login_email.value,
+    name=TaskType.send_auth_confirmation_code_email.value,
 )
-def send_confirm_login_email(
+def send_auth_confirmation_code_email(
     email: EmailStr,
     confirmation_code: str,
 ) -> None:
     sync_run_coroutine_function(
-        EmailService.send_confirm_login_email(
+        EmailService.send_auth_confirmation_code_email(
             email=email,
             confirmation_code=confirmation_code,
         ),
@@ -52,15 +52,15 @@ def send_confirm_login_email(
 
 
 @app.task(  # type: ignore[untyped-decorator]
-    name=TaskType.send_reset_password_email_data.value,
+    name=TaskType.send_reset_password_confirmation_code_email.value,
 )
-def send_reset_password_email_data(
+def send_reset_password_confirmation_code_email(
     login: str,
     email: EmailStr,
     confirmation_code: str,
 ) -> None:
     sync_run_coroutine_function(
-        EmailService.send_reset_password_email_data(
+        EmailService.send_reset_password_confirmation_code_email(
             login=login,
             email=email,
             confirmation_code=confirmation_code,
