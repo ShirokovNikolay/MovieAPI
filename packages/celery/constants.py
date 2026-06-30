@@ -10,14 +10,13 @@ class Queue(StrEnum):
 class TaskType(StrEnum):
     delete_temporary_file = "media-service.media.delete_temporary_file"
     send_welcome_email = "notification-service.email.send-welcome-email"
-    send_confirm_registration_email = (
-        "notification-service.email.send-confirm-registration-email"
+    send_registration_confirmation_code_email = (
+        "notification-service.email.send-registration-confirmation-code-email"
     )
-    send_confirm_login_email = "notification-service.email.confirm-login-email"
-    send_reset_password_email_data = (
-        "notification-service.email.send_reset_password_email_data"  # noqa: S105
+    send_auth_confirmation_code_email = (
+        "notification-service.email.send_auth_confirmation_code_email"
     )
-
+    send_reset_password_confirmation_code_email = "notification-service.email.send_reset_password_confirmation_code_email"  # noqa: S105
     create_chain_to_notify_inactive_users = (
         "movie-catalog.celery.create_chain_to_notify_inactive_users"
     )
