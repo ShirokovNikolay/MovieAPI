@@ -71,7 +71,7 @@ def send_reset_password_confirmation_code_email(
 @app.task(  # type: ignore[untyped-decorator]
     name=TaskType.send_inactive_users_email.value,
 )
-def send_inactive_users_email(send_inactive_users_email_data: dict) -> None:
+def send_inactive_users_email(send_inactive_users_email_data: dict) -> None:  # type: ignore[type-arg]
     send_inactive_users_movie_selection_data = (
         SendInactiveUsersMovieSelectionData.model_validate(
             send_inactive_users_email_data,

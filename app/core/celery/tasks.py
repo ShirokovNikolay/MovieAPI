@@ -6,17 +6,17 @@ from .celery_app import app
 from .utils import get_data_to_send_inactive_users_movie_selection
 
 
-@app.task(
+@app.task(  # type: ignore[untyped-decorator]
     name=TaskType.get_data_to_send_inactive_users_email.value,
 )
-def get_data_to_send_inactive_users_email() -> dict:
+def get_data_to_send_inactive_users_email() -> dict:  # type: ignore[type-arg]
     send_inactive_users_email_data = sync_run_coroutine_function(
         get_data_to_send_inactive_users_movie_selection(),
     )
-    return send_inactive_users_email_data.model_dump()
+    return send_inactive_users_email_data.model_dump()  # type: ignore[no-any-return]
 
 
-@app.task(
+@app.task(  # type: ignore[untyped-decorator]
     name=TaskType.create_chain_to_notify_inactive_users.value,
 )
 def create_chain_to_notify_inactive_users() -> None:

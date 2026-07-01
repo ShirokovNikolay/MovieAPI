@@ -129,11 +129,12 @@ class AuthService:
         )
         key_list = [ConfirmationCodeType.registration.value, token]
         key = ":".join(key_list)
-        user_create_data_json = await self.auth_redis_service.get(
+        user_create_data = await self.auth_redis_service.get(
             key=key,
+            schema=UserCreate,
         )
-        user_create_data = UserCreate.model_validate_json(user_create_data_json)
-        user = await self.user_service.create_user(user_create_data)
+        # user_create_data = UserCreate.model_validate_json(user_create_data_json)
+        user = await self.user_service.create_user(cast(UserCreate, user_create_data))
         await self.auth_redis_service.delete(key)
         return create_auth_token(user)
 

@@ -7,7 +7,6 @@ from core.security.password_utils import hash_password
 from schemas.user import (
     UserResponse,
     UserBase,
-    UserCreate,
     UserUpdate,
     UserResponseList,
     UserPartialUpdate,
@@ -38,7 +37,6 @@ from tests.utils.data_generators.user import (
     "schema",
     [
         UserBase,
-        UserCreate,
         UserUpdate,
         UserPartialUpdate,
         UserResponse,
@@ -138,7 +136,6 @@ class TestUser:
 @pytest.mark.parametrize(
     "schema",
     [
-        UserCreate,
         UserUpdate,
     ],
 )
