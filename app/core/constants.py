@@ -36,7 +36,7 @@ BASE_MINIO_URL = "http://localhost:9000"
 
 AnyPydanticType = TypeVar("AnyPydanticType", bound=BaseModel)
 
-PrimitiveType = int | str | bool
+PrimitiveType = int | float | str | bool
 
 
 class UserRole(StrEnum):
@@ -67,6 +67,8 @@ class ConfirmationCodeType(StrEnum):
     two_factor_auth = "two_factor_auth"
     recover_password = "recover"
 
+
+INACTIVE_DAYS = 7
 
 ATTEMPT_FIELD = "attempt"
 MAX_CONFIRM_CODE_ATTEMPTS = 5

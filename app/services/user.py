@@ -69,10 +69,10 @@ class UserService:
             page=page,
         )
 
-    async def get_inactive_users(self) -> UserResponseList:
+    async def get_inactive_users(self, days: int) -> UserResponseList:
         users = [
             UserResponse.model_validate(user)
-            for user in await self.user_repository.get_inactive_users()
+            for user in await self.user_repository.get_inactive_users(days=days)
         ]
         return UserResponseList(
             user_list=users,

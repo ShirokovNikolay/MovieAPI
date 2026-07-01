@@ -28,7 +28,7 @@ class WatchHistoryCacheService:
         )
         cached_watch_history_response = await self.cache_service.get(
             key,
-            WatchHistoryWithMovieResponse,
+            schema=WatchHistoryWithMovieResponse,
         )
         if cached_watch_history_response is not None:
             return cast(WatchHistoryWithMovieResponse, cached_watch_history_response)

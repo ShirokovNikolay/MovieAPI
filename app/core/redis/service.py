@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 from core.constants import AnyPydanticType, PrimitiveType
 from core.redis.client import RedisClient
@@ -11,7 +11,7 @@ class RedisService:
     async def get(
         self,
         key: str,
-        schema: AnyPydanticType | None = None,
+        schema: type[AnyPydanticType] | None = None,
         is_integer: bool = False,
         is_float: bool = False,
         is_boolean: bool = False,
@@ -33,11 +33,11 @@ class RedisService:
     async def _get_schema(
         self,
         key: str,
-        schema: AnyPydanticType,
+        schema: type[AnyPydanticType],
     ) -> AnyPydanticType | None:
         value = await self.redis.get(key)
         if value is not None:
-            return self.convert_string_to_object(value, schema)
+            return cast(AnyPydanticType, self.convert_string_to_object(value, schema))
         return None
 
     async def _get_integer(self, key: str) -> int | None:
@@ -86,10 +86,12 @@ class RedisService:
         return ":".join(result)
 
     @staticmethod
-    def convert_string_to_object(value: str | int, schema: Any) -> Any:
+    def convert_string_to_object(
+        value: str | int, schema: type[AnyPydanticType],
+    ) -> AnyPydanticType | PrimitiveType:
         if schema is None:
             return value
-        return schema.model_validate_json(value)
+        return schema.model_validate_json(cast(str, value))
 
     @staticmethod
     def convert_object_to_string(value: Any) -> Any:

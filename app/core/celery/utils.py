@@ -9,14 +9,14 @@ from packages.schemas.notification import (
     SendInactiveUsersMovieSelectionData,
 )
 
-from core.constants import SortMonotony, SortType
+from core.constants import INACTIVE_DAYS, SortMonotony, SortType
 from core.rabbitmq.utils import get_movie_service, get_user_service
 from schemas.movie import MovieFilter
 
 
-async def get_inactive_users() -> InactiveUserList:
+async def get_inactive_users(days: int) -> InactiveUserList:
     async with get_user_service() as user_service:
-        inactive_users = await user_service.get_inactive_users()
+        inactive_users = await user_service.get_inactive_users(days=days)
         inactive_user_list = [
             InactiveUser(
                 name=user.name,
@@ -56,7 +56,7 @@ async def get_data_to_send_inactive_users_movie_selection() -> (
     SendInactiveUsersMovieSelectionData
 ):
     inactive_users, movie_selection = await gather(
-        get_inactive_users(),
+        get_inactive_users(days=INACTIVE_DAYS),
         get_movie_selection(),
     )
     return SendInactiveUsersMovieSelectionData(
