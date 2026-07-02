@@ -30,4 +30,4 @@ def create_chain_to_notify_inactive_users() -> None:
         ),
         send_inactive_users_email,
     )
-    task_chain.apply_async()
+    task_chain.delay()
