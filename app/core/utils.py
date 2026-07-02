@@ -26,6 +26,13 @@ async def get_session() -> AsyncGenerator[AsyncSession]:
 
 
 @asynccontextmanager
+async def get_user_service() -> AsyncGenerator[UserService]:
+    async with get_session() as session:
+        user_service = UserService(session)
+        yield user_service
+
+
+@asynccontextmanager
 async def get_genre_service() -> AsyncGenerator[GenreService]:
     async with get_session() as session, get_rabbitmq_service() as rabbitmq_service:
         genre_service = GenreService(session, rabbitmq_service)
@@ -39,23 +46,10 @@ async def get_genre_redis_client() -> AsyncGenerator[RedisClient]:
 
 
 @asynccontextmanager
-async def get_watch_history_redis_client() -> AsyncGenerator[RedisClient]:
-    async for redis_client in get_watch_history_redis_client_dependency():
-        yield redis_client
-
-
-@asynccontextmanager
 async def get_genre_redis_service() -> AsyncGenerator[RedisService]:
     async with get_genre_redis_client() as redis_client:
         redis_service = RedisService(redis_client)
         yield redis_service
-
-
-@asynccontextmanager
-async def get_watch_history_redis_service() -> AsyncGenerator[RedisService]:
-    async with get_watch_history_redis_client() as redis_client:
-        cache_service = RedisService(redis_client)
-        yield cache_service
 
 
 @asynccontextmanager
@@ -89,6 +83,19 @@ async def get_movie_redis_service() -> AsyncGenerator[RedisService]:
 
 
 @asynccontextmanager
+async def get_watch_history_redis_client() -> AsyncGenerator[RedisClient]:
+    async for redis_client in get_watch_history_redis_client_dependency():
+        yield redis_client
+
+
+@asynccontextmanager
+async def get_watch_history_redis_service() -> AsyncGenerator[RedisService]:
+    async with get_watch_history_redis_client() as redis_client:
+        cache_service = RedisService(redis_client)
+        yield cache_service
+
+
+@asynccontextmanager
 async def get_movie_cache_service() -> AsyncGenerator[MovieCacheService]:
     async with (
         get_movie_service() as movie_service,
@@ -101,10 +108,3 @@ async def get_movie_cache_service() -> AsyncGenerator[MovieCacheService]:
             cache_service_for_watch_history,
         )
         yield movie_cache_service
-
-
-@asynccontextmanager
-async def get_user_service() -> AsyncGenerator[UserService]:
-    async with get_session() as session:
-        user_service = UserService(session)
-        yield user_service

@@ -7,7 +7,7 @@ from packages.rabbitmq.utils import create_message, get_message
 
 from cache_services import GenreCacheService, MovieCacheService
 from core.constants import AnyPydanticType
-from core.rabbitmq.utils import get_genre_cache_service, get_movie_cache_service
+from core.utils import get_genre_cache_service, get_movie_cache_service
 from schemas.genre import GenrePartialUpdate
 from schemas.movie import MoviePartialUpdate
 

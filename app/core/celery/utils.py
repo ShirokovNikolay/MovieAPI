@@ -10,7 +10,7 @@ from packages.schemas.notification import (
 )
 
 from core.constants import INACTIVE_DAYS, SortMonotony, SortType
-from core.rabbitmq.utils import get_movie_service, get_user_service
+from core.utils import get_movie_service, get_user_service
 from schemas.movie import MovieFilter
 
 

@@ -1,4 +1,5 @@
-import random
+import asyncio
+import secrets
 from typing import cast
 
 from packages.celery.constants import Queue, TaskType
@@ -133,7 +134,6 @@ class AuthService:
             key=key,
             schema=UserCreate,
         )
-        # user_create_data = UserCreate.model_validate_json(user_create_data_json)
         user = await self.user_service.create_user(cast(UserCreate, user_create_data))
         await self.auth_redis_service.delete(key)
         return create_auth_token(user)
@@ -238,36 +238,48 @@ class AuthService:
             is_integer=True,
         )
         if count_confirm_code_attempts == MAX_CONFIRM_CODE_ATTEMPTS:
-            await self.auth_redis_service.delete(key)
-            await self.auth_redis_service.delete(attempt_counter_key)
+            await asyncio.gather(
+                self.auth_redis_service.delete(key),
+                self.auth_redis_service.delete(attempt_counter_key),
+            )
 
         if confirmation_code != sent_confirmation_code:
             raise InvalidEmailConfirmationCodeError(
                 email=email,
                 confirmation_code=confirmation_code,
             )
+        await self.auth_redis_service.delete(key)
+
+    @staticmethod
+    def generate_confirmation_code() -> str:
+        confirmation_code_list = [str(secrets.randbelow(10)) for _ in range(6)]
+        confirmation_code = "".join(confirmation_code_list)
+        return confirmation_code
 
     async def create_confirmation_code(
         self,
         email: EmailStr,
         confirmation_code_type: ConfirmationCodeType,
     ) -> str:
-        confirmation_code = "".join(
-            [str(random.randint(0, 9)) for _ in range(6)],  # noqa: S311
-        )
+        confirmation_code = self.generate_confirmation_code()
         key_list = [confirmation_code_type.value, email]
         key = ":".join(key_list)
         attempt_counter_key_list = [key, ATTEMPT_FIELD]
         attempt_counter_key = ":".join(attempt_counter_key_list)
-        await self.auth_redis_service.set(
+
+        set_confirmation_code = self.auth_redis_service.set(
             key=key,
             value=confirmation_code,
             ttl=60,
         )
-        await self.auth_redis_service.set(
+        set_confirmation_code_attempt_counter = self.auth_redis_service.set(
             key=attempt_counter_key,
             value=0,
             ttl=60,
+        )
+        await asyncio.gather(
+            set_confirmation_code,
+            set_confirmation_code_attempt_counter,
         )
         return confirmation_code
 
