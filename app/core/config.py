@@ -127,6 +127,7 @@ class NotificationServiceConfig(BaseModel):
 
 
 class Settings(BaseSettings):
+    service_name: str = "movie-catalog"
     base_dir: Path = Path(__file__).parent.parent
     database: DataBaseConfig = DataBaseConfig()
     redis: RedisConfig = RedisConfig()
