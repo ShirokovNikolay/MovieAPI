@@ -36,12 +36,12 @@ async def get_genres(
     ],
 )
 async def search_genres_by_name(
-    genre_name: str,
+    search_query: str,
     genre_cache_service: GenreCacheServiceDep,
     size: PaginationSizeDep = 10,
     page: PaginationPageDep = 1,
 ) -> GenreResponseList:
-    return await genre_cache_service.search_genres_by_name(genre_name, size, page)
+    return await genre_cache_service.search_genres_by_name(search_query, size, page)
 
 
 @router.post(

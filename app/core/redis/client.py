@@ -38,7 +38,12 @@ class RedisClient:
     async def exists(self, key: str) -> bool:
         return cast(bool, await self._redis.exists(key))
 
-    async def set(self, key: str, value: str | int, expire: int) -> None:
+    async def set(
+        self,
+        key: str,
+        value: str | int,
+        expire: int | None = None,
+    ) -> None:
         await self._redis.set(
             key,
             value,

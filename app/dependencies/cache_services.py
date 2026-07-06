@@ -11,6 +11,7 @@ from cache_services import (
     UserCacheService,
 )
 from cache_services.watch_history import WatchHistoryCacheService
+from core.redis.cache_key_service import CacheKeyService
 from core.redis.service import RedisService
 from dependencies.redis_services import (
     get_favorite_movie_redis_service,
@@ -49,7 +50,12 @@ async def get_genre_cache_service(
     ],
 ) -> AsyncGenerator[GenreCacheService]:
     try:
-        genre_cache_service = GenreCacheService(genre_service, genre_redis_service)
+        cache_key_service = CacheKeyService(genre_redis_service)
+        genre_cache_service = GenreCacheService(
+            genre_service,
+            genre_redis_service,
+            cache_key_service,
+        )
         yield genre_cache_service
     finally:
         """

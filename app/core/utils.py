@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from cache_services import GenreCacheService, MovieCacheService
 from core.database import session_factory
 from core.redis import RedisClient, RedisService
+from core.redis.cache_key_service import CacheKeyService
 from dependencies.redis_client import (
     get_genre_redis_client as get_genre_redis_client_dependency,
 )
@@ -56,9 +57,14 @@ async def get_genre_redis_service() -> AsyncGenerator[RedisService]:
 async def get_genre_cache_service() -> AsyncGenerator[GenreCacheService]:
     async with (
         get_genre_service() as genre_service,
-        get_genre_redis_service() as cache_service,
+        get_genre_redis_service() as redis_service,
     ):
-        genre_cache_service = GenreCacheService(genre_service, cache_service)
+        cache_key_service = CacheKeyService(redis_service)
+        genre_cache_service = GenreCacheService(
+            genre_service,
+            redis_service,
+            cache_key_service,
+        )
         yield genre_cache_service
 
 

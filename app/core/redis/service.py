@@ -59,7 +59,12 @@ class RedisService:
             return boolean[value]
         return None
 
-    async def set(self, key: str, value: Any, ttl: int = 300) -> None:
+    async def set(
+        self,
+        key: str,
+        value: Any,
+        ttl: int | None = None,
+    ) -> None:
         encoded_value = self.convert_object_to_string(value)
         await self.redis.set(key, encoded_value, ttl)
 
@@ -87,7 +92,8 @@ class RedisService:
 
     @staticmethod
     def convert_string_to_object(
-        value: str | int, schema: type[AnyPydanticType],
+        value: str | int,
+        schema: type[AnyPydanticType],
     ) -> AnyPydanticType | PrimitiveType:
         if schema is None:
             return value
