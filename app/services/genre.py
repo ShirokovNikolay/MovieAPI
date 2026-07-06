@@ -55,14 +55,14 @@ class GenreService:
 
     async def search_genres_by_name(
         self,
-        name: str,
+        search_query: str,
         size: int = 10,
         page: int = 1,
     ) -> GenreResponseList:
         genre_list = [
             GenreResponse.model_validate(genre)
             for genre in await self.genre_repository.search_genres_by_name(
-                name,
+                search_query,
                 size,
                 page,
             )
