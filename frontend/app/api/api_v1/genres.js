@@ -14,7 +14,7 @@
         var p = page != null ? page : 1;
         var s = size != null ? size : 10;
         var q =
-            "genre_name=" +
+            "search_query=" +
             encodeURIComponent(name) +
             "&page=" +
             encodeURIComponent(p) +
