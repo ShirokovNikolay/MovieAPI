@@ -11,15 +11,6 @@ class CacheKeyService:
     def __init__(self, redis: RedisService) -> None:
         self.redis = redis
 
-    async def __get_version(self, entity: str) -> int:
-        key = self.__create_version_entity_key(entity)
-        version = await self.redis.get(key, is_integer=True)
-        return cast(int, version)
-
-    async def __update_version(self, entity: str) -> None:
-        key = self.__create_version_entity_key(entity)
-        await self.redis.incr_by(key, amount=1)
-
     async def __init_version(self, entity: str) -> int:
         key = self.__create_version_entity_key(entity)
         start_value = 1
@@ -28,6 +19,15 @@ class CacheKeyService:
             value=start_value,
         )
         return start_value
+
+    async def __get_version(self, entity: str) -> int:
+        key = self.__create_version_entity_key(entity)
+        version = await self.redis.get(key, is_integer=True)
+        return cast(int, version)
+
+    async def __update_version(self, entity: str) -> None:
+        key = self.__create_version_entity_key(entity)
+        await self.redis.incr_by(key, amount=1)
 
     @classmethod
     def __create_version_entity_key(cls, entity: str) -> str:

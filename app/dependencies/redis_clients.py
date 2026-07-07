@@ -53,3 +53,7 @@ get_watch_history_redis_client = redis_client_factory(
 get_auth_redis_client = redis_client_factory(
     db=settings.redis.db.auth,
 )
+
+get_cache_versioning_redis_client = redis_client_factory(
+    db=settings.redis.db.cache_versioning,
+)

@@ -8,13 +8,13 @@ from cache_services import GenreCacheService, MovieCacheService
 from core.database import session_factory
 from core.redis import RedisClient, RedisService
 from core.redis.cache_key_service import CacheKeyService
-from dependencies.redis_client import (
+from dependencies.redis_clients import (
     get_genre_redis_client as get_genre_redis_client_dependency,
 )
-from dependencies.redis_client import (
+from dependencies.redis_clients import (
     get_movie_redis_client as get_movie_redis_client_dependency,
 )
-from dependencies.redis_client import (
+from dependencies.redis_clients import (
     get_watch_history_redis_client as get_watch_history_redis_client_dependency,
 )
 from services import GenreService, MovieService, UserService

@@ -4,8 +4,9 @@ from typing import Annotated
 from fastapi import Depends
 
 from core.redis import RedisClient, RedisService
-from dependencies.redis_client import (
+from dependencies.redis_clients import (
     get_auth_redis_client,
+    get_cache_versioning_redis_client,
     get_favorite_movie_redis_client,
     get_genre_redis_client,
     get_movie_redis_client,
@@ -41,21 +42,31 @@ def redis_service_factory(
 get_genre_redis_service = redis_service_factory(
     get_genre_redis_client,
 )
+
 get_movie_redis_service = redis_service_factory(
     get_movie_redis_client,
 )
+
 get_review_redis_service = redis_service_factory(
     get_review_redis_client,
 )
+
 get_favorite_movie_redis_service = redis_service_factory(
     get_favorite_movie_redis_client,
 )
+
 get_watch_history_redis_service = redis_service_factory(
     get_watch_history_redis_client,
 )
+
 get_user_redis_service = redis_service_factory(
     get_user_redis_client,
 )
+
 get_auth_redis_service = redis_service_factory(
     get_auth_redis_client,
+)
+
+get_cache_versioning_redis_service = redis_service_factory(
+    get_cache_versioning_redis_client,
 )
