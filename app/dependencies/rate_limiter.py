@@ -7,7 +7,7 @@ from starlette.requests import Request
 from core.exceptions.base import TooManyRequestsError
 from core.redis.client import RedisClient
 from core.redis.rate_limiter import RateLimiter
-from dependencies.redis_client import get_rate_limiter_redis_client
+from dependencies.redis_clients import get_rate_limiter_redis_client
 
 
 def rate_limit_dependency_factory(

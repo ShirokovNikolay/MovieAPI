@@ -34,6 +34,7 @@ class RedisDataBaseConfig(BaseModel):
     watch_history: int = 6
     auth: int = 7
     celery_backend: int = 8
+    cache_versioning: int = 9
 
 
 class RedisConfig(BaseModel):
