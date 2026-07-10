@@ -44,7 +44,7 @@ class CacheKeyService:
     @staticmethod
     def build_item_key(
         entity: CacheEntity,
-        entity_id: int,
+        entity_id: int | tuple,
         action: str = "get",
         **params: PrimitiveType,
     ) -> str:
@@ -57,13 +57,13 @@ class CacheKeyService:
     @classmethod
     def build_item_regex_key(
         cls,
-        entity_regex: CacheEntity | str,
+        entity: CacheEntity,
         entity_id_regex: int | str,
         action_regex: str = "get",
         **params: PrimitiveType,
     ) -> str:
         return cls.build_item_key(
-            entity=entity_regex,
+            entity=entity,
             entity_id=entity_id_regex,
             action=action_regex,
             **params,
@@ -84,3 +84,15 @@ class CacheKeyService:
             key = f"{key}:{parameter_name}:{value}"
 
         return key
+
+    async def build_list_regex_key(
+        self,
+        entity: CacheEntity,
+        action_regex: str = "get",
+        **params: PrimitiveType,
+    ) -> str:
+        return await self.build_list_key(
+            entity=entity,
+            action=action_regex,
+            **params,
+        )

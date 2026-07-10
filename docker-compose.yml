@@ -70,7 +70,7 @@ services:
       start_period: 3s
       interval: 2s
       timeout: 2s
-      retries: 3
+      retries: 5
     depends_on:
       minio:
         condition: service_healthy

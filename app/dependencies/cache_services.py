@@ -125,9 +125,17 @@ async def get_review_cache_service(
         RedisService,
         Depends(get_review_redis_service),
     ],
+    cache_key_service: Annotated[
+        CacheKeyService,
+        Depends(get_cache_key_service),
+    ],
 ) -> AsyncGenerator[ReviewCacheService]:
     try:
-        review_cache_service = ReviewCacheService(review_service, review_redis_service)
+        review_cache_service = ReviewCacheService(
+            review_service,
+            review_redis_service,
+            cache_key_service,
+        )
         yield review_cache_service
     finally:
         """

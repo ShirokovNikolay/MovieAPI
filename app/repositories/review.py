@@ -209,11 +209,12 @@ class ReviewRepository:
         await self.session.refresh(review)
         return await self.get_review_by_id(review.id)
 
-    async def delete_review(self, review_id: int) -> bool:
-        if await self.get_review_by_id(review_id) is None:
-            return False
+    async def delete_review(self, review_id: int) -> Review | None:
+        review = await self.get_review_by_id(review_id)
+        if review is None:
+            return None
 
         stmt = delete(Review).where(Review.id == review_id)
         await self.session.execute(stmt)
         await self.session.commit()
-        return True
+        return review
