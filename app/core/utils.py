@@ -9,6 +9,9 @@ from core.database import session_factory
 from core.redis import RedisClient, RedisService
 from core.redis.cache_key_service import CacheKeyService
 from dependencies.redis_clients import (
+    get_cache_versioning_redis_client as get_cache_versioning_redis_client_dependency,
+)
+from dependencies.redis_clients import (
     get_genre_redis_client as get_genre_redis_client_dependency,
 )
 from dependencies.redis_clients import (
@@ -18,6 +21,26 @@ from dependencies.redis_clients import (
     get_watch_history_redis_client as get_watch_history_redis_client_dependency,
 )
 from services import GenreService, MovieService, UserService
+
+
+@asynccontextmanager
+async def get_cache_versioning_redis_client() -> AsyncGenerator[RedisClient]:
+    async for redis_client in get_cache_versioning_redis_client_dependency():
+        yield redis_client
+
+
+@asynccontextmanager
+async def get_cache_versioning_redis_service() -> AsyncGenerator[RedisService]:
+    async with get_cache_versioning_redis_client() as redis_client:
+        redis_service = RedisService(redis_client)
+        yield redis_service
+
+
+@asynccontextmanager
+async def get_cache_key_service() -> AsyncGenerator[CacheKeyService]:
+    async with get_cache_versioning_redis_service() as redis_service:
+        cache_key_service = CacheKeyService(redis_service)
+        yield cache_key_service
 
 
 @asynccontextmanager
@@ -58,8 +81,8 @@ async def get_genre_cache_service() -> AsyncGenerator[GenreCacheService]:
     async with (
         get_genre_service() as genre_service,
         get_genre_redis_service() as redis_service,
+        get_cache_key_service() as cache_key_service,
     ):
-        cache_key_service = CacheKeyService(redis_service)
         genre_cache_service = GenreCacheService(
             genre_service,
             redis_service,

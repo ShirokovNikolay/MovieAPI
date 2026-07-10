@@ -68,6 +68,11 @@ class ConfirmationCodeType(StrEnum):
     recover_password = "recover"
 
 
+class CacheEntity(StrEnum):
+    genre = "genre"
+    movie = "movie"
+
+
 INACTIVE_DAYS = 7
 
 ATTEMPT_FIELD = "attempt"

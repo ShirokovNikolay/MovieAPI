@@ -3,7 +3,10 @@ from packages.celery.constants import Queue, TaskType
 from packages.celery.utils import sync_run_coroutine_function
 
 from .celery_app import app
-from .utils import get_data_to_send_inactive_users_movie_selection
+from .utils import (
+    delete_cached_movie_detail_data_by_genre_id,
+    get_data_to_send_inactive_users_movie_selection,
+)
 
 
 @app.task(  # type: ignore[untyped-decorator]
@@ -31,3 +34,12 @@ def create_chain_to_notify_inactive_users() -> None:
         send_inactive_users_email,
     )
     task_chain.delay()
+
+
+@app.task(
+    name=TaskType.delete_cached_movie_detail_data_by_genre_id.value,
+)
+def delete_cached_movie_detail_data_by_genre(genre_id: int) -> None:
+    sync_run_coroutine_function(
+        delete_cached_movie_detail_data_by_genre_id(genre_id),
+    )
