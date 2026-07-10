@@ -71,6 +71,10 @@ class ConfirmationCodeType(StrEnum):
 class CacheEntity(StrEnum):
     genre = "genre"
     movie = "movie"
+    favorite_movie = "favorite_movie"
+    review = "review"
+    user = "user"
+    watch_history = "watch_history"
 
 
 INACTIVE_DAYS = 7

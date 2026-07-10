@@ -42,7 +42,6 @@ class GenreService:
         size: int = 10,
         page: int = 1,
     ) -> GenreResponseList:
-
         genres = [
             GenreResponse.model_validate(genre)
             for genre in await self.genre_repository.get_all_genres(size, page)

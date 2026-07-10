@@ -9,6 +9,7 @@ from core.exceptions.review import (
     ReviewNotFoundByUserAndMovieError,
 )
 from core.exceptions.user import UserIdNotFoundError
+from models import Review
 from repositories import MovieRepository, ReviewRepository, UserRepository
 from schemas.review import (
     ReviewCreate,
@@ -273,7 +274,7 @@ class ReviewService:
         self,
         current_user_id: int,
         review_id: int,
-    ) -> None:
+    ) -> Review:
         if not await self.user_repository.user_id_exists(current_user_id):
             raise UserIdNotFoundError(current_user_id)
 
@@ -286,7 +287,10 @@ class ReviewService:
         ):
             raise PermissionDeniedError
 
-        await self.review_repository.delete_review(review_id)
+        review = await self.review_repository.delete_review(review_id)
+        if review is None:
+            raise ReviewIdNotFoundError(review_id)
+        return review
 
     async def get_review_owner(self, review_id: int) -> UserResponse:
         user = await self.review_repository.get_review_owner(review_id)
