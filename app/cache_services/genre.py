@@ -1,6 +1,10 @@
 import asyncio
 from typing import cast
 
+from packages.celery.constants import Queue, TaskType
+
+from core.celery.celery_app import app
+from core.constants import CacheEntity
 from core.redis.cache_key_service import CacheKeyService
 from core.redis.service import RedisService
 from schemas.genre import (
@@ -26,7 +30,7 @@ class GenreCacheService:
 
     async def get_genre_by_id(self, genre_id: int) -> GenreResponse:
         key = self.cache_key_service.build_item_key(
-            entity="genre",
+            entity=CacheEntity.genre,
             entity_id=genre_id,
             action="get",
         )
@@ -44,7 +48,7 @@ class GenreCacheService:
         page: int = 1,
     ) -> GenreResponseList:
         key = await self.cache_key_service.build_list_key(
-            entity="genre",
+            entity=CacheEntity.genre,
             action="get",
             size=size,
             page=page,
@@ -64,7 +68,7 @@ class GenreCacheService:
         page: int = 1,
     ) -> GenreResponseList:
         key = await self.cache_key_service.build_list_key(
-            entity="genre",
+            entity=CacheEntity.genre,
             action="get",
             search_query=search_query,
             size=size,
@@ -84,7 +88,7 @@ class GenreCacheService:
 
     async def create_genre(self, create_data: GenreCreate) -> GenreResponse:
         genre_response = await self.genre_service.create_genre(create_data)
-        await self.cache_key_service.invalidate_list_keys(entity="genre")
+        await self.cache_key_service.invalidate_list_keys(entity=CacheEntity.genre)
         return genre_response
 
     async def update_genre(
@@ -94,12 +98,13 @@ class GenreCacheService:
     ) -> GenreResponse:
         genre_response = await self.genre_service.update_genre(genre_id, update_data)
         key = self.cache_key_service.build_item_key(
-            entity="genre",
+            entity=CacheEntity.genre,
             entity_id=genre_response.id,
             action="get",
         )
         await asyncio.gather(
-            self.cache_key_service.invalidate_list_keys(entity="genre"),
+            self.cache_key_service.invalidate_list_keys(entity=CacheEntity.genre),
+            self.cache_key_service.invalidate_list_keys(entity=CacheEntity.movie),
             self.redis_service.delete(key=key),
         )
         return genre_response
@@ -114,12 +119,13 @@ class GenreCacheService:
             update_data,
         )
         key = self.cache_key_service.build_item_key(
-            entity="genre",
+            entity=CacheEntity.genre,
             entity_id=genre_response.id,
             action="get",
         )
         await asyncio.gather(
-            self.cache_key_service.invalidate_list_keys(entity="genre"),
+            self.cache_key_service.invalidate_list_keys(entity=CacheEntity.genre),
+            self.cache_key_service.invalidate_list_keys(entity=CacheEntity.movie),
             self.redis_service.delete(key=key),
         )
         return genre_response
@@ -127,11 +133,18 @@ class GenreCacheService:
     async def delete_genre_by_id(self, genre_id: int) -> None:
         await self.genre_service.delete_genre_by_id(genre_id)
         key = self.cache_key_service.build_item_key(
-            entity="genre",
+            entity=CacheEntity.genre,
             entity_id=genre_id,
             action="get",
         )
         await asyncio.gather(
-            self.cache_key_service.invalidate_list_keys(entity="genre"),
+            self.cache_key_service.invalidate_list_keys(entity=CacheEntity.genre),
+            self.cache_key_service.invalidate_list_keys(entity=CacheEntity.movie),
             self.redis_service.delete(key=key),
+        )
+
+        app.apply_async(
+            args=[genre_id],
+            name=TaskType.delete_cached_movie_detail_data_by_genre_id.value,
+            queue=Queue.app.value,
         )
