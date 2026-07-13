@@ -49,8 +49,7 @@ async def watch_movie(
     movie_cache_service: MovieCacheServiceDep,
 ) -> RedirectResponse:
     movie = await movie_cache_service.watch_movie(user_id, create_watch_history_data)
-    url = BASE_MINIO_URL + movie.source_url
-    return RedirectResponse(url=url)
+    return RedirectResponse(url=movie.source_url)
 
 
 @router.post(
