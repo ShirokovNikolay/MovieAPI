@@ -22,6 +22,10 @@ class ActionType(StrEnum):
     copy_file = "copy_file"
     delete_file = "delete_file"
 
+    update_watch_history_cache_on_watch_movie = (
+        "update_watch_history_cache_on_watch_movie"
+    )
+
 
 class ExchangeType(StrEnum):
     direct = "direct"
@@ -68,4 +72,10 @@ class Queue(StrEnum):
         consumer=ConsumerType.media_service,
         entity="content",
         action=ActionType.delete_file,
+    )
+
+    update_watch_history_cache_on_watch_movie = create_queue_name(
+        consumer=ConsumerType.app,
+        entity="content",
+        action=ActionType.update_watch_history_cache_on_watch_movie,
     )
