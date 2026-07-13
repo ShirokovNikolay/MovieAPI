@@ -152,11 +152,16 @@ async def get_watch_history_cache_service(
         RedisService,
         Depends(get_watch_history_redis_service),
     ],
+    cache_key_service: Annotated[
+        CacheKeyService,
+        Depends(get_cache_key_service),
+    ],
 ) -> AsyncGenerator[WatchHistoryCacheService]:
     try:
         watch_history_cache_service = WatchHistoryCacheService(
             watch_history_service,
             watch_history_redis_service,
+            cache_key_service,
         )
         yield watch_history_cache_service
     finally:

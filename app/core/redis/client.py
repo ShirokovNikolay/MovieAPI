@@ -60,7 +60,9 @@ class RedisClient:
         keys_to_delete = []
         async for key in self._redis.scan_iter(match=pattern):
             keys_to_delete.append(key)
-        await self.delete_list_of_keys(keys_to_delete)
+
+        if len(keys_to_delete) > 0:
+            await self.delete_list_of_keys(keys_to_delete)
 
     async def expire(self, key: str, ttl: int = 300) -> None:
         await self._redis.expire(key, ttl)
