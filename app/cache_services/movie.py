@@ -1,5 +1,8 @@
 from typing import cast
 
+from packages.rabbitmq.constants import Exchange, ExchangeType, Queue
+from packages.rabbitmq.utils import create_message
+
 from core.redis.service import RedisService
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
 from schemas.movie import (
@@ -122,6 +125,20 @@ class MovieCacheService:
         key = RedisService.create_cache_key("watch_history")
         pattern = key + "*"
         await self.cache_service_for_watch_history.delete_by_pattern(pattern)
+
+        rabbitmq_service = self.movie_service.rabbitmq_service
+        exchange = await rabbitmq_service.declare_exchange(
+            name=Exchange.app,
+            type=ExchangeType.direct,
+            durable=True,
+        )
+        data = {"user_id": user_id}
+        message = create_message(data)
+        await rabbitmq_service.publish(
+            message=message,
+            routing_key=Queue.update_watch_history_cache_on_watch_movie.value,
+            exchange=exchange,
+        )
         return movie_response
 
     async def create_movie(
