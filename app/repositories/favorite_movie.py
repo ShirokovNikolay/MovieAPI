@@ -97,20 +97,25 @@ class FavoriteMovieRepository:
         await self.session.refresh(favorite_movie)
         return await self.get_favorite_movie_by_id(favorite_movie.id)
 
-    async def delete_favorite_movie_by_id(self, favorite_movie_id: int) -> bool:
-        if await self.get_favorite_movie_by_id(favorite_movie_id) is None:
-            return False
+    async def delete_favorite_movie_by_id(
+        self, favorite_movie_id: int,
+    ) -> FavoriteMovie | None:
+        favorite_movie = await self.get_favorite_movie_by_id(favorite_movie_id)
+        if favorite_movie is None:
+            return None
         stmt = delete(FavoriteMovie).where(FavoriteMovie.id == favorite_movie_id)
         await self.session.execute(stmt)
         await self.session.commit()
-        return True
+        return favorite_movie
 
-    async def delete_user_favorite_movie(self, user_id: int, movie_id: int) -> bool:
-        if (
-            await self.get_user_favorite_movie(user_id=user_id, movie_id=movie_id)
-            is None
-        ):
-            return False
+    async def delete_user_favorite_movie(
+        self, user_id: int, movie_id: int,
+    ) -> FavoriteMovie | None:
+        favorite_movie = await self.get_user_favorite_movie(
+            user_id=user_id, movie_id=movie_id,
+        )
+        if favorite_movie is None:
+            return None
 
         stmt = delete(FavoriteMovie).where(
             and_(
@@ -120,4 +125,4 @@ class FavoriteMovieRepository:
         )
         await self.session.execute(stmt)
         await self.session.commit()
-        return True
+        return favorite_movie

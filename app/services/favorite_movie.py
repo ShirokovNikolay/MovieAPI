@@ -12,6 +12,7 @@ from repositories import MovieRepository, UserRepository
 from repositories.favorite_movie import FavoriteMovieRepository
 from schemas.favorite_movie import (
     FavoriteMovieCreate,
+    FavoriteMovieResponse,
     FavoriteMovieWithMovieResponse,
     FavoriteMovieWithMovieResponseList,
 )
@@ -123,7 +124,7 @@ class FavoriteMovieService:
         self,
         user_id: int,
         favorite_movie_id: int,
-    ) -> None:
+    ) -> FavoriteMovieResponse:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
 
@@ -131,17 +132,29 @@ class FavoriteMovieService:
         if owner.id != user_id:
             raise PermissionDeniedError
 
-        await self.favorite_movie_repository.delete_favorite_movie_by_id(
-            favorite_movie_id,
+        favorite_movie = (
+            await self.favorite_movie_repository.delete_favorite_movie_by_id(
+                favorite_movie_id,
+            )
         )
 
-    async def delete_user_favorite_movie(self, user_id: int, movie_id: int) -> None:
+        if favorite_movie is None:
+            raise FavoriteMovieIdNotFoundError(favorite_movie_id)
+        return FavoriteMovieResponse.model_validate(favorite_movie)
+
+    async def delete_user_favorite_movie(
+        self, user_id: int, movie_id: int,
+    ) -> FavoriteMovieResponse:
         if not await self.user_repository.user_id_exists(user_id):
             raise UserIdNotFoundError(user_id)
         if not await self.movie_repository.movie_id_exists(movie_id):
             raise MovieIdNotFoundError(movie_id)
-        if not await self.favorite_movie_repository.delete_user_favorite_movie(
-            user_id,
-            movie_id,
-        ):
+        favorite_movie = (
+            await self.favorite_movie_repository.delete_user_favorite_movie(
+                user_id,
+                movie_id,
+            )
+        )
+        if favorite_movie is None:
             raise FavoriteMovieNotFoundByUserAndMovieError(user_id, movie_id)
+        return FavoriteMovieResponse.model_validate(favorite_movie)

@@ -103,11 +103,16 @@ async def get_favorite_movie_cache_service(
         RedisService,
         Depends(get_favorite_movie_redis_service),
     ],
+    cache_key_service: Annotated[
+        CacheKeyService,
+        Depends(get_cache_key_service),
+    ],
 ) -> AsyncGenerator[FavoriteMovieCacheService]:
     try:
         favorite_movie_cache_service = FavoriteMovieCacheService(
             favorite_movie_service,
             favorite_movie_redis_service,
+            cache_key_service,
         )
         yield favorite_movie_cache_service
     finally:
