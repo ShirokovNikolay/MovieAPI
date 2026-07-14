@@ -104,9 +104,14 @@ class RedisService:
 
     @staticmethod
     def convert_object_to_string(value: Any) -> Any:
+        if isinstance(value, bool):
+            boolean = {True: "True", False: "False"}
+            return boolean[value]
+
         if isinstance(
             value,
-            (str, int, float, bool),
+            (str, int, float),
         ):
             return value
+
         return value.model_dump_json()
