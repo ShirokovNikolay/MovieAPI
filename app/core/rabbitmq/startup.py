@@ -8,7 +8,6 @@ from core.rabbitmq.consumers import (
     update_genre_poster_url,
     update_movie_poster_url,
     update_movie_source_url,
-    update_watch_history_cache_on_watch_movie,
 )
 
 
@@ -31,29 +30,6 @@ async def rabbitmq_consumer_queues_startup() -> AsyncGenerator[None]:
             name=Queue.update_movie_source_url,
             durable=True,
         )
-
-        ###
-        app_exchange = await rabbitmq_service.declare_exchange(
-            name=Exchange.app,
-            type=ExchangeType.direct,
-            durable=True,
-        )
-        queue_update_watch_history_cache_on_watch_movie = (
-            await rabbitmq_service.declare_queue(
-                name=Queue.update_watch_history_cache_on_watch_movie,
-                durable=True,
-            )
-        )
-        await rabbitmq_service.bind(
-            queue_update_watch_history_cache_on_watch_movie,
-            app_exchange,
-            Queue.update_watch_history_cache_on_watch_movie.value,
-        )
-        await rabbitmq_service.consume(
-            queue_update_watch_history_cache_on_watch_movie,
-            update_watch_history_cache_on_watch_movie,
-        )
-        ####
 
         await rabbitmq_service.bind(
             queue_update_genre_poster_url,

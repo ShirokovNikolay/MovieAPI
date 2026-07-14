@@ -36,7 +36,7 @@ def create_chain_to_notify_inactive_users() -> None:
     task_chain.delay()
 
 
-@app.task(
+@app.task(  # type: ignore[untyped-decorator]
     name=TaskType.delete_cached_movie_detail_data_by_genre_id.value,
 )
 def delete_cached_movie_detail_data_by_genre(genre_id: int) -> None:
