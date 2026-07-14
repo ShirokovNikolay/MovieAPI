@@ -77,7 +77,7 @@ async def delete_cached_movie_detail_data_by_genre_id(genre_id: int) -> None:
         get_cache_key_service() as cache_key_service,
     ):
         movies = await movie_service.get_movies_by_genre_id(genre_id=genre_id)
-        movie_ids = [movie.id for movie in movies]
+        movie_ids = [str(movie.id) for movie in movies.movie_list]
         movie_ids_regex = "|".join(movie_ids)
         pattern = cache_key_service.build_item_regex_key(
             entity=CacheEntity.movie,

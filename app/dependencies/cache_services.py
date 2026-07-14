@@ -80,12 +80,17 @@ async def get_movie_cache_service(
         RedisService,
         Depends(get_watch_history_redis_service),
     ],
+    cache_key_service: Annotated[
+        CacheKeyService,
+        Depends(get_cache_key_service),
+    ],
 ) -> AsyncGenerator[MovieCacheService]:
     try:
         movie_cache_service = MovieCacheService(
             movie_service,
             movie_redis_service,
             watch_history_redis_service,
+            cache_key_service,
         )
         yield movie_cache_service
     finally:

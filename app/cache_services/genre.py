@@ -39,7 +39,11 @@ class GenreCacheService:
             return cast(GenreResponse, cached_genre_response)
 
         genre_response = await self.genre_service.get_genre_by_id(genre_id)
-        await self.redis_service.set(key, genre_response, ttl=24 * 60 * 60)
+        await self.redis_service.set(
+            key,
+            genre_response,
+            ttl=24 * 60 * 60,
+        )
         return genre_response
 
     async def get_all_genres(
@@ -58,7 +62,11 @@ class GenreCacheService:
             return cast(GenreResponseList, cached_genres_response)
 
         genres_response = await self.genre_service.get_all_genres(size, page)
-        await self.redis_service.set(key, genres_response, ttl=24 * 60 * 60)
+        await self.redis_service.set(
+            key,
+            genres_response,
+            ttl=24 * 60 * 60,
+        )
         return genres_response
 
     async def search_genres_by_name(
@@ -83,7 +91,11 @@ class GenreCacheService:
             size,
             page,
         )
-        await self.redis_service.set(key, genres_response, ttl=24 * 60 * 60)
+        await self.redis_service.set(
+            key,
+            genres_response,
+            ttl=24 * 60 * 60,
+        )
         return genres_response
 
     async def create_genre(self, create_data: GenreCreate) -> GenreResponse:

@@ -128,12 +128,14 @@ async def get_watch_history_redis_service() -> AsyncGenerator[RedisService]:
 async def get_movie_cache_service() -> AsyncGenerator[MovieCacheService]:
     async with (
         get_movie_service() as movie_service,
-        get_movie_redis_service() as cache_service_for_movies,
-        get_watch_history_redis_service() as cache_service_for_watch_history,
+        get_movie_redis_service() as movie_redis_service,
+        get_watch_history_redis_service() as watch_history_redis_service,
+        get_cache_key_service() as cache_key_service,
     ):
         movie_cache_service = MovieCacheService(
             movie_service,
-            cache_service_for_movies,
-            cache_service_for_watch_history,
+            movie_redis_service,
+            watch_history_redis_service,
+            cache_key_service,
         )
         yield movie_cache_service
