@@ -106,8 +106,6 @@ class MovieService:
     async def get_movies_by_genre_id(
         self,
         genre_id: int,
-        size: int = 10,
-        page: int = 1,
     ) -> MovieResponseList:
         if not await self.genre_repository.genre_id_exists(genre_id):
             raise MovieIdNotFoundError(genre_id)
@@ -116,14 +114,10 @@ class MovieService:
             MovieResponse.model_validate(movie)
             for movie in await self.movie_repository.get_movies_by_genre_id(
                 genre_id,
-                size,
-                page,
             )
         ]
         return MovieResponseList(
             movie_list=movies,
-            size=size,
-            page=page,
         )
 
     async def create_movie(

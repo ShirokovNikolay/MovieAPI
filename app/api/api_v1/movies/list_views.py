@@ -11,7 +11,6 @@ from dependencies.rate_limiter import check_rate_limit_auth, check_rate_limit_no
 from schemas.movie import (
     MovieCreate,
     MovieFilter,
-    MovieResponseList,
     MovieWithGenreResponse,
     MovieWithGenreResponseList,
 )
@@ -71,23 +70,6 @@ async def search_movies_with_filters(
         size,
         page,
     )
-
-
-@router.get(
-    "/genre/{genre_id}",
-    response_model=MovieResponseList,
-    status_code=status.HTTP_200_OK,
-    dependencies=[
-        Depends(check_rate_limit_not_auth),
-    ],
-)
-async def get_movies_by_genre_id(
-    genre_id: int,
-    movie_cache_service: MovieCacheServiceDep,
-    size: PaginationSizeDep = 10,
-    page: PaginationPageDep = 1,
-) -> MovieResponseList:
-    return await movie_cache_service.get_movies_by_genre_id(genre_id, size, page)
 
 
 @router.post(

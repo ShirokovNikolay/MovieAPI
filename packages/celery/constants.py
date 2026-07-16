@@ -25,6 +25,6 @@ class TaskType(StrEnum):
     )
     send_inactive_users_email = "notification-service.email.send-inactive-users-email"
 
-    delete_cached_movie_detail_data_by_genre_id = (
-        "movie-catalog.cache.delete-cached-movie-detail-data"
+    invalidate_movie_detail_cache_by_genre = (
+        "movie-catalog.cache.invalidate-movie-detail-cache-by-genre"
     )

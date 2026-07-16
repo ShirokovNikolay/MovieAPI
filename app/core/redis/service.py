@@ -81,7 +81,7 @@ class RedisService:
         await self.redis.delete(key)
 
     async def delete_list_of_keys(self, keys: list[str]) -> None:
-        await self.redis.delete(*keys)
+        await self.redis.delete_list_of_keys(keys)
 
     async def delete_by_pattern(self, pattern: str) -> None:
         await self.redis.delete_by_pattern(pattern)

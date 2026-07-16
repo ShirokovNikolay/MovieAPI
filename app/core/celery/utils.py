@@ -70,18 +70,21 @@ async def get_data_to_send_inactive_users_movie_selection() -> (
     )
 
 
-async def delete_cached_movie_detail_data_by_genre_id(genre_id: int) -> None:
+async def invalidate_movie_detail_cache_by_genre_id(genre_id: int) -> None:
+    await rabbitmq_connection_startup()
     async with (
         get_movie_service() as movie_service,
         get_movie_redis_service() as movie_redis_service,
         get_cache_key_service() as cache_key_service,
     ):
         movies = await movie_service.get_movies_by_genre_id(genre_id=genre_id)
-        movie_ids = [str(movie.id) for movie in movies.movie_list]
-        movie_ids_regex = "|".join(movie_ids)
-        pattern = cache_key_service.build_item_regex_key(
-            entity=CacheEntity.movie,
-            entity_id_regex=movie_ids_regex,
-            action_regex="get",
-        )
-        await movie_redis_service.delete_by_pattern(pattern)
+        invalidate_movie_keys = []
+        for movie in movies.movie_list:
+            movie_key = cache_key_service.build_item_key(
+                entity=CacheEntity.movie,
+                entity_id=movie.id,
+                action="get",
+            )
+            invalidate_movie_keys.append(movie_key)
+
+        await movie_redis_service.delete_list_of_keys(invalidate_movie_keys)

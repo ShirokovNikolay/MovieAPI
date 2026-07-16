@@ -4,8 +4,8 @@ from packages.celery.utils import sync_run_coroutine_function
 
 from .celery_app import app
 from .utils import (
-    delete_cached_movie_detail_data_by_genre_id,
     get_data_to_send_inactive_users_movie_selection,
+    invalidate_movie_detail_cache_by_genre_id,
 )
 
 
@@ -37,9 +37,9 @@ def create_chain_to_notify_inactive_users() -> None:
 
 
 @app.task(  # type: ignore[untyped-decorator]
-    name=TaskType.delete_cached_movie_detail_data_by_genre_id.value,
+    name=TaskType.invalidate_movie_detail_cache_by_genre.value,
 )
-def delete_cached_movie_detail_data_by_genre(genre_id: int) -> None:
+def invalidate_movie_detail_cache_by_genre(genre_id: int) -> None:
     sync_run_coroutine_function(
-        delete_cached_movie_detail_data_by_genre_id(genre_id),
+        invalidate_movie_detail_cache_by_genre_id(genre_id),
     )
