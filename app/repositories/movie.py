@@ -97,14 +97,10 @@ class MovieRepository:
     async def get_movies_by_genre_id(
         self,
         genre_id: int,
-        size: int = 10,
-        page: int = 1,
     ) -> list[Movie]:
         stmt = (
             select(Movie)
             .where(Movie.genre_id == genre_id)
-            .limit(size)
-            .offset(size * (page - 1))
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

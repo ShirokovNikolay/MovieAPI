@@ -119,6 +119,11 @@ class GenreCacheService:
             self.cache_key_service.invalidate_list_keys(entity=CacheEntity.movie),
             self.redis_service.delete(key=key),
         )
+        app.send_task(
+            args=[genre_id],
+            name=TaskType.invalidate_movie_detail_cache_by_genre.value,
+            queue=Queue.app.value,
+        )
         return genre_response
 
     async def partial_update_genre(
@@ -140,6 +145,11 @@ class GenreCacheService:
             self.cache_key_service.invalidate_list_keys(entity=CacheEntity.movie),
             self.redis_service.delete(key=key),
         )
+        app.send_task(
+            args=[genre_id],
+            name=TaskType.invalidate_movie_detail_cache_by_genre.value,
+            queue=Queue.app.value,
+        )
         return genre_response
 
     async def delete_genre_by_id(self, genre_id: int) -> None:
@@ -153,10 +163,4 @@ class GenreCacheService:
             self.cache_key_service.invalidate_list_keys(entity=CacheEntity.genre),
             self.cache_key_service.invalidate_list_keys(entity=CacheEntity.movie),
             self.redis_service.delete(key=key),
-        )
-
-        app.apply_async(
-            args=[genre_id],
-            name=TaskType.delete_cached_movie_detail_data_by_genre_id.value,
-            queue=Queue.app.value,
         )

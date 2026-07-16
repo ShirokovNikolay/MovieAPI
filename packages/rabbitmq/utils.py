@@ -52,6 +52,8 @@ def create_queue_name(
 
 @asynccontextmanager
 async def get_channel() -> AsyncGenerator[AbstractChannel]:
+    # if connection.RABBIT_MQ_CONNECTION is None:
+    #     await rabbitmq_connection_startup()
     assert connection.RABBIT_MQ_CONNECTION is not None
     async with cast(
         AbstractChannel,
