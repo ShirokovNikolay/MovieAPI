@@ -6,6 +6,7 @@ from .celery_app import app
 from .utils import (
     get_data_to_send_inactive_users_movie_selection,
     invalidate_movie_detail_cache_by_genre_id,
+    invalidate_reviews_cache_on_update_user,
 )
 
 
@@ -42,4 +43,13 @@ def create_chain_to_notify_inactive_users() -> None:
 def invalidate_movie_detail_cache_by_genre(genre_id: int) -> None:
     sync_run_coroutine_function(
         invalidate_movie_detail_cache_by_genre_id(genre_id),
+    )
+
+
+@app.task(  # type: ignore[untyped-decorator]
+    name=TaskType.invalidate_reviews_cache_on_update_user.value,
+)
+def invalidate_movie_reviews_cache_on_update_user(user_id: int) -> None:
+    sync_run_coroutine_function(
+        invalidate_reviews_cache_on_update_user(user_id),
     )

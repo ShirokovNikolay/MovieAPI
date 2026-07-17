@@ -37,8 +37,8 @@ class WatchHistoryResponseList(BaseModel):
     """
 
     watch_history_list: list[WatchHistoryResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None
 
 
 class WatchHistoryWithMovieResponse(WatchHistoryResponse):
@@ -55,5 +55,5 @@ class WatchHistoryWithMovieResponseList(BaseModel):
     """
 
     watch_history_list: list[WatchHistoryWithMovieResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None

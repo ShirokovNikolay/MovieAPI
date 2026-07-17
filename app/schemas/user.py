@@ -77,5 +77,5 @@ class UserResponseList(BaseModel):
     """
 
     user_list: list[UserResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None

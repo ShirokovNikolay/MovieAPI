@@ -24,7 +24,9 @@ class TaskType(StrEnum):
         "movie-catalog.mailing-list.get-data-to-send-inactive-users-email"
     )
     send_inactive_users_email = "notification-service.email.send-inactive-users-email"
-
     invalidate_movie_detail_cache_by_genre = (
         "movie-catalog.cache.invalidate-movie-detail-cache-by-genre"
+    )
+    invalidate_reviews_cache_on_update_user = (
+        "movie-catalog.cache.invalidate-reviews-cache-on-update-user"
     )

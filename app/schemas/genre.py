@@ -52,5 +52,5 @@ class GenreResponseList(BaseModel):
     """
 
     genre_list: list[GenreResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None

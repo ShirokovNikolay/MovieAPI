@@ -59,8 +59,8 @@ class ReviewResponseList(BaseModel):
     """
 
     review_list: list[ReviewResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None
 
 
 class ReviewWithUserResponse(ReviewResponse):
@@ -77,8 +77,8 @@ class ReviewWithUserResponseList(BaseModel):
     """
 
     review_list: list[ReviewWithUserResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None
 
 
 class ReviewWithMovieResponse(ReviewResponse):
@@ -95,5 +95,5 @@ class ReviewWithMovieResponseList(BaseModel):
     """
 
     review_list: list[ReviewWithMovieResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None

@@ -1,3 +1,4 @@
+import asyncio
 from asyncio import gather
 
 from packages.rabbitmq.connection import rabbitmq_connection_startup
@@ -88,3 +89,21 @@ async def invalidate_movie_detail_cache_by_genre_id(genre_id: int) -> None:
             invalidate_movie_keys.append(movie_key)
 
         await movie_redis_service.delete_list_of_keys(invalidate_movie_keys)
+
+
+async def invalidate_reviews_cache_on_update_user(user_id: int) -> None:
+    await rabbitmq_connection_startup()
+    async with (
+        get_movie_service() as movie_service,
+        get_cache_key_service() as cache_key_service,
+    ):
+        movies = await movie_service.get_movies_reviewed_by_user(user_id=user_id)
+        invalidate_review_coroutines = []
+        for movie in movies.movie_list:
+            coroutine = cache_key_service.invalidate_list_keys(
+                entity=CacheEntity.review,
+                movie_id=movie.id,
+            )
+            invalidate_review_coroutines.append(coroutine)
+
+        await asyncio.gather(*invalidate_review_coroutines)
