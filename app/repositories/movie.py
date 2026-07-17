@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 
 from core.constants import SortMonotony, SortType
 from dependencies.annotations.validators import PaginationPageDep, PaginationSizeDep
-from models import Movie
+from models import Movie, Review
 from schemas.movie import MovieCreate, MovieFilter, MoviePartialUpdate, MovieUpdate
 
 
@@ -46,6 +46,11 @@ class MovieRepository:
             .limit(size)
             .offset(size * (page - 1))
         )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_movies_reviewed_by_user(self, user_id: int) -> list[Movie]:
+        stmt = select(Movie).join(Review).where(Review.user_id == user_id)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -98,10 +103,7 @@ class MovieRepository:
         self,
         genre_id: int,
     ) -> list[Movie]:
-        stmt = (
-            select(Movie)
-            .where(Movie.genre_id == genre_id)
-        )
+        stmt = select(Movie).where(Movie.genre_id == genre_id)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 

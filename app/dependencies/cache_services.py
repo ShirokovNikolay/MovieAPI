@@ -189,9 +189,17 @@ async def get_user_cache_service(
         RedisService,
         Depends(get_user_redis_service),
     ],
+    cache_key_service: Annotated[
+        CacheKeyService,
+        Depends(get_cache_key_service),
+    ],
 ) -> AsyncGenerator[UserCacheService]:
     try:
-        user_cache_service = UserCacheService(user_service, user_redis_service)
+        user_cache_service = UserCacheService(
+            user_service,
+            user_redis_service,
+            cache_key_service,
+        )
         yield user_cache_service
     finally:
         """

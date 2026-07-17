@@ -36,8 +36,8 @@ class FavoriteMovieResponseList(BaseModel):
     """
 
     favorite_movie_list: list[FavoriteMovieResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None
 
 
 class FavoriteMovieWithMovieResponse(FavoriteMovieResponse):
@@ -55,5 +55,5 @@ class FavoriteMovieWithMovieResponseList(BaseModel):
     """
 
     favorite_movie_list: list[FavoriteMovieWithMovieResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None

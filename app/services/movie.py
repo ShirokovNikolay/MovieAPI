@@ -83,6 +83,17 @@ class MovieService:
             page=page,
         )
 
+    async def get_movies_reviewed_by_user(self, user_id: int) -> MovieResponseList:
+        movies = [
+            MovieResponse.model_validate(movie)
+            for movie in await self.movie_repository.get_movies_reviewed_by_user(
+                user_id,
+            )
+        ]
+        return MovieResponseList(
+            movie_list=movies,
+        )
+
     async def search_movies_with_filters(
         self,
         movie_filter: MovieFilter,

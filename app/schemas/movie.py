@@ -88,8 +88,8 @@ class MovieWithGenreResponseList(BaseModel):
     """
 
     movie_list: list[MovieWithGenreResponse]
-    size: int
-    page: int
+    size: int | None = None
+    page: int | None = None
 
 
 class MovieFilter(BaseModel):
